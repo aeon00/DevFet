@@ -21,6 +21,10 @@ pip install matplotlib==3.4.3
 
 pip install pandas==1.4.4
 
+pip install seaborn==0.11.2
+
+pip install plotly==5.5.0
+
 # Clone on Mesocentre
 git clone https://github.com/aeon00/DevFet.git #perform command while on the head node
 
