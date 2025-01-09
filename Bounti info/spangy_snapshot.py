@@ -273,9 +273,9 @@ def create_band_power_colormap():
     """
     # Define colors for each band - using a more distinctive color scheme
     band_colors = {
-        'B4': '#0000FF',  # Blue
-        'B5': '#FFFF00',  # Yellow
-        'B6': '#FF0000'   # Red
+        'B4': '#2E86C1',  # Medium blue
+        'B5': '#58D68D',  # Soft green
+        'B6': '#E74C3C'   # Coral red
     }
     
     colorscale = []
@@ -321,8 +321,8 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
             thickness=30,
             len=0.9,
             tickmode='array',
-            ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(3)],
-            tickvals=list(range(3)),
+            ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(4, 7)],
+            tickvals=list(range(4, 7)),
             tickangle=0
         ),
         # hovertext=[f'Band: B{int(v)}\nPower: {band_powers[int(v)]:.2f}' 
@@ -359,9 +359,9 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
 def visualize_brain_bands(vertices, faces, loc_dom_band, grouped_spectrum, camera_position):
     # Define band powers based on your data
     band_powers = {
-        0: grouped_spectrum[0],   # B4
-        1: grouped_spectrum[1],   # B5
-        2: grouped_spectrum[2]    # B6
+        4: grouped_spectrum[0],   # B4
+        5: grouped_spectrum[1],   # B5
+        6: grouped_spectrum[2]    # B6
     }
     
     fig = plot_mesh_with_band_power(
