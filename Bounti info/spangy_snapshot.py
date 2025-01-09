@@ -413,16 +413,16 @@ for filename in os.listdir(directory):
             loc_dom_band_texture = read_gii_file(tex_file)
 
             # Set cameras for snapshots
-            camera_lateral = dict(
-                eye=dict(x=-2, y=0, z=0),      # Camera position remains the same
-                center=dict(x=0, y=0, z=0),     # Looking at center remains the same
-                up=dict(x=0, y=0, z=1)         # Up vector now points in z direction (superior)
+            camera_medial = dict(
+                eye=dict(x=0, y=-2, z=0),  # Camera position from right side
+                center=dict(x=0, y=0, z=0), # Looking at center remains the same
+                up=dict(x=0, y=0, z=1)      # Up vector points in z direction (superior)
             )
 
-            camera_medial = dict(
-                eye=dict(x=2, y=0, z=0),       # Camera position remains the same
-                center=dict(x=0, y=0, z=0),     # Looking at center remains the same
-                up=dict(x=0, y=0, z=1)         # Up vector now points in z direction (superior)
+            camera_lateral = dict(
+                eye=dict(x=0, y=2, z=0),    # Camera position from left side
+                center=dict(x=0, y=0, z=0),  # Looking at center remains the same
+                up=dict(x=0, y=0, z=1)       # Up vector points in z direction (superior)
             )
 
 
