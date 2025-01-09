@@ -269,19 +269,28 @@ def plot_mesh_with_band_colorbar(vertices, faces, scalars=None, grouped_spectrum
 
 def create_band_power_colormap():
     """
-    Create a discrete colormap based on spectral band powers
+    Create a discrete colormap for spectral band powers with distinct colors
     """
-    # Define colors for each band - using a more distinctive color scheme
+    # Define colors for each band
     band_colors = {
-        'B4': '#4B89DC',  # Ocean blue - pleasing and professional
-        'B5': '#48CFAD',  # Mint green - fresh and modern
-        'B6': '#EC87C0'   # Rose pink - warm and distinctive
+        'B4': '#4B89DC',  # Ocean blue
+        'B5': '#48CFAD',  # Mint green
+        'B6': '#EC87C0'   # Rose pink
     }
     
+    # Create discrete color stops to prevent interpolation
     colorscale = []
+    num_bands = len(band_colors)
+    
     for i, (band, color) in enumerate(band_colors.items()):
-        pos = i / 2  # Divide by (number of bands - 1)
-        colorscale.append([pos, color])
+        # Add color stops at the start and end of each band's range
+        start_pos = i / num_bands
+        end_pos = (i + 1) / num_bands
+        
+        # Add the same color at both positions to create discrete blocks
+        if i > 0:
+            colorscale.append([start_pos, color])  # Start of this band
+        colorscale.append([end_pos, color])       # End of this band
     
     return colorscale
 
@@ -313,8 +322,8 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
     fig_data.update(
         intensity=loc_dom_band,
         intensitymode='vertex',
-        cmin=0,
-        cmax=3,  # For bands B0-B6
+        cmin=4,  # Start from B4
+        cmax=6,  # End at B6
         colorscale=colorscale,
         colorbar=dict(
             title="Spectral Bands",
@@ -322,11 +331,9 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
             len=0.9,
             tickmode='array',
             ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(4, 7)],
-            tickvals=list(range(3)),
+            tickvals=[4, 5, 6],  # Match actual band numbers
             tickangle=0
         ),
-        # hovertext=[f'Band: B{int(v)}\nPower: {band_powers[int(v)]:.2f}' 
-        #           for v in loc_dom_band]
     )
 
     fig = go.Figure(data=[go.Mesh3d(**fig_data)])
@@ -407,15 +414,15 @@ for filename in os.listdir(directory):
 
             # Set cameras for snapshots
             camera_lateral = dict(
-                eye=dict(x=-2, y=0, z=0),  # Position of the camera
-                center=dict(x=0, y=0, z=0),     # Point the camera is looking at
-                up=dict(x=-2, y=0, z=0)          # Up direction
+                eye=dict(x=-2, y=0, z=0),      # Camera position remains the same
+                center=dict(x=0, y=0, z=0),     # Looking at center remains the same
+                up=dict(x=0, y=0, z=1)         # Up vector now points in z direction (superior)
             )
 
             camera_medial = dict(
-                eye=dict(x=2, y=0, z=0),  # Position of the camera
-                center=dict(x=0, y=0, z=0),     # Point the camera is looking at
-                up=dict(x=2, y=0, z=0)          # Up direction
+                eye=dict(x=2, y=0, z=0),       # Camera position remains the same
+                center=dict(x=0, y=0, z=0),     # Looking at center remains the same
+                up=dict(x=0, y=0, z=1)         # Up vector now points in z direction (superior)
             )
 
 
