@@ -359,9 +359,9 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
 def visualize_brain_bands(vertices, faces, loc_dom_band, grouped_spectrum, camera_position):
     # Define band powers based on your data
     band_powers = {
-        1: grouped_spectrum[0],   # B4
-        2: grouped_spectrum[1],   # B5
-        3: grouped_spectrum[2]    # B6
+        0: grouped_spectrum[0],   # B4
+        1: grouped_spectrum[1],   # B5
+        2: grouped_spectrum[2]    # B6
     }
     
     fig = plot_mesh_with_band_power(
