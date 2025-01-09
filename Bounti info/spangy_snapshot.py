@@ -273,9 +273,9 @@ def create_band_power_colormap():
     """
     # Define colors for each band - using a more distinctive color scheme
     band_colors = {
-        'B4': '#2E86C1',  # Medium blue
-        'B5': '#58D68D',  # Soft green
-        'B6': '#E74C3C'   # Coral red
+        'B4': '#4B89DC',  # Ocean blue - pleasing and professional
+        'B5': '#48CFAD',  # Mint green - fresh and modern
+        'B6': '#EC87C0'   # Rose pink - warm and distinctive
     }
     
     colorscale = []
@@ -322,7 +322,7 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
             len=0.9,
             tickmode='array',
             ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(4, 7)],
-            tickvals=list(range(4, 7)),
+            tickvals=list(range(3)),
             tickangle=0
         ),
         # hovertext=[f'Band: B{int(v)}\nPower: {band_powers[int(v)]:.2f}' 
