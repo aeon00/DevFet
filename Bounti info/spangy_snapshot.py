@@ -314,15 +314,15 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
         intensity=loc_dom_band,
         intensitymode='vertex',
         cmin=0,
-        cmax=6,  # For bands B0-B6
+        cmax=3,  # For bands B0-B6
         colorscale=colorscale,
         colorbar=dict(
             title="Spectral Bands",
             thickness=30,
             len=0.9,
             tickmode='array',
-            ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(7)],
-            tickvals=list(range(7)),
+            ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(3)],
+            tickvals=list(range(3)),
             tickangle=0
         ),
         # hovertext=[f'Band: B{int(v)}\nPower: {band_powers[int(v)]:.2f}' 
