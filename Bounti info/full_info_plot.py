@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import sys
 
 def process_single_file(filename, surface_path, df):
+    """
+    
+    """
     try:
         start_time = time.time()
         print("Starting processing of {}".format(filename))
