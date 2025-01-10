@@ -27,6 +27,8 @@ pip install plotly==5.5.0
 
 pip install -U kaleido
 
+pip install dash
+
 # Clone on Mesocentre
 git clone https://github.com/aeon00/DevFet.git #perform command while on the head node
 

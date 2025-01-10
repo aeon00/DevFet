@@ -43,11 +43,14 @@ def process_single_file(filename, surface_path, df):
         mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
         tex_mean_curv = stex.TextureND(darray=mean_curv)
         tex_mean_curv.z_score_filtering(z_thresh=3)
+        mean_tex_path = os.path.join('/envau/work/meca/users/dienye.h/Curvature/mean_curv_tex/', 'filt_mean_curv_{}.gii'.format(filename))
+        mean_tmp_tex = stex.TextureND(tex_mean_curv)
+        sio.write_texture(mean_tmp_tex, mean_tex_path)
         filt_mean_curv = tex_mean_curv.darray.squeeze()
         total_mean_curv = sum(filt_mean_curv)
 
         grouped_spectrum, group_indices, coefficients, nlevels \
-            = spgy.spectrum(mean_curv, lap_b, eigVects, eigVal)
+            = spgy.spectrum(filt_mean_curv, lap_b, eigVects, eigVal)
         levels = len(group_indices)
 
         # Create and save plot
@@ -67,7 +70,7 @@ def process_single_file(filename, surface_path, df):
         ax3.set_ylabel('Power Spectrum')
         plt.tight_layout()
         
-        plot_path = os.path.join('/scratch/hdienye/spangy/plots', 'plot_{}.png'.format(filename))
+        plot_path = os.path.join('/envau/work/meca/users/dienye.h/Spangy/plots', 'plot_{}.png'.format(filename))
         try:
             fig.savefig(plot_path, bbox_inches='tight', dpi=300)
             print("Plot saved to {}".format(plot_path))
@@ -85,11 +88,11 @@ def process_single_file(filename, surface_path, df):
 
         # Process local spectral bands
         print("Processing spectral bands for {}".format(filename))
-        loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, mean_curv,
+        loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, filt_mean_curv,
                                                             levels, group_indices,
                                                             eigVects)
 
-        tex_path = os.path.join('/scratch/hdienye/spangy/textures', 'spangy_dom_band_{}.gii'.format(filename))
+        tex_path = os.path.join('/envau/work/meca/users/dienye.h/Spangy/textures', 'spangy_dom_band_{}.gii'.format(filename))
         tmp_tex = stex.TextureND(loc_dom_band)
         sio.write_texture(tmp_tex, tex_path)
         print("Texture saved to {}".format(tex_path))
@@ -118,8 +121,8 @@ def process_single_file(filename, surface_path, df):
 def main():
     try:
         # Paths
-        surface_path = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste"
-        mesh_info_path = "/scratch/gauzias/code_gui/fet-processing/data/tables/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
+        surface_path = "/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste"
+        mesh_info_path = "/envau/work/meca/users/dienye.h/bounti_info/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
         
         print("Reading data from {}".format(mesh_info_path))
         # Read dataframe
@@ -128,7 +131,7 @@ def main():
         
         print("Scanning directory: {}".format(surface_path))
         # Get list of files
-        all_files = [f for f in os.listdir(surface_path) if f.endswith('surf.gii')]
+        all_files = [f for f in os.listdir(surface_path)[:10] if f.endswith('surf.gii')]
         print("Found {} files to process".format(len(all_files)))
         
         # Calculate chunk for this array task
@@ -150,7 +153,7 @@ def main():
         # Save results for this chunk
         if results:
             results_df = pd.DataFrame(results)
-            chunk_file = os.path.join('/scratch/hdienye/spangy/results', 'chunk_{}_results.csv'.format(task_id))
+            chunk_file = os.path.join('/envau/work/meca/users/dienye.h/Results/', 'chunk_{}_results.csv'.format(task_id))
             results_df.to_csv(chunk_file, index=False)
             print("Results for chunk {} saved to {}".format(task_id, chunk_file))
         else:
