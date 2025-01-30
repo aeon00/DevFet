@@ -1,19 +1,14 @@
+import plotly.graph_objs as go
+import numpy as np
+import nibabel as nib
 import slam.io as sio
 import slam.texture as stex
-import slam.curvature as scurv
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly.graph_objs as go
-import plotly.colors as pc
-import nibabel as nib
-import trimesh
-import plotly.io
-import slam.spangy as spgy
-import time
-import plotly
 import pandas as pd
 
+
+import plotly.graph_objs as go
+import numpy as np
 
 def read_gii_file(file_path):
     """
@@ -30,314 +25,142 @@ def read_gii_file(file_path):
         print(f"Error loading texture: {e}")
         return None
 
-def convert_rgb_to_hex_if_needed(colormap):
+def create_custom_colormap():
     """
-    Convert RGB colors to hexadecimal if needed
-    
-    :param colormap: list of color strings
-    :return: list of hexadecimal color strings
+    Create a custom colormap for values from -6 to 6
+    Returns both the colormap and the discrete colors for the legend
     """
-    hex_colormap = []
-    for color in colormap:
-        if color.startswith('rgb'):
-            rgb_values = [int(c) for c in color[4:-1].split(',')]
-            hex_color = '#{:02x}{:02x}{:02x}'.format(*rgb_values)
-            hex_colormap.append(hex_color)
-        else:
-            hex_colormap.append(color)
-    return hex_colormap
-
-def create_colormap_with_black_stripes(base_colormap, num_intervals=10, black_line_width=0.01):
-    temp_c = pc.get_colorscale(base_colormap)
-    temp_c_2 = [ii[1] for ii in temp_c]
-    old_colormap = convert_rgb_to_hex_if_needed(temp_c_2)
-    custom_colormap = []
-    base_intervals = np.linspace(0, 1, len(old_colormap))
-
-    for i in range(len(old_colormap) - 1):
-        custom_colormap.append([base_intervals[i], old_colormap[i]])
-        if i % (len(old_colormap) // num_intervals) == 0:
-            black_start = base_intervals[i]
-            black_end = min(black_start + black_line_width, 1)
-            custom_colormap.append([black_start, 'rgb(0, 0, 0)'])
-            custom_colormap.append([black_end, old_colormap[i]])
-    custom_colormap.append([1, old_colormap[-1]])
-    return custom_colormap
-
-def plot_mesh_with_colorbar(vertices, faces, scalars=None, color_min=None, color_max=None, 
-                          camera=None, show_contours=False, colormap='jet', 
-                          use_black_intervals=False, center_colormap_on_zero=False, 
-                          title=None):  # Added title parameter
-    fig_data = dict(
-        x=vertices[:, 0], y=vertices[:, 1], z=vertices[:, 2],
-        i=faces[:, 0], j=faces[:, 1], k=faces[:, 2],
-        flatshading=False, hoverinfo='text', showscale=False
-    )
-
-    if scalars is not None:
-        color_min = color_min if color_min is not None else np.min(scalars)
-        color_max = color_max if color_max is not None else np.max(scalars)
-
-        if center_colormap_on_zero:
-            max_abs_value = max(abs(color_min), abs(color_max))
-            color_min, color_max = -max_abs_value, max_abs_value
-
-        if use_black_intervals:
-            colorscale = create_colormap_with_black_stripes(colormap)
-        else:
-            colorscale = colormap
-
-        fig_data.update(
-            intensity=scalars,
-            intensitymode='vertex',
-            cmin=color_min,
-            cmax=color_max,
-            colorscale=colorscale,
-            showscale=True,
-            colorbar=dict(
-                title="Scalars",
-                tickformat=".2f",
-                thickness=30,
-                len=0.9
-            ),
-            hovertext=[f'Scalar value: {s:.2f}' for s in scalars]
-        )
-
-    fig = go.Figure(data=[go.Mesh3d(**fig_data)])
-    if show_contours:
-        fig.data[0].update(contour=dict(show=True, color='black', width=2))
-
-    # Update layout to include title if provided
-    layout_dict = dict(
-        scene=dict(
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            zaxis=dict(visible=False),
-            camera=camera
-        ),
-        height=900,
-        width=1000,
-        margin=dict(l=10, r=10, b=10, t=50 if title else 10)  # Increased top margin if title present
-    )
+    # Define colors for negative values (cool colors)
+    negative_colors = [
+        '#FF0000', # red
+        '#00FF00', # green
+        '#0000FF', # blue
+        '#92c5de',  # very light blue
+        '#d1e5f0',  # pale blue
+        '#f7f7f7',  # very pale blue for B-1
+    ]
     
-    if title:
-        layout_dict['title'] = dict(
-            text=title,
-            x=0.5,  # Center the title
-            y=0.95,  # Position from top
-            xanchor='center',
-            yanchor='top',
-            font=dict(size=20)
-        )
+    # Define colors for positive values (warm colors)
+    positive_colors = [
+        '#fddbc7',  # pale red
+        '#f4a582',  # light red
+        '#d6604d',  # medium red
+        '#d6604d',  # medium red
+        '#b2182b',  # dark red
+        '#67001f',  # very dark red
+    ]
     
-    fig.update_layout(**layout_dict)
-
-    return fig
-
-
-def create_band_based_colormap(band_labels=['B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6'], colormap='jet'):
-    """
-    Create a discrete colormap based on spectral bands
-    
-    :param band_labels: list of band names
-    :param colormap: str, name of the base colormap
-    :return: list of [position, color] pairs
-    """
-    num_bands = len(band_labels)
-    
-    # Get base colormap
-    temp_c = pc.get_colorscale(colormap)
-    temp_c_2 = [ii[1] for ii in temp_c]
-    base_colors = convert_rgb_to_hex_if_needed(temp_c_2)
-    
-    # Create discrete intervals for each band
-    discrete_colormap = []
-    for i in range(num_bands):
-        # Calculate position for current band
-        pos_start = i / num_bands
-        pos_end = (i + 1) / num_bands
+    # Create color mapping for legend
+    value_color_map = {}
+    for i, color in enumerate(reversed(negative_colors)):
+        value_color_map[-(i+1)] = color
+    for i, color in enumerate(positive_colors):
+        value_color_map[i+1] = color
         
-        # Select color from base colormap
-        color_index = int((i / num_bands) * (len(base_colors) - 1))
-        color = base_colors[color_index]
-        
-        # Add color stops to create discrete effect
-        discrete_colormap.append([pos_start, color])
-        discrete_colormap.append([pos_end, color])
-        
-        # Add tiny gap between colors (optional)
-        if i < num_bands - 1:
-            discrete_colormap.append([pos_end, color])
-            
-    return discrete_colormap
-
-def plot_mesh_with_band_colorbar(vertices, faces, scalars=None, grouped_spectrum=None,
-                               camera=None, show_contours=False, colormap='jet', 
-                               title=None):
-    """
-    Plot mesh with colorbar based on spectral bands
-    
-    :param vertices: numpy array of vertex coordinates
-    :param faces: numpy array of face indices
-    :param scalars: numpy array of scalar values
-    :param grouped_spectrum: numpy array of spectral band values
-    :param camera: dict with camera position
-    :param show_contours: bool, whether to show contours
-    :param colormap: str, colormap name
-    :param title: str, plot title
-    :return: plotly figure
-    """
-    fig_data = dict(
-        x=vertices[:, 0], y=vertices[:, 1], z=vertices[:, 2],
-        i=faces[:, 0], j=faces[:, 1], k=faces[:, 2],
-        flatshading=True,
-        hoverinfo='text',
-        showscale=False
-    )
-
-    if scalars is not None:
-        # Create band intervals based on grouped_spectrum
-        band_values = np.arange(len(grouped_spectrum))
-        
-        # Create discrete colorscale
-        colorscale = create_band_based_colormap(
-            band_labels=[f'B{i}' for i in range(len(grouped_spectrum))],
-            colormap=colormap
-        )
-
-        # Discretize the scalar values into bands
-        discretized_scalars = np.zeros_like(scalars)
-        for i in range(len(grouped_spectrum)):
-            if i == 0:
-                mask = (scalars <= grouped_spectrum[0])
-            elif i == len(grouped_spectrum) - 1:
-                mask = (scalars > grouped_spectrum[-2])
-            else:
-                mask = (scalars > grouped_spectrum[i-1]) & (scalars <= grouped_spectrum[i])
-            discretized_scalars[mask] = i
-
-        fig_data.update(
-            intensity=discretized_scalars,
-            intensitymode='vertex',
-            cmin=0,
-            cmax=len(grouped_spectrum) - 1,
-            colorscale=colorscale,
-            showscale=True,
-            colorbar=dict(
-                title="Spectral Bands",
-                thickness=30,
-                len=0.9,
-                tickmode='array',
-                ticktext=[f'B{i}' for i in range(len(grouped_spectrum))],
-                tickvals=np.arange(len(grouped_spectrum)),
-                tickangle=0
-            ),
-            hovertext=[f'Band: B{int(s)}, Value: {grouped_spectrum[int(s)]:.2f}' 
-                      for s in discretized_scalars]
-        )
-
-    fig = go.Figure(data=[go.Mesh3d(**fig_data)])
-    if show_contours:
-        fig.data[0].update(contour=dict(show=True, color='black', width=2))
-
-    layout_dict = dict(
-        scene=dict(
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            zaxis=dict(visible=False),
-            camera=camera
-        ),
-        height=900,
-        width=1000,
-        margin=dict(l=10, r=10, b=10, t=50 if title else 10)
-    )
-    
-    if title:
-        layout_dict['title'] = dict(
-            text=title,
-            x=0.5,
-            y=0.95,
-            xanchor='center',
-            yanchor='top',
-            font=dict(size=20)
-        )
-    
-    fig.update_layout(**layout_dict)
-
-    return fig
-
-
-def create_band_power_colormap():
-    """
-    Create a discrete colormap for spectral band powers with distinct colors
-    """
-    # Define colors for each band
-    band_colors = {
-        'B4': '#4B89DC',  # Ocean blue
-        'B5': '#48CFAD',  # Mint green
-        'B6': '#EC87C0'   # Rose pink
-    }
-    
-    # Create discrete color stops to prevent interpolation
+    # Create continuous colorscale
     colorscale = []
-    num_bands = len(band_colors)
     
-    for i, (band, color) in enumerate(band_colors.items()):
-        # Add color stops at the start and end of each band's range
-        start_pos = i / num_bands
-        end_pos = (i + 1) / num_bands
-        
-        # Add the same color at both positions to create discrete blocks
-        if i > 0:
-            colorscale.append([start_pos, color])  # Start of this band
-        colorscale.append([end_pos, color])       # End of this band
+    # Add negative colors
+    for i, color in enumerate(negative_colors):
+        pos = i / (len(negative_colors) - 1) * 0.5
+        colorscale.append([pos, color])
     
-    return colorscale
+    # Add positive colors
+    for i, color in enumerate(positive_colors):
+        pos = 0.5 + (i / (len(positive_colors) - 1) * 0.5)
+        colorscale.append([pos, color])
+    
+    return colorscale, value_color_map
 
-def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers, 
-                            camera=None, title=None):
+def plot_mesh_with_legend(vertices, faces, scalars, view_type='both', selected_bands=None, camera=None, title=None):
     """
-    Plot mesh with colormap based on band powers
+    Plot mesh with custom legend instead of colorbar
     
-    :param vertices: numpy array of vertex coordinates
-    :param faces: numpy array of face indices
-    :param loc_dom_band: numpy array of local dominant band values
-    :param band_powers: dict with band powers
-    :param camera: dict with camera position
-    :param title: str, plot title
-    :return: plotly figure
+    Parameters:
+    - vertices: mesh vertices
+    - faces: mesh faces
+    - scalars: texture values
+    - view_type: 'both', 'positive', or 'negative'
+    - camera: camera position dictionary
+    - title: plot title
     """
-    fig_data = dict(
-        x=vertices[:, 0], y=vertices[:, 1], z=vertices[:, 2],
-        i=faces[:, 0], j=faces[:, 1], k=faces[:, 2],
-        flatshading=True,
-        hoverinfo='text',
-        showscale=True
-    )
-
-    # Create colorscale
-    colorscale = create_band_power_colormap()
+    # Create custom colormap and value-color mapping
+    colorscale, value_color_map = create_custom_colormap()
     
-    # Update the mesh with color data
-    fig_data.update(
-        intensity=loc_dom_band,
+    # Create a copy of scalars to modify
+    display_scalars = scalars.copy()
+    
+    # Apply band selection if specified
+    if selected_bands is not None:
+        # Convert all values not in selected_bands to NaN
+        mask = np.zeros_like(display_scalars, dtype=bool)
+        for band in selected_bands:
+            mask |= (np.round(display_scalars) == band)
+        display_scalars[~mask] = np.nan
+    
+    # Apply view filtering after band selection
+    if view_type == 'positive':
+        display_scalars[display_scalars < 0] = np.nan
+    elif view_type == 'negative':
+        display_scalars[display_scalars > 0] = np.nan
+    
+    # Clip values to our range of interest (-6 to 6)
+    display_scalars = np.clip(display_scalars, -6, 6)
+    
+    # Create the mesh
+    mesh = go.Mesh3d(
+        x=vertices[:, 0],
+        y=vertices[:, 1],
+        z=vertices[:, 2],
+        i=faces[:, 0],
+        j=faces[:, 1],
+        k=faces[:, 2],
+        intensity=display_scalars,
         intensitymode='vertex',
-        cmin=4,  # Start from B4
-        cmax=6,  # End at B6
         colorscale=colorscale,
-        colorbar=dict(
-            title="Spectral Bands",
-            thickness=30,
-            len=0.9,
-            tickmode='array',
-            ticktext=[f'B{i}\n({band_powers[i]:.2f})' for i in range(4, 7)],
-            tickvals=[4, 5, 6],  # Match actual band numbers
-            tickangle=0
-        ),
+        cmin=-6,
+        cmax=6,
+        showscale=False,  # Hide the colorbar
+        hovertemplate='Value: %{intensity:.2f}<extra></extra>'
     )
-
-    fig = go.Figure(data=[go.Mesh3d(**fig_data)])
-
+    
+    # Create legend items
+    legend_traces = []
+    
+    # Function to add legend items based on view type
+    def add_legend_items(values):
+        for val in values:
+            color = value_color_map[val]
+            legend_traces.append(
+                go.Scatter3d(
+                    x=[None],
+                    y=[None],
+                    z=[None],
+                    mode='markers',
+                    marker=dict(size=10, color=color),
+                    name=f'B{val}',
+                    showlegend=True
+                )
+            )
+    
+    # Add legend items based on selected bands and view type
+    if selected_bands is not None:
+        # Sort selected bands to maintain legend order
+        sorted_bands = sorted(selected_bands)
+        add_legend_items([b for b in sorted_bands if 
+                         (b < 0 and view_type in ['both', 'negative']) or
+                         (b > 0 and view_type in ['both', 'positive'])])
+    else:
+        # Default behavior if no bands are selected
+        if view_type in ['both', 'negative']:
+            add_legend_items(range(-6, 0))
+        if view_type in ['both', 'positive']:
+            add_legend_items(range(1, 7))
+    
+    # Create the figure
+    fig = go.Figure(data=[mesh] + legend_traces)
+    
+    # Update layout
     layout_dict = dict(
         scene=dict(
             xaxis=dict(visible=False),
@@ -347,7 +170,15 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
         ),
         height=900,
         width=1000,
-        margin=dict(l=10, r=10, b=10, t=50 if title else 10)
+        margin=dict(l=10, r=10, b=10, t=50 if title else 10),
+        showlegend=True,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="right",
+            x=0.99,
+            bgcolor='rgba(255, 255, 255, 0.8)'
+        )
     )
     
     if title:
@@ -361,28 +192,26 @@ def plot_mesh_with_band_power(vertices, faces, loc_dom_band, band_powers,
         )
     
     fig.update_layout(**layout_dict)
-    return fig
-
-def visualize_brain_bands(vertices, faces, loc_dom_band, grouped_spectrum, camera_position):
-    # Define band powers based on your data
-    band_powers = {
-        4: grouped_spectrum[0],   # B4
-        5: grouped_spectrum[1],   # B5
-        6: grouped_spectrum[2]    # B6
-    }
-    
-    fig = plot_mesh_with_band_power(
-        vertices=vertices,
-        faces=faces,
-        loc_dom_band=loc_dom_band,
-        band_powers=band_powers,
-        camera=camera_position,
-        title="Spectral Band Distribution"
-    )
     
     return fig
 
+# Example camera positions (you can modify these as needed)
+camera_medial = dict(
+    eye=dict(x=2, y=0, z=0),    # Camera position from medial side 
+    center=dict(x=0, y=0, z=0),  # Looking at center
+    up=dict(x=0, y=0, z=1)       # Up vector points in positive z direction
+)
 
+camera_lateral = dict(
+    eye=dict(x=-2, y=0, z=0),   # Camera position from lateral side
+    center=dict(x=0, y=0, z=0),  # Looking at center
+    up=dict(x=0, y=0, z=1)      # Up vector points in positive z direction
+)
+
+#Set band values for gyri and sulci
+
+gyri = [4, 5, 6]
+sulci = [-6, -5, -4]
 
 directory = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste"  # Add your directory path here
 tex_dir = '/scratch/hdienye/spangy/textures'
@@ -396,9 +225,6 @@ for filename in os.listdir(directory):
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
-            B4 = df[df['participant_session'] == participant_session]['band_power_B4'].values[0]
-            B5 = df[df['participant_session'] == participant_session]['band_power_B5'].values[0]
-            B6 = df[df['participant_session'] == participant_session]['band_power_B6'].values[0]
         #Load meshfile
             mesh_file = os.path.join(directory, filename)
             mesh = sio.load_mesh(mesh_file)
@@ -406,55 +232,20 @@ for filename in os.listdir(directory):
             vertices = mesh.vertices
             faces = mesh.faces
 
-            # WHOLE BRAIN MEAN-CURVATURE SPECTRUM
-            grouped_spectrum = [B4, B5, B6]
             # Load generated texture
             tex_file = os.path.join(tex_dir, file)
             loc_dom_band_texture = read_gii_file(tex_file)
 
-            # Set cameras for snapshots
-            camera_medial = dict(
-                eye=dict(x=0, y=-2, z=0),  # Camera position from right side
-                center=dict(x=0, y=0, z=0), # Looking at center remains the same
-                up=dict(x=0, y=0, z=1)      # Up vector points in z direction (superior)
+            sulci = [-6, -5, -4]
+            fig = plot_mesh_with_legend(
+                vertices=mesh.vertices,
+                faces=mesh.faces,
+                scalars=loc_dom_band_texture,
+                selected_bands=sulci,  # Will show only sulci bands 4, 5, 6
+                camera=camera_lateral,
+                title='Negative Bands Visualization'
             )
-
-            camera_lateral = dict(
-                eye=dict(x=0, y=2, z=0),    # Camera position from left side
-                center=dict(x=0, y=0, z=0),  # Looking at center remains the same
-                up=dict(x=0, y=0, z=1)       # Up vector points in z direction (superior)
-            )
-
-
-    # Lateral view snapshots
-            fig = visualize_brain_bands(
-                vertices=vertices,
-                faces=faces,
-                loc_dom_band=loc_dom_band_texture,
-                grouped_spectrum= grouped_spectrum,
-                camera_position=camera_lateral  # or camera_medial
-            )
-
-            # Save the figure
-            png_img = plotly.io.to_image(fig, 'png')
-            fname = f'/scratch/hdienye/spangy/spangy_snapshots/spectral_bands_dom_lateral{clean_filename}.png'
-            with open(fname, 'wb') as fh:
-                fh.write(png_img)
-
-    # Medial view snapshots
-            fig = visualize_brain_bands(
-                vertices=vertices,
-                faces=faces,
-                loc_dom_band=loc_dom_band_texture,
-                grouped_spectrum= grouped_spectrum,
-                camera_position=camera_medial  # or camera_medial
-            )
-
-            # Save the figure
-            png_img = plotly.io.to_image(fig, 'png')
-            fname = f'/scratch/hdienye/spangy/spangy_snapshots/spectral_bands_dom_medial{clean_filename}.png'
-            with open(fname, 'wb') as fh:
-                fh.write(png_img)
+            fig.write_image(f"/home/INT/dienye.h/Python Codes/rough_hemisphere/spangy_textures/{participant_session}.png")
 
 
 
