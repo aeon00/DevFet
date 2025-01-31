@@ -25,11 +25,6 @@ def process_single_file(filename, surface_path):
             return None
             
         mesh = sio.load_mesh(mesh_file)
-        mesh.apply_transform(mesh.principal_inertia_transform)
-        
-        # Compute eigenpairs and mass matrix
-        print("compute the eigen vectors and eigen values")
-        eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
 
         # CURVATURE
         print("compute the mean curvature")
@@ -53,9 +48,6 @@ def main():
     try:
         # Paths
         surface_path = "/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste/"
-        mesh_info_path = "/envau/work/meca/users/dienye.h/bounti_info/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
-        
-        print("Reading data from {}".format(mesh_info_path))
         
         print("Scanning directory: {}".format(surface_path))
         # Get list of files
