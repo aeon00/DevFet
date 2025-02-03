@@ -33,7 +33,12 @@ for filename in os.listdir(directory):
         filenames.append(filename)
 
 # Create DataFrame
-info_df = pd.DataFrame(filenames, vertices_counts, surface_area_values, volume_values, columns=['File name', 'Number of Vertices', 'Surface Area Values', 'Volume Values'])
+info_df = pd.DataFrame({
+    'File name': filenames,
+    'Number of Vertices': vertices_counts,
+    'Surface Area Values': surface_area_values,
+    'Volume Values': volume_values
+})
 info_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/vertices_surface_area_and_volume.csv', index=False)
 
 # surface_area_df = pd.DataFrame(surface_area_values, columns=['Surface Area Values'])
