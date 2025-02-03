@@ -9,6 +9,7 @@ directory = '/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_BOUNTI/ou
 vertices_counts = [] 
 surface_area_values = []
 volume_values = []
+filenames = []
 
 # Define measurement units
 mL_in_MM3 = 1000
@@ -16,7 +17,7 @@ CM2_in_MM2 = 100
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
-    if filename.endswith('surf.gii'): 
+    if filename.endswith('left.surf.gii') or filename.endswith('right.surf.gii'):
         mesh_file = os.path.join(directory, filename)
         mesh = sio.load_mesh(mesh_file)
         num_vertices = len(mesh.vertices)
@@ -29,16 +30,17 @@ for filename in os.listdir(directory):
         vertices_counts.append(num_vertices)
         surface_area_values.append(surface_area)
         volume_values.append(volume)
+        filenames.append(filename)
 
 # Create DataFrame
-vertices_df = pd.DataFrame(vertices_counts, columns=['Number of Vertices'])
-vertices_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/vertices_counts.csv', index=False)
+info_df = pd.DataFrame(filenames, vertices_counts, surface_area_values, volume_values, columns=['File name', 'Number of Vertices', 'Surface Area Values', 'Volume Values'])
+info_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/vertices_surface_area_and_volume.csv', index=False)
 
-surface_area_df = pd.DataFrame(surface_area_values, columns=['Surface Area Values'])
-surface_area_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/surface_area_values.csv', index=False)
+# surface_area_df = pd.DataFrame(surface_area_values, columns=['Surface Area Values'])
+# surface_area_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/surface_area_values.csv', index=False)
 
-volume_df = pd.DataFrame(volume_values, columns=['Volume Values'])
-volume_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/volume_values.csv', index=False)
+# volume_df = pd.DataFrame(volume_values, columns=['Volume Values'])
+# volume_df.to_csv('/envau/work/meca/users/dienye.h/bounti_analysis/volume_values.csv', index=False)
 
 
 # Set the style
@@ -47,7 +49,7 @@ plt.figure(figsize=(12, 7))
 
 # Create histogram of vertices
 sns.histplot(
-    data=vertices_df,
+    data=info_df,
     x='Number of Vertices',  # Match the DataFrame column name
     bins=30,
     color='#2E86C1',        # Slightly darker blue for better visibility
@@ -83,7 +85,7 @@ plt.figure(figsize=(12, 7))
 
 # Create histogram of surface area values
 sns.histplot(
-    data=surface_area_df,
+    data=info_df,
     x='Surface Area Values',  # Match the DataFrame column name
     bins=30,
     color='#2E86C1',        # Slightly darker blue for better visibility
@@ -119,7 +121,7 @@ plt.figure(figsize=(12, 7))
 
 # Create histogram of volume values
 sns.histplot(
-    data=volume_df,
+    data=info_df,
     x='Volume Values',  # Match the DataFrame column name
     bins=30,
     color='#2E86C1',        # Slightly darker blue for better visibility
