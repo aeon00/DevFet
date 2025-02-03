@@ -23,8 +23,8 @@ for filename in os.listdir(directory):
         mL_in_MM3 = 1000
         CM2_in_MM2 = 100
         volume = mesh.volume
-        volume = np.floor(volume / mL_in_MM3),
-        surface_area = mesh.area,
+        volume = np.floor(volume / mL_in_MM3)
+        surface_area = mesh.area
         surface_area = np.floor(surface_area / CM2_in_MM2)
         vertices_counts.append(num_vertices)
         surface_area_values.append(surface_area)
