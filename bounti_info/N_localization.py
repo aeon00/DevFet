@@ -81,7 +81,7 @@ mesh = sio.load_mesh('/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_
 vertices = mesh.vertices
 num_vertices = len(vertices)
 
-for i in range(1000, 5001, 500):
+for i in range(1000, 6001, 500):
     N = i
     # Calculate eigenpairs
     eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
