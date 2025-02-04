@@ -6,6 +6,7 @@ import slam.curvature as scurv
 import slam.spangy as spgy
 import os
 import slam.texture as stex
+import time
 
 def calculate_band_coverage(mesh, loc_dom_band, band_idx):
     """
@@ -45,7 +46,7 @@ def calculate_band_coverage(mesh, loc_dom_band, band_idx):
 
 def save_results(N, volume, total_surface_area, afp, band_powers, band_rel_powers, 
                 band_vertices, band_vertex_percentages,
-                band_areas, band_area_percentages,
+                band_areas, band_area_percentages, processing_time,
                 output_file="folding_results.txt"):
     # Calculate total coverage as sanity check
     total_covered_area = sum(band_areas)
@@ -68,6 +69,8 @@ def save_results(N, volume, total_surface_area, afp, band_powers, band_rel_power
         f.write(f"B4: {band_areas[0]:.2f} mm² ({band_area_percentages[0]:.2f}%)\n")
         f.write(f"B5: {band_areas[1]:.2f} mm² ({band_area_percentages[1]:.2f}%)\n")
         f.write(f"B6: {band_areas[2]:.2f} mm² ({band_area_percentages[2]:.2f}%)\n")
+        f.write("\nProcessing Time:\n")
+        f.write(f"Processing Time: {processing_time:.2f} seconds")
         f.write("-" * 50 + "\n")
 
 # Initialize lists to store metrics for plotting
@@ -82,6 +85,7 @@ vertices = mesh.vertices
 num_vertices = len(vertices)
 
 for i in range(1000, 6001, 500):
+    start_time = time.time()
     N = i
     # Calculate eigenpairs
     eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
@@ -140,13 +144,16 @@ for i in range(1000, 6001, 500):
         band_areas.append(area)
         band_area_percentages.append(area_pct)
     
+    end_time = time.time()
+    execution_time = end_time - start_time
+
     # Save results
     output_file = f'spectrum_results_{i}.txt'
     output_path = "/envau/work/meca/users/dienye.h/N_analysis/"
     output_file_dir = os.path.join(output_path, output_file)
     save_results(N, volume, surface_area, afp, band_powers, band_rel_powers,
                 band_vertices, band_vertex_percentages,
-                band_areas, band_area_percentages, output_file_dir)
+                band_areas, band_area_percentages, execution_time, output_file_dir)
 
     # Visualize local dominant bands
     plt.figure(figsize=(10, 8))
