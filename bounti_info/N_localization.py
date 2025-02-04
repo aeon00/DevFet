@@ -91,7 +91,7 @@ for i in range(1000, 6001, 500):
     mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
     tex_mean_curv = stex.TextureND(mean_curv)
     tex_mean_curv.z_score_filtering(z_thresh=3)
-    mean_curv = tex_mean_curv.darray.squeeze()
+    mean_curv = tex_mean_curv.darray.squeeze() #filtered mean curvature
     
     # Calculate spectrum
     grouped_spectrum, group_indices, coefficients, nlevels = spgy.spectrum(mean_curv, lap_b,
@@ -108,8 +108,17 @@ for i in range(1000, 6001, 500):
     volume = mesh.volume
     surface_area = mesh.area
     afp = np.sum(grouped_spectrum[1:])
-    band_powers = (grouped_spectrum[4], grouped_spectrum[5], grouped_spectrum[6])
-    band_rel_powers = (grouped_spectrum[4]/afp, grouped_spectrum[5]/afp, grouped_spectrum[6]/afp)
+    
+    # Handle cases where B6 might not be available
+    band_powers = []
+    band_rel_powers = []
+    for band_idx in [4, 5, 6]:
+        if band_idx < len(grouped_spectrum):
+            band_powers.append(grouped_spectrum[band_idx])
+            band_rel_powers.append(grouped_spectrum[band_idx]/afp)
+        else:
+            band_powers.append(0)
+            band_rel_powers.append(0)
     
     # Calculate coverage for bands 4, 5, and 6
     band_vertices = []
@@ -117,8 +126,15 @@ for i in range(1000, 6001, 500):
     band_areas = []
     band_area_percentages = []
     
+    max_band = np.max(loc_dom_band)  # Get the highest available band
+    
     for band_idx in [4, 5, 6]:
-        num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
+        if band_idx <= max_band:
+            num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
+        else:
+            # Set zeros for unavailable bands
+            num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
+        
         band_vertices.append(num_verts)
         band_vertex_percentages.append(vert_pct)
         band_areas.append(area)
@@ -139,10 +155,12 @@ for i in range(1000, 6001, 500):
     colors = ['blue', 'green', 'red']  # Colors for B4, B5, B6
     cmap = ListedColormap(colors)
     
-    # Plot only B4, B5, and B6
+    # Plot available bands from B4-B6
     plot_data = np.copy(loc_dom_band)
-    # Set all bands except 4,5,6 to -1 (will be transparent)
-    mask = ~np.isin(plot_data, [4, 5, 6])
+    # Get available bands between 4-6
+    available_bands = [b for b in [4, 5, 6] if b <= np.max(loc_dom_band)]
+    # Set all other bands to -1 (will be transparent)
+    mask = ~np.isin(plot_data, available_bands)
     plot_data[mask] = -1
     
     plt.tripcolor(vertices[:, 0], vertices[:, 1], mesh.faces, 
