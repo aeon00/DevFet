@@ -54,6 +54,9 @@ def spangy_analysis(mesh_path, mesh, mean_curv, N, nb_smooth_iter):
     print('Volume = %d mL, Area = %d cm², Analyze Folding Power = %f,' %
         (np.floor(volume / mL_in_MM3), np.floor(surface_area / CM2_in_MM2), afp))
 
+    # Check if B6 exists in grouped_spectrum
+    b6_value = grouped_spectrum[6] if len(grouped_spectrum) > 6 else 0
+
     # b. Band number of parcels
     print('** b. Band number of parcels **')
     print('B4 = %f, B5 = %f, B6 = %f' % (0, 0, 0))
@@ -61,14 +64,13 @@ def spangy_analysis(mesh_path, mesh, mean_curv, N, nb_smooth_iter):
     # c. Band power
     print('** c. Band power **')
     print('B4 = %f, B5 = %f, B6 = %f' %
-        (grouped_spectrum[4], grouped_spectrum[5],
-        grouped_spectrum[6]))
+        (grouped_spectrum[4], grouped_spectrum[5], b6_value))
 
     # d. Band relative power
     print('** d. Band relative power **')
     print('B4 = %0.5f, B5 = %0.5f , B6 = %0.5f' %
         (grouped_spectrum[4] / afp, grouped_spectrum[5] / afp,
-        grouped_spectrum[6] / afp))
+        b6_value / afp if b6_value != 0 else 0))
 
     # LOCAL SPECTRAL BANDS
     loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, mean_curv,
@@ -89,15 +91,13 @@ def spangy_analysis(mesh_path, mesh, mean_curv, N, nb_smooth_iter):
         'band_power_B3': grouped_spectrum[3],
         'band_power_B4': grouped_spectrum[4],
         'band_power_B5': grouped_spectrum[5],
-        'band_power_B6': grouped_spectrum[6],
+        'band_power_B6': b6_value,
         'volume_ml': np.floor(volume / mL_in_MM3),
         'surface_area_cm2': np.floor(surface_area / CM2_in_MM2),
         'analyze_folding_power': afp
     }
 
-
-
-# Declare file paths
+# Rest of the code remains unchanged
 mesh_file = '/envau/work/meca/users/dienye.h/rough_hemisphere/mesh_surfaces/sub-0001_ses-0001_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
 mean_curv_texture = '/envau/work/meca/users/dienye.h/rough_hemisphere/mean_curv/filt_mean_curv_sub-0001_ses-0001_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
 subject= re.search(r'sub-\d+_ses-\d+', os.path.basename(mesh_file)).group(0)
