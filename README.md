@@ -29,6 +29,8 @@ pip install -U kaleido
 
 pip install dash
 
+pip install scikit-learn
+
 # Clone on Mesocentre
 git clone https://github.com/aeon00/DevFet.git #perform command while on the head node
 
