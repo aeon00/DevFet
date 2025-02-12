@@ -39,7 +39,7 @@ texture_path = '/envau/work/meca/users/dienye.h/Curvature/mean_curv_tex/'
 data = []
 
 for filename in os.listdir(texture_path):
-    if filename.endswith('left.surf.gii') or filename.endswith(('right.surf.gii')):
+    if filename.endswith('left.surf.gii'):
         subject_id = filename.split('_')[3]
         session_id = filename.split('_')[4]
         texture = sio.load_texture(filename)
@@ -53,3 +53,5 @@ for filename in os.listdir(texture_path):
         data.append(metrics)
 
 df = pd.DataFrame(data)
+
+df.to_csv('envau/work/meca/users/dienye.h/qc_measure.csv', index=False)
