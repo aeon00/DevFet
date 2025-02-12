@@ -42,7 +42,8 @@ for filename in os.listdir(texture_path):
     if filename.endswith('left.surf.gii'):
         subject_id = filename.split('_')[3]
         session_id = filename.split('_')[4]
-        texture = sio.load_texture(filename)
+        file = os.path.join(texture_path, filename)
+        texture = sio.load_texture(file)
         extreme_value, max_abs_z = qc_measure(texture, z_thresh = 3)
         metrics = {
             "subject_id": subject_id,
