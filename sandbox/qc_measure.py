@@ -55,4 +55,4 @@ for filename in os.listdir(texture_path):
 
 df = pd.DataFrame(data)
 
-df.to_csv('envau/work/meca/users/dienye.h/qc_measure.csv', index=False)
+df.to_csv('/envau/work/meca/users/dienye.h/qc_measure.csv', index=False)
