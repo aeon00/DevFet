@@ -14,7 +14,7 @@ def spangy_analysis(mesh_path, mesh, mean_curv, N):
     mesh = mesh
     N = N
     file = re.search(r'sub-\d+_ses-\d+', os.path.basename(mesh_path)).group(0)
-    filename = file 
+    filename = file + '_' + 'right'
 
     # Compute eigenpairs and mass matrix
     print("compute the eigen vectors and eigen values")
@@ -82,8 +82,8 @@ def spangy_analysis(mesh_path, mesh, mean_curv, N):
     sio.write_texture(tmp_tex, tex_path)
 
 # Rest of the code remains unchanged
-mesh_file = '/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste/sub-0858_ses-0995_reo-SVR-output-brain-mask-brain_bounti-white.left.surf.gii'
-mean_curv_texture = '/envau/work/meca/users/dienye.h/Curvature/mean_curv_tex/filt_mean_curv_sub-0858_ses-0995_reo-SVR-output-brain-mask-brain_bounti-white.left.surf.gii'
+mesh_file = '/envau/work/meca/data/Fetus/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste/sub-0858_ses-0995_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
+mean_curv_texture = '/envau/work/meca/users/dienye.h/Curvature/mean_curv_tex/filt_mean_curv_sub-0858_ses-0995_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
 subject= re.search(r'sub-\d+_ses-\d+', os.path.basename(mesh_file)).group(0)
 # Load mesh and textures
 mesh = sio.load_mesh(mesh_file)
