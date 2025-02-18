@@ -89,5 +89,6 @@ subject= re.search(r'sub-\d+_ses-\d+', os.path.basename(mesh_file)).group(0)
 mesh = sio.load_mesh(mesh_file)
 mean_curv_tex = sio.load_texture(mean_curv_texture)
 mean_curv = mean_curv_tex.darray.squeeze()
+N = 5000
 
 spangy_analysis(mesh_file, mesh, mean_curv, N)
