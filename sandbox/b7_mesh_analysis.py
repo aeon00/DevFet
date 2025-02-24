@@ -76,96 +76,87 @@ def save_results(N, volume, total_surface_area, afp, band_powers, band_rel_power
         f.write(f"Processing Time: {processing_time:.2f} seconds")
         f.write("-" * 50 + "\n")
 
-def process_single_file(mesh_path):
-    # Initialize lists to store metrics for plotting
-    N_values = []
-    surface_areas = {'B4': [], 'B5': [], 'B6': [], 'B7': []}
-    area_percentages = {'B4': [], 'B5': [], 'B6': [], 'B7': []}
-    band_powers_list = {'B4': [], 'B5': [], 'B6': [], 'B7': []}
+def process_single_file(mesh_file):
 
     # Load mesh'
+    start_time = time.time()
+    N = 7000
+    mesh = sio.load_mesh(mesh_file)
+    vertices = mesh.vertices
+    num_vertices = len(vertices)
 
+    # Calculate eigenpairs
+    eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
+    
+    # Calculate curvatures
+    PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = scurv.curvatures_and_derivatives(mesh)
+    mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+    tex_mean_curv = stex.TextureND(mean_curv)
+    tex_mean_curv.z_score_filtering(z_thresh=3)
+    mean_curv = tex_mean_curv.darray.squeeze() #filtered mean curvature
+    
+    # Calculate spectrum
+    grouped_spectrum, group_indices, coefficients, nlevels = spgy.spectrum(mean_curv, lap_b,
+                                                                        eigVects, eigVal)
+    
+    # Calculate local dominance map
+    loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, mean_curv,
+                                                        nlevels, group_indices,
+                                                        eigVects)
+    
+    tex_path = f"/envau/work/meca/users/dienye.h/B7_analysis/textures/spangy_dom_band_{mesh_file}.gii"
+    tmp_tex = stex.TextureND(loc_dom_band)
+    # tmp_tex.z_score_filtering(z_thresh=3)
+    sio.write_texture(tmp_tex, tex_path)
+    
+    # Calculate basic metrics
+    mL_in_MM3 = 1000
+    CM2_in_MM2 = 100
+    volume = mesh.volume
+    surface_area = mesh.area
+    afp = np.sum(grouped_spectrum[1:])
+    
+    # Handle cases where B6 might not be available
+    band_powers = []
+    band_rel_powers = []
+    for band_idx in [4, 5, 6, 7]:
+        if band_idx < len(grouped_spectrum):
+            band_powers.append(grouped_spectrum[band_idx])
+            band_rel_powers.append(grouped_spectrum[band_idx]/afp)
+        else:
+            band_powers.append(0)
+            band_rel_powers.append(0)
+    
+    # Calculate coverage for bands 4, 5, 6 and 7
+    band_vertices = []
+    band_vertex_percentages = []
+    band_areas = []
+    band_area_percentages = []
+    
+    max_band = np.max(loc_dom_band)  # Get the highest available band
+    
+    for band_idx in [4, 5, 6, 7]:
+        if band_idx <= max_band:
+            num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
+        else:
+            # Set zeros for unavailable bands
+            num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
+        
+        band_vertices.append(num_verts)
+        band_vertex_percentages.append(vert_pct)
+        band_areas.append(area)
+        band_area_percentages.append(area_pct)
+    
+    end_time = time.time()
+    execution_time = end_time - start_time
 
-    for i in os.listdir(mesh_path):
-        start_time = time.time()
-        N = 7000
-        mesh = os.path.join(mesh_path, i)
-        mesh = sio.load_mesh(mesh)
-        vertices = mesh.vertices
-        num_vertices = len(vertices)
-
-        # Calculate eigenpairs
-        eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
-        
-        # Calculate curvatures
-        PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = scurv.curvatures_and_derivatives(mesh)
-        mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
-        tex_mean_curv = stex.TextureND(mean_curv)
-        tex_mean_curv.z_score_filtering(z_thresh=3)
-        mean_curv = tex_mean_curv.darray.squeeze() #filtered mean curvature
-        
-        # Calculate spectrum
-        grouped_spectrum, group_indices, coefficients, nlevels = spgy.spectrum(mean_curv, lap_b,
-                                                                            eigVects, eigVal)
-        
-        # Calculate local dominance map
-        loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, mean_curv,
-                                                            nlevels, group_indices,
-                                                            eigVects)
-        
-        tex_path = f"/envau/work/meca/users/dienye.h/B7_analysis/textures/spangy_dom_band_{i}.gii"
-        tmp_tex = stex.TextureND(loc_dom_band)
-        # tmp_tex.z_score_filtering(z_thresh=3)
-        sio.write_texture(tmp_tex, tex_path)
-        
-        # Calculate basic metrics
-        mL_in_MM3 = 1000
-        CM2_in_MM2 = 100
-        volume = mesh.volume
-        surface_area = mesh.area
-        afp = np.sum(grouped_spectrum[1:])
-        
-        # Handle cases where B6 might not be available
-        band_powers = []
-        band_rel_powers = []
-        for band_idx in [4, 5, 6, 7]:
-            if band_idx < len(grouped_spectrum):
-                band_powers.append(grouped_spectrum[band_idx])
-                band_rel_powers.append(grouped_spectrum[band_idx]/afp)
-            else:
-                band_powers.append(0)
-                band_rel_powers.append(0)
-        
-        # Calculate coverage for bands 4, 5, 6 and 7
-        band_vertices = []
-        band_vertex_percentages = []
-        band_areas = []
-        band_area_percentages = []
-        
-        max_band = np.max(loc_dom_band)  # Get the highest available band
-        
-        for band_idx in [4, 5, 6, 7]:
-            if band_idx <= max_band:
-                num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
-            else:
-                # Set zeros for unavailable bands
-                num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
-            
-            band_vertices.append(num_verts)
-            band_vertex_percentages.append(vert_pct)
-            band_areas.append(area)
-            band_area_percentages.append(area_pct)
-        
-        end_time = time.time()
-        execution_time = end_time - start_time
-
-        # Save results
-        output_file = f'spectrum_results_{i}.txt'
-        output_path = "/envau/work/meca/users/dienye.h/B7_analysis/"
-        output_file_dir = os.path.join(output_path, output_file)
-        save_results(N, volume, surface_area, afp, band_powers, band_rel_powers,
-                    band_vertices, band_vertex_percentages,
-                    band_areas, band_area_percentages, execution_time, output_file_dir)
+    # Save results
+    output_file = f'spectrum_results_{mesh_file}.txt'
+    output_path = "/envau/work/meca/users/dienye.h/B7_analysis/"
+    output_file_dir = os.path.join(output_path, output_file)
+    save_results(N, volume, surface_area, afp, band_powers, band_rel_powers,
+                band_vertices, band_vertex_percentages,
+                band_areas, band_area_percentages, execution_time, output_file_dir)
 
 
 def main():
