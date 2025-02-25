@@ -24,11 +24,6 @@ def extract_sub_sess_left(filename):
     else:
         return None
 
-# Test with your example
-filename = "sub-0577_ses-0693_reo-SVR-output-brain-mask-brain_bounti-white.left.surf.gii"
-result = extract_sub_sess_left(filename)
-print(result)  # Output: sub-0577_ses-0693_left
-
 def calculate_band_coverage(mesh, loc_dom_band, band_idx):
     """
     Calculate the coverage metrics for a specific frequency band using local dominance map.
