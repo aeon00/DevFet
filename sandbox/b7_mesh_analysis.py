@@ -9,6 +9,26 @@ import slam.texture as stex
 import time
 import sys
 
+def extract_sub_sess_left(filename):
+    import re
+    
+    # Define the pattern to match sub-XXXX_ses-XXXX and add "left" at the end
+    pattern = r'(sub-\d+)_(ses-\d+).*?(left)'
+    
+    # Search for the pattern in the filename
+    match = re.search(pattern, filename)
+    
+    if match:
+        # Extract the matched groups and combine them
+        return f"{match.group(1)}_{match.group(2)}_left"
+    else:
+        return None
+
+# Test with your example
+filename = "sub-0577_ses-0693_reo-SVR-output-brain-mask-brain_bounti-white.left.surf.gii"
+result = extract_sub_sess_left(filename)
+print(result)  # Output: sub-0577_ses-0693_left
+
 def calculate_band_coverage(mesh, loc_dom_band, band_idx):
     """
     Calculate the coverage metrics for a specific frequency band using local dominance map.
@@ -104,7 +124,9 @@ def process_single_file(mesh_file):
                                                         nlevels, group_indices,
                                                         eigVects)
     
-    tex_path = f"/envau/work/meca/users/dienye.h/B7_analysis/textures/spangy_dom_band_{mesh_file}.gii"
+    file = extract_sub_sess_left(mesh_file)
+
+    tex_path = f"/envau/work/meca/users/dienye.h/B7_analysis/textures/spangy_dom_band_{file}.gii"
     tmp_tex = stex.TextureND(loc_dom_band)
     # tmp_tex.z_score_filtering(z_thresh=3)
     sio.write_texture(tmp_tex, tex_path)
@@ -151,7 +173,7 @@ def process_single_file(mesh_file):
     execution_time = end_time - start_time
 
     # Save results
-    output_file = f'spectrum_results_{mesh_file}.txt'
+    output_file = f'spectrum_results_{file}.txt'
     output_path = "/envau/work/meca/users/dienye.h/B7_analysis/"
     output_file_dir = os.path.join(output_path, output_file)
     save_results(N, volume, surface_area, afp, band_powers, band_rel_powers,
