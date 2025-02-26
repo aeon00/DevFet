@@ -458,11 +458,14 @@ def batch_process_directory(input_dir, output_dir, file_pattern="*.gii", k=30, s
     print(f"\nBatch processing complete. Summary saved to {output_dir}")
 
 if __name__ == "__main__":
-    import argparse
+
+    input_dir = "/envau/work/meca/users/dienye.h/B7_analysis/mesh/"
+    output_dir = "/envau/work/meca/users/dienye.h/mesh_analysis/statistical/"
+    # import argparse
     
-    parser = argparse.ArgumentParser(description="Batch process multiple mesh files for statistical outlier detection")
-    parser.add_argument("--/envau/work/meca/users/dienye.h/B7_analysis/mesh/", "-i", required=True, help="Directory containing mesh files")
-    parser.add_argument("--/envau/work/meca/users/dienye.h/mesh_analysis/statistical/", "-o", default="outlier_analysis", help="Directory to save results")
+    # parser = argparse.ArgumentParser(description="Batch process multiple mesh files for statistical outlier detection")
+    # parser.add_argument("--/envau/work/meca/users/dienye.h/B7_analysis/mesh/", "-i", required=True, help="Directory containing mesh files")
+    # parser.add_argument("--/envau/work/meca/users/dienye.h/mesh_analysis/statistical/", "-o", default="outlier_analysis", help="Directory to save results")
     # parser.add_argument("--pattern", "-p", default="*.gii", help="File pattern to match (default: *.gii)")
     # parser.add_argument("--neighbors", "-k", type=int, default=30, help="Number of nearest neighbors to consider")
     # parser.add_argument("--threshold", "-t", type=float, default=2.0, help="Outlier threshold in standard deviations")
@@ -470,6 +473,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     batch_process_directory(
-        args.input_dir, 
-        args.output_dir
+        input_dir, 
+        output_dir
     )
