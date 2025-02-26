@@ -470,7 +470,7 @@ if __name__ == "__main__":
     # parser.add_argument("--neighbors", "-k", type=int, default=30, help="Number of nearest neighbors to consider")
     # parser.add_argument("--threshold", "-t", type=float, default=2.0, help="Outlier threshold in standard deviations")
     
-    args = parser.parse_args()
+    # args = parser.parse_args()
     
     batch_process_directory(
         input_dir, 
