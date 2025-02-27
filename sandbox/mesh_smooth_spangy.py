@@ -113,7 +113,7 @@ def spangy_analysis(mesh_path, mesh, N, nb_smooth_iter):
     }
 
 # Rest of the code remains unchanged
-mesh_file = '/envau/work/meca/users/dienye.h/rough_hemisphere/mesh_surfaces/sub-0001_ses-0001_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
+mesh_file = '/envau/work/meca/users/dienye.h/rough_hemisphere/mesh_surfaces/sub-0858_ses-0995_reo-SVR-output-brain-mask-brain_bounti-white.right.surf.gii'
 subject= re.search(r'sub-\d+_ses-\d+', os.path.basename(mesh_file)).group(0)
 # Load mesh and textures
 mesh = sio.load_mesh(mesh_file)
