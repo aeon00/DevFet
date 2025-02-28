@@ -195,23 +195,80 @@ def plot_mesh_with_legend(vertices, faces, scalars, view_type='both', selected_b
     
     return fig
 
-# Example camera positions (you can modify these as needed)
-camera_medial = dict(
-    eye=dict(x=2, y=0, z=0),    # Camera position from medial side 
-    center=dict(x=0, y=0, z=0),  # Looking at center
-    up=dict(x=0, y=0, z=1)       # Up vector points in positive z direction
-)
 
-camera_lateral = dict(
-    eye=dict(x=-2, y=0, z=0),   # Camera position from lateral side
-    center=dict(x=0, y=0, z=0),  # Looking at center
-    up=dict(x=0, y=0, z=1)      # Up vector points in positive z direction
-)
+def mesh_orientation(mesh, hemisphere):
+    '''Function to orient mesh for proper visualisation
+    Parameters:
+    mesh: loaded mesh file to be visualized
+    hemisphere: hemisphere of mesh being visualized
+    
+    Returns:
+    Oriented mesh and medial and lateral camera configuration'''
 
-#Set band values for gyri and sulci
+    # Define hemisphere
 
+    hemisphere = str(hemisphere).lower()
+
+    # Set configuration and transformation according to hemisphere
+    if hemisphere == 'right':
+        # mesh.apply_transform(mesh.principal_inertia_transform)
+        transfo_180 = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, -1, 0], [0, 0, 0, 1]])
+        transfo_90 = np.array([
+            [1, 0, 0, 0],    # First row
+            [0, 0, 1, 0],    # Second row
+            [0, -1, 0, 0],   # Third row
+            [0, 0, 0, 1]     # Fourth row
+        ])
+        mesh.apply_transform(transfo_180)
+        # Example camera positions (you can modify these as needed)
+        camera_lateral = dict(
+            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
+            center=dict(x=0, y=0, z=0),  # Looking at center
+            up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
+        )
+
+        camera_medial = dict(
+            eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
+            center=dict(x=0, y=0, z=0),   # Looking at center
+            up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
+        )
+
+        
+    elif hemisphere == 'left':
+        # mesh.apply_transform(mesh.principal_inertia_transform)
+        transfo_180 = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, -1, 0], [0, 0, 0, 1]])
+        transfo_90 = np.array([
+            [1, 0, 0, 0],    # First row
+            [0, 0, 1, 0],    # Second row
+            [0, -1, 0, 0],   # Third row
+            [0, 0, 0, 1]     # Fourth row
+        ])
+        mesh.apply_transform(transfo_180)
+        # Example camera positions (you can modify these as needed)
+        camera_lateral = dict(
+            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
+            center=dict(x=0, y=0, z=0),  # Looking at center
+            up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
+        )
+
+        camera_medial = dict(
+            eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
+            center=dict(x=0, y=0, z=0),   # Looking at center
+            up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
+        )
+    
+    else:
+        print('Invalid hemisphere parameter')
+
+    return mesh, camera_medial, camera_lateral
+
+
+#Set band values for gyri and sulci (positive band values correspond to gyri, negative to sulci)
 gyri = [4, 5, 6]
 sulci = [-6, -5, -4]
+
+
+# Example Usage
 
 directory = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste"  # Add your directory path here
 tex_dir = '/scratch/hdienye/spangy/textures'
@@ -228,7 +285,8 @@ for filename in os.listdir(directory):
         #Load meshfile
             mesh_file = os.path.join(directory, filename)
             mesh = sio.load_mesh(mesh_file)
-            mesh.apply_transform(mesh.principal_inertia_transform)
+            mesh, camera_medial, camera_lateral = mesh_orientation(mesh, 'left') # mesh of left brain hemisphere
+            # mesh.apply_transform(mesh.principal_inertia_transform)
             vertices = mesh.vertices
             faces = mesh.faces
 
