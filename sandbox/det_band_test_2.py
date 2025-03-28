@@ -60,7 +60,7 @@ def local_determinance_map(
     fcumulative = np.zeros((f2analyse.shape))
     for i in range(nlevels-1): 
         sign_fcumulative = (fcumulative<0)
-        fcumulative+= frecomposed[:,i]
+        fcumulative= fcumulative +  frecomposed[:,i]
         SMk[:,i] = (fcumulative >0) - sign_fcumulative
        
     loc_det_band = np.zeros((f2analyse.shape))
@@ -200,6 +200,10 @@ def process_single_file(mesh_file):
                                                         eigVects)
     
     file = extract_sub_sess_left(mesh_file)
+
+    frec_tex_path = "/envau/work/meca/users/dienye.h/det_band_test_results/textures/frec_{file}.gii"
+    frec_tex = stex.TextureND(frecomposed)
+    sio.write_texture(frec_tex, frec_tex_path)
 
     tex_path = f"/envau/work/meca/users/dienye.h/det_band_test_results/textures/spangy_det_band_{file}.gii"
     tmp_tex = stex.TextureND(loc_det_band)
