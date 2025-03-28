@@ -73,7 +73,7 @@ def local_determinance_map(
     loc_dom_band[f2analyse <= 0] = idx[f2analyse <= 0] * (-1)
     '''
     for i in range(1,nlevels-1,1):
-        indices = np.where(SMk[:,i]<0 & SMk[:,i-1]>=0)
+        indices = np.where((SMk[:,i]<0) & (SMk[:,i-1]>=0))
         loc_det_band[indices] = - i
 
     # gyri
@@ -83,7 +83,7 @@ def local_determinance_map(
     loc_dom_band[f2analyse > 0] = idx[f2analyse > 0]
     '''
     for i in range(1,nlevels-1,1):
-        indices = np.where(SMk[:,i]>0 & SMk[:,i-1]<=0)
+        indices = np.where((SMk[:,i]>0) & (SMk[:,i-1]<=0))
         loc_det_band[indices] =  i
 
 
@@ -285,7 +285,7 @@ def main():
     
     print("Scanning directory: {}".format(mesh_path))
     # Get list of files
-    all_files = [f for f in os.listdir(mesh_path)]
+    all_files = [f for f in os.listdir(mesh_path) if f.endswith('left.surf.gii') or f.endswith('right.surf.gii')]
     print("Found {} files to process".format(len(all_files)))
     
     
