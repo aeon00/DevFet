@@ -281,7 +281,7 @@ def main():
     #     sys.exit(1)
 
         # Paths
-    mesh_path = '/envau/work/meca/users/dienye.h/rough_hemisphere/mesh_surfaces/'
+    mesh_path = '/envau/work/meca/users/dienye.h/det_band_test_results/example_meshes/'
     
     print("Scanning directory: {}".format(mesh_path))
     # Get list of files
