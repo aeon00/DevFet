@@ -201,9 +201,9 @@ def process_single_file(mesh_file):
     
     file = extract_sub_sess_left(mesh_file)
 
-    frec_tex_path = "/envau/work/meca/users/dienye.h/det_band_test_results/textures/frec_{file}.gii"
-    frec_tex = stex.TextureND(frecomposed)
-    sio.write_texture(frec_tex, frec_tex_path)
+    # frec_tex_path = "/envau/work/meca/users/dienye.h/det_band_test_results/textures/frec_{file}.gii"
+    # frec_tex = stex.TextureND(frecomposed)
+    # sio.write_texture(frec_tex, frec_tex_path)
 
     tex_path = f"/envau/work/meca/users/dienye.h/det_band_test_results/textures/spangy_det_band_{file}.gii"
     tmp_tex = stex.TextureND(loc_det_band)
