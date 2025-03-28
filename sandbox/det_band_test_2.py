@@ -61,7 +61,7 @@ def local_determinance_map(
     for i in range(nlevels-1): 
         sign_fcumulative = (fcumulative<0)
         fcumulative= fcumulative +  frecomposed[:,i]
-        SMk[:,i] = (fcumulative >0) - sign_fcumulative
+        SMk[:,i] = (fcumulative > 0).astype(int) - sign_fcumulative
        
     loc_det_band = np.zeros((f2analyse.shape))
     
