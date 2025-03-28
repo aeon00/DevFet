@@ -285,7 +285,7 @@ def main():
     
     print("Scanning directory: {}".format(mesh_path))
     # Get list of files
-    all_files = [f for f in os.listdir(mesh_path) if f.endswith('left.surf.gii') or f.endswith('right.surf.gii')]
+    all_files = [f for f in os.listdir(mesh_path)]
     print("Found {} files to process".format(len(all_files)))
     
     
