@@ -9,8 +9,7 @@ import slam.texture as stex
 import time
 import sys
 
-def local_determinance_map(
-        coefficients, f2analyse, nlevels, group_indices, eig_vec):
+def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_vec):
     """
     Parameters
     ----------
@@ -47,45 +46,26 @@ def local_determinance_map(
         frecomposed[:, i] = f_ii
 
     # locally determinant band
-
-    '''
-    diff_recomposed = frecomposed[:, 0]
-    diff_recomposed = np.concatenate(
-        (np.expand_dims(
-            diff_recomposed, axis=1), np.diff(
-            frecomposed, axis=1)), axis=1)
-    '''
-    SMk = np.zeros((len(f2analyse),nlevels))
+    SMk = np.zeros((len(f2analyse), nlevels))
     # Formulas C.2, C.3, C.4 of Spangy 2012 article
-    fcumulative = np.zeros((f2analyse.shape))
+    fcumulative = np.zeros(f2analyse.shape)
     for i in range(nlevels-1): 
-        sign_fcumulative = (fcumulative<0)
-        fcumulative= fcumulative +  frecomposed[:,i]
-        SMk[:,i] = (fcumulative > 0).astype(int) - sign_fcumulative
-       
-    loc_det_band = np.zeros((f2analyse.shape))
+        sign_fcumulative = (fcumulative < 0)
+        fcumulative += frecomposed[:,i]
+        SMk[:,i] = (fcumulative > 0).astype(int) - sign_fcumulative.astype(int)
     
-
+    loc_det_band = np.zeros(f2analyse.shape)
+    
     # sulci 
-    '''
-    idx = np.argmin(diff_recomposed, axis=1)
-    idx = idx + 1
-    loc_dom_band[f2analyse <= 0] = idx[f2analyse <= 0] * (-1)
-    '''
-    for i in range(1,nlevels-1,1):
-        indices = np.where((SMk[:,i]<0) & (SMk[:,i-1]>=0))
-        loc_det_band[indices] = - i
+    for i in range(1, nlevels-1):
+        # Correctly use parentheses with the bitwise operator
+        indices = np.where((SMk[:,i] < 0) & (SMk[:,i-1] >= 0))
+        loc_det_band[indices[0]] = -i
 
     # gyri
-    '''
-    idx = np.argmax(diff_recomposed, axis=1)
-    idx = idx + 1
-    loc_dom_band[f2analyse > 0] = idx[f2analyse > 0]
-    '''
-    for i in range(1,nlevels-1,1):
-        indices = np.where((SMk[:,i]>0) & (SMk[:,i-1]<=0))
-        loc_det_band[indices] =  i
-
+    for i in range(1, nlevels-1):
+        indices = np.where((SMk[:,i] > 0) & (SMk[:,i-1] <= 0))
+        loc_det_band[indices[0]] = i
 
     return loc_det_band, frecomposed
 
