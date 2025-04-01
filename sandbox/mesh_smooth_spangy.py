@@ -54,6 +54,7 @@ def process_single_file(filename, surface_path, df):
             
         mesh = sio.load_mesh(mesh_file)
         mesh = laplacian_mesh_smoothing(mesh, nb_iter=5, dt=0.1)
+        filename = str(filename) + '_smooth_5'
         new_mesh_path = os.path.join('/envau/work/meca/users/dienye.h/smoothened_mesh_data/mesh/', '{}.gii'.format(filename))
         sio.write_mesh(mesh, new_mesh_path)
         mesh.apply_transform(mesh.principal_inertia_transform)
@@ -184,7 +185,6 @@ def main():
         # Process files in this chunk
         results = []
         for filename in all_files[start_idx:end_idx]:
-            filename = str(filename) + '_smooth_5'
             result = process_single_file(filename, surface_path, df)
             
     except Exception as e:
