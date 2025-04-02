@@ -38,33 +38,44 @@ def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_
 
     # band by band recomposition
     for i in range(nlevels - 1):
-        # levels_ii: number of frequency band wihin the compact Band i
+        # levels_i: number of frequency band within the compact Band i
         levels_i = np.arange(
             group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
-        # np.array((number of vertices, number of levels_ii))
+        # np.array((number of vertices, number of levels_i))
         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
         frecomposed[:, i] = f_ii
 
-    # locally determinant band
-    SMk = np.zeros((len(f2analyse), nlevels))
-    # Formulas C.2, C.3, C.4 of Spangy 2012 article
-    fcumulative = np.zeros(f2analyse.shape)
-    for i in range(nlevels-1): 
-        sign_fcumulative = (fcumulative < 0)
-        fcumulative= fcumulative +  frecomposed[:,i]
-        SMk[:,i] = (fcumulative > 0).astype(int) - sign_fcumulative.astype(int)
+    # Create cumulative synthesis maps
+    cumulative_maps = np.zeros((len(f2analyse), nlevels-1))
+    for i in range(nlevels-1):
+        if i == 0:
+            cumulative_maps[:,i] = frecomposed[:,i]
+        else:
+            cumulative_maps[:,i] = cumulative_maps[:,i-1] + frecomposed[:,i]
     
+    # Create CFP maps (binary maps indicating gyrus vs sulcus)
+    cfp_maps = np.zeros((len(f2analyse), nlevels-1))
+    for i in range(nlevels-1):
+        cfp_maps[:,i] = (cumulative_maps[:,i] > 0).astype(int)
+    
+    # Initialize determinant band map
     loc_det_band = np.zeros(f2analyse.shape)
     
-    # sulci 
+    # Assign determinant bands based on sign changes
+    # First handle the first band
+    indices = np.where(cfp_maps[:,0] > 0)
+    loc_det_band[indices[0]] = 1
+    indices = np.where(cfp_maps[:,0] < 0)
+    loc_det_band[indices[0]] = -1
+    
+    # Then for bands 2 to nlevels-1, look for sign changes
     for i in range(1, nlevels-1):
-        # Correctly use parentheses with the bitwise operator
-        indices = np.where((SMk[:,i] < 0) & (SMk[:,i-1] >= 0))
+        # Find where sulci appear (sign change from positive/zero to negative)
+        indices = np.where((cfp_maps[:,i] == 0) & (cfp_maps[:,i-1] > 0))
         loc_det_band[indices[0]] = -i
-
-    # gyri
-    for i in range(1, nlevels-1):
-        indices = np.where((SMk[:,i] > 0) & (SMk[:,i-1] <= 0))
+        
+        # Find where gyri appear (sign change from negative/zero to positive)
+        indices = np.where((cfp_maps[:,i] > 0) & (cfp_maps[:,i-1] == 0))
         loc_det_band[indices[0]] = i
 
     return loc_det_band, frecomposed
