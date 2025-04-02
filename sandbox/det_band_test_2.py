@@ -32,51 +32,50 @@ def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_
         recomposition of f2analyse in each frequency band
     """
     N = np.size(coefficients)
+    num_vertices = len(f2analyse)
 
-    frecomposed = np.zeros((len(f2analyse), nlevels - 1), dtype='object')
+    # Band by band recomposition
+    frecomposed = np.zeros((num_vertices, nlevels - 1), dtype=np.float64)
     eig_vec = np.flip(eig_vec, 1)
 
-    # band by band recomposition
     for i in range(nlevels - 1):
-        # levels_i: number of frequency band within the compact Band i
         levels_i = np.arange(
             group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
-        # np.array((number of vertices, number of levels_i))
         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
         frecomposed[:, i] = f_ii
 
-    # Create cumulative synthesis maps
-    cumulative_maps = np.zeros((len(f2analyse), nlevels-1))
-    for i in range(nlevels-1):
-        if i == 0:
-            cumulative_maps[:,i] = frecomposed[:,i]
+    # Compute cumulative synthesis
+    cumulative_synthesis = np.zeros((num_vertices, nlevels))
+    for k in range(1, nlevels):
+        if k == 1:
+            cumulative_synthesis[:, k] = frecomposed[:, k-1]
         else:
-            cumulative_maps[:,i] = cumulative_maps[:,i-1] + frecomposed[:,i]
-    
-    # Create CFP maps (binary maps indicating gyrus vs sulcus)
-    cfp_maps = np.zeros((len(f2analyse), nlevels-1))
-    for i in range(nlevels-1):
-        cfp_maps[:,i] = (cumulative_maps[:,i] > 0).astype(int)
-    
-    # Initialize determinant band map
-    loc_det_band = np.zeros(f2analyse.shape)
-    
-    # Assign determinant bands based on sign changes
-    # First handle the first band
-    indices = np.where(cfp_maps[:,0] > 0)
-    loc_det_band[indices[0]] = 1
-    indices = np.where(cfp_maps[:,0] < 0)
-    loc_det_band[indices[0]] = -1
-    
-    # Then for bands 2 to nlevels-1, look for sign changes
-    for i in range(1, nlevels-1):
-        # Find where sulci appear (sign change from positive/zero to negative)
-        indices = np.where((cfp_maps[:,i] == 0) & (cfp_maps[:,i-1] > 0))
-        loc_det_band[indices[0]] = -i
+            cumulative_synthesis[:, k] = cumulative_synthesis[:, k-1] + frecomposed[:, k-1]
+
+    # Compute SMk according to formula C.2-C.4 in the paper
+    SMk = np.zeros((num_vertices, nlevels))
+    for k in range(1, nlevels):
+        # Formula C.3
+        positive_mask = (cumulative_synthesis[:, k] > 0)
+        # Formula C.4
+        positive_prev_mask = (cumulative_synthesis[:, k-1] > 0) if k > 1 else np.zeros(num_vertices, dtype=bool)
         
-        # Find where gyri appear (sign change from negative/zero to positive)
-        indices = np.where((cfp_maps[:,i] > 0) & (cfp_maps[:,i-1] == 0))
-        loc_det_band[indices[0]] = i
+        # Formula C.2
+        SMk[:, k] = positive_mask.astype(int) - positive_prev_mask.astype(int)
+
+    # Initialize determinant band map
+    loc_det_band = np.zeros(num_vertices)
+
+    # Apply the segmentation logic from the paper
+    # First assign the highest band that causes a sign change
+    for k in range(nlevels-1, 0, -1):  # Start from highest band and work down
+        # Sulci (negative sign change)
+        sulci_indices = np.where((SMk[:, k] < 0))
+        loc_det_band[sulci_indices] = -k
+        
+        # Gyri (positive sign change)
+        gyri_indices = np.where((SMk[:, k] > 0))
+        loc_det_band[gyri_indices] = k
 
     return loc_det_band, frecomposed
 
