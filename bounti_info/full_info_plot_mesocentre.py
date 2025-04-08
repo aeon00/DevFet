@@ -298,10 +298,16 @@ def process_single_file(filename, surface_path, df):
 def ensure_dir_exists(directory):
     """
     Make sure a directory exists, creating it if necessary
+    Handle the case where the directory might be created between check and creation
     """
-    if not os.path.exists(directory):
-        print(f"Creating directory: {directory}")
-        os.makedirs(directory)
+    try:
+        if not os.path.exists(directory):
+            print(f"Creating directory: {directory}")
+            os.makedirs(directory, exist_ok=True)
+    except FileExistsError:
+        # Directory already exists (race condition handled)
+        print(f"Directory already exists: {directory}")
+        pass
 
 def main():
     try:
