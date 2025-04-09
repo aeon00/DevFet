@@ -43,7 +43,7 @@ def calculate_band_wavelength(eigVal, group_indices):
     ----------
     eigVal : ndarray
         Eigenvalues from the spectrum analysis
-    group_indices : list of lists
+    group_indices : list of arrays
         Indices of eigenvalues in each band
     
     Returns
@@ -54,7 +54,7 @@ def calculate_band_wavelength(eigVal, group_indices):
     band_wavelengths = []
     
     for indices in group_indices:
-        if not indices:  # Skip empty bands
+        if len(indices) == 0:  # Check if array is empty
             band_wavelengths.append(0)
             continue
             
@@ -95,6 +95,11 @@ def calculate_parcels_per_band(loc_dom_band, levels):
         # Create binary mask for this band
         band_mask = (loc_dom_band == i).astype(int)
         
+        # Check if the band exists at all
+        if np.sum(band_mask) == 0:
+            parcels_per_band.append(0)
+            continue
+            
         # Label connected components
         labeled_array, num_parcels = ndimage.label(band_mask)
         
