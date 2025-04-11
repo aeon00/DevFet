@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import time
 import slam.spangy as spgy
+from slam.differential_geometry import laplacian_mesh_smoothing
 import numpy as np
 import matplotlib.pyplot as plt
 import trimesh
@@ -107,6 +108,42 @@ def calculate_parcels_per_band(loc_dom_band, levels):
     
     return parcels_per_band
 
+def calculate_band_coverage(mesh, loc_dom_band, band_idx):
+    """
+    Calculate the coverage metrics for a specific frequency band using local dominance map.
+    
+    Parameters:
+    mesh: Mesh object containing vertices and faces
+    loc_dom_band: Array of local dominant bands for each vertex
+    band_idx: Index of the band to analyze (e.g., 4 for B4)
+    
+    Returns:
+    float: Number of vertices where this band is dominant
+    float: Percentage of total vertices
+    float: Surface area covered by the band in mm²
+    float: Percentage of total surface area
+    """
+    # Count vertices where this band is dominant
+    band_vertices = loc_dom_band == band_idx
+    num_vertices = np.sum(band_vertices)
+    vertex_percentage = (num_vertices / len(loc_dom_band)) * 100
+    
+    # Calculate surface area coverage
+    total_area = 0
+    faces = mesh.faces
+    vertices = mesh.vertices
+    
+    for face in faces:
+        # If any vertex in the face has this dominant band, include face area
+        if any(band_vertices[face]):
+            v1, v2, v3 = vertices[face]
+            # Calculate face area using cross product
+            area = 0.5 * np.linalg.norm(np.cross(v2 - v1, v3 - v1))
+            total_area += area
+    
+    area_percentage = (total_area / mesh.area) * 100
+    return num_vertices, vertex_percentage, total_area, area_percentage
+
 def process_single_file(filename, surface_path, df):
     """
     Process a single surface file and compute various metrics.
@@ -132,7 +169,12 @@ def process_single_file(filename, surface_path, df):
             return None
             
         mesh = sio.load_mesh(mesh_file)
-        mesh.apply_transform(mesh.principal_inertia_transform)
+        mesh_smooth_5 = laplacian_mesh_smoothing(mesh, nb_iter=5, dt=0.1)
+        mesh = mesh_smooth_5
+        mesh_save_path = "/scratch/hdienye/marsfet_full_info/mesh/"
+        ensure_dir_exists(mesh_save_path)
+        new_mesh_path = os.path.join(mesh_save_path, 'smooth_5_{}'.format(filename))
+        sio.write_mesh(mesh, new_mesh_path)
         N = 5000
         
         # Compute eigenpairs and mass matrix
@@ -144,7 +186,7 @@ def process_single_file(filename, surface_path, df):
         PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
             scurv.curvatures_and_derivatives(mesh)
         tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
-        principal_tex_dir = '/scratch/hdienye/marsfet_full_info/test/principal_curv_tex/'
+        principal_tex_dir = '/scratch/hdienye/marsfet_full_info/principal_curv_tex/'
         ensure_dir_exists(principal_tex_dir)
         principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
         sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
@@ -153,7 +195,7 @@ def process_single_file(filename, surface_path, df):
         tex_mean_curv = stex.TextureND(mean_curv)
         tex_mean_curv.z_score_filtering(z_thresh=3)
         
-        mean_tex_dir = '/scratch/hdienye/marsfet_full_info/test/mean_curv_tex/'
+        mean_tex_dir = '/scratch/hdienye/marsfet_full_info/mean_curv_tex/'
         ensure_dir_exists(mean_tex_dir)
         mean_tex_path = os.path.join(mean_tex_dir, 'filt_mean_curv_{}.gii'.format(filename))
         sio.write_texture(tex_mean_curv, mean_tex_path)
@@ -193,7 +235,7 @@ def process_single_file(filename, surface_path, df):
         plt.tight_layout()  # Adjust the spacing between subplots
         
         # Ensure plots directory exists
-        plots_dir = '/scratch/hdienye/marsfet_full_info/test/spangy/plots/'
+        plots_dir = '/scratch/hdienye/marsfet_full_info/spangy/plots/'
         ensure_dir_exists(plots_dir)
         
         # Save first plot
@@ -255,16 +297,68 @@ def process_single_file(filename, surface_path, df):
             print(f'B{i} = {power_distribution[i]:.2f}%', end=', ')
         print()
 
-        tex_path = f"/scratch/hdienye/marsfet_full_info/test/spangy/textures/spangy_dom_band_{participant_session}.gii"
+        tex_path = f"/scratch/hdienye/marsfet_full_info/spangy/textures/spangy_dom_band_{participant_session}.gii"
         tmp_tex = stex.TextureND(loc_dom_band)
         # tmp_tex.z_score_filtering(z_thresh=3)
         sio.write_texture(tmp_tex, tex_path)
         
         # Ensure output directories exist before saving files
         ensure_dir_exists(os.path.dirname(tex_path))
+
+        # Save frecomposed data
+        # Create base directory and subdirectories for frecomposed data
+        frecomposed_dir = "/scratch/hdienye/marsfet_full_info/frecomposed/"
+        bands_dir = os.path.join(frecomposed_dir, "bands")
+        full_dir = os.path.join(frecomposed_dir, "full")
+        
+        # Create all directories, ensuring they exist
+        os.makedirs(frecomposed_dir, exist_ok=True)
+        os.makedirs(bands_dir, exist_ok=True)
+        os.makedirs(full_dir, exist_ok=True)
+        
+        # Convert each band of frecomposed to a texture and save it
+        for i in range(frecomposed.shape[1]):
+            band_data = frecomposed[:, i]
+            band_tex = stex.TextureND(band_data)
+            band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{filename}.gii')
+            sio.write_texture(band_tex, band_path)
+            
+        # Also save the full frecomposed array as a numpy file for future analysis
+        np_path = os.path.join(full_dir, f'frecomposed_full_{filename}.npy')
+        np.save(np_path, frecomposed)
         
         # Get hull area and gyrification index
         gyrification_index, hull_area = get_gyrification_index(mesh)
+
+            # Calculate coverage for bands 4, 5, 6 and 7
+        band_vertices = []
+        band_vertex_percentages = []
+        band_areas = []
+        band_area_percentages = []
+        
+        max_band = np.max(loc_dom_band)  # Get the highest available band
+        
+        for band_idx in [4, 5, 6]:
+            if band_idx <= max_band:
+                num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
+            else:
+                # Set zeros for unavailable bands
+                num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
+            
+            band_vertices.append(num_verts)
+            band_vertex_percentages.append(vert_pct)
+            band_areas.append(area)
+            band_area_percentages.append(area_pct)
+        
+        band_powers = []
+        band_rel_powers = []        
+        for band_idx in [4, 5, 6]:
+            if band_idx < len(grouped_spectrum):
+                band_powers.append(grouped_spectrum[band_idx])
+                band_rel_powers.append(grouped_spectrum[band_idx]/afp)
+            else:
+                band_powers.append(0)
+                band_rel_powers.append(0)
 
         # Calculate and print execution time for this iteration
         end_time = time.time()
@@ -282,7 +376,23 @@ def process_single_file(filename, surface_path, df):
             'volume_ml': np.floor(volume / mL_in_MM3),
             'surface_area_cm2': np.floor(surface_area / CM2_in_MM2),
             'analyze_folding_power': afp,
-            'processing_time': execution_time
+            'processing_time': execution_time,
+            "B4_band_relative_power" : band_rel_powers[0],
+            "B5_band_relative_power": band_rel_powers[1], 
+            "B6_band_relative_power": band_rel_powers[2],
+            "B4_number_of_vertices" : band_vertices[0],
+            "B5_number_of_vertices": band_vertices[1], 
+            "B5_number_of_vertices" : band_vertices[2], 
+            # f.write(f"B7: {band_vertices[3]} vertices ({band_vertex_percentages[3]:.2f}%)\n")
+            "B4_vertex_percentage" : band_vertex_percentages[0],
+            "B5_vertex_percentage" : band_vertex_percentages[1],
+            "B6_vertex_percentage" : band_vertex_percentages[2], 
+            "B4_surface_area": band_areas[0],
+            "B5_surface_area": band_areas[1], 
+            "B6_surface_area": band_areas[2], 
+            "B4_surface_area_percentage": band_area_percentages[0],
+            "B5_surface_area_percentage": band_area_percentages[1],
+            "B6_surface_area_percentage": band_area_percentages[2]
         }
         
         # Add band power data
@@ -317,15 +427,15 @@ def ensure_dir_exists(directory):
 def main():
     try:
         # Paths
-        surface_path = "/scratch/hdienye/marsfet_full_info/test/mesh/"
+        surface_path = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste/"
         mesh_info_path = "/scratch/hdienye/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
         
         # Ensure all output directories exist
-        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/test/principal_curv_tex/')
-        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/test/mean_curv_tex/')
-        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/test/spangy/plots/')
-        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/test/spangy/textures/')
-        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/test/info/')
+        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/principal_curv_tex/')
+        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/mean_curv_tex/')
+        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/spangy/plots/')
+        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/spangy/textures/')
+        ensure_dir_exists('/scratch/hdienye/marsfet_full_info/info/')
         
         print("Reading data from {}".format(mesh_info_path))
         # Read dataframe
@@ -334,7 +444,7 @@ def main():
         
         print("Scanning directory: {}".format(surface_path))
         # Get list of files
-        all_files = [f for f in os.listdir(surface_path) if f.endswith('left.surf.gii_smooth_5.gii') or f.endswith('right.surf.gii_smooth_5.gii')]
+        all_files = [f for f in os.listdir(surface_path) if f.endswith('left.surf.gii') or f.endswith('right.surf.gii')]
         print("Found {} files to process".format(len(all_files)))
         
         # Process directly if not in SLURM environment
