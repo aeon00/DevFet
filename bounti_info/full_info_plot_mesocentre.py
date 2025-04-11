@@ -188,7 +188,7 @@ def process_single_file(filename, surface_path, df):
         tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
         principal_tex_dir = '/scratch/hdienye/marsfet_full_info/principal_curv_tex/'
         ensure_dir_exists(principal_tex_dir)
-        principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
+        principal_tex_path = os.path.join(principal_tex_dir, 'smooth_5_principal_curv_{}.gii'.format(filename))
         sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
         
         mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
@@ -197,7 +197,7 @@ def process_single_file(filename, surface_path, df):
         
         mean_tex_dir = '/scratch/hdienye/marsfet_full_info/mean_curv_tex/'
         ensure_dir_exists(mean_tex_dir)
-        mean_tex_path = os.path.join(mean_tex_dir, 'filt_mean_curv_{}.gii'.format(filename))
+        mean_tex_path = os.path.join(mean_tex_dir, 'smooth_5_filt_mean_curv_{}.gii'.format(filename))
         sio.write_texture(tex_mean_curv, mean_tex_path)
         filt_mean_curv = tex_mean_curv.darray.squeeze()
         total_mean_curv = sum(filt_mean_curv)
@@ -252,7 +252,7 @@ def process_single_file(filename, surface_path, df):
         for i, v in enumerate(power_distribution):
             ax.text(i, v + 0.5, f'{v:.1f}%', ha='center')
         plt.tight_layout()
-        fig.savefig(f'{plots_dir}/power_distribution_{filename}.png', bbox_inches='tight', dpi=300)
+        fig.savefig(f'{plots_dir}/smooth_5_power_distribution_{filename}.png', bbox_inches='tight', dpi=300)
         plt.close(fig)
         
         # a. Whole brain parameters
@@ -297,7 +297,7 @@ def process_single_file(filename, surface_path, df):
             print(f'B{i} = {power_distribution[i]:.2f}%', end=', ')
         print()
 
-        tex_path = f"/scratch/hdienye/marsfet_full_info/spangy/textures/spangy_dom_band_{participant_session}.gii"
+        tex_path = f"/scratch/hdienye/marsfet_full_info/spangy/textures/smooth_5_spangy_dom_band_{participant_session}.gii"
         tmp_tex = stex.TextureND(loc_dom_band)
         # tmp_tex.z_score_filtering(z_thresh=3)
         sio.write_texture(tmp_tex, tex_path)
@@ -320,11 +320,11 @@ def process_single_file(filename, surface_path, df):
         for i in range(frecomposed.shape[1]):
             band_data = frecomposed[:, i]
             band_tex = stex.TextureND(band_data)
-            band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{filename}.gii')
+            band_path = os.path.join(bands_dir, f'smooth_5_frecomposed_band{i+1}_{filename}.gii')
             sio.write_texture(band_tex, band_path)
             
         # Also save the full frecomposed array as a numpy file for future analysis
-        np_path = os.path.join(full_dir, f'frecomposed_full_{filename}.npy')
+        np_path = os.path.join(full_dir, f'smooth_5_frecomposed_full_{filename}.npy')
         np.save(np_path, frecomposed)
         
         # Get hull area and gyrification index
