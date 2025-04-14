@@ -152,7 +152,7 @@ def process_single_file(filename, surface_path, df):
         start_time = time.time()
         print("Starting processing of {}".format(filename))
 
-        hemisphere = 'left' if filename.endswith('left.surf.gii_smooth_5.gii') else 'right'
+        hemisphere = 'left' if filename.endswith('left.surf.gii') else 'right'
         participant_session = filename.split('_')[0] + '_' + filename.split('_')[1] + f'_{hemisphere}'
         base_participant_session = filename.split('_')[0] + '_' + filename.split('_')[1]
         
@@ -319,11 +319,11 @@ def process_single_file(filename, surface_path, df):
         os.makedirs(full_dir, exist_ok=True)
         
         # Convert each band of frecomposed to a texture and save it
-        for i in range(frecomposed.shape[1]):
-            band_data = frecomposed[:, i]
-            band_tex = stex.TextureND(band_data)
-            band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{filename}.gii')
-            sio.write_texture(band_tex, band_path)
+        # for i in range(frecomposed.shape[1]):
+        #     band_data = frecomposed[:, i]
+        #     band_tex = stex.TextureND(band_data)
+        #     band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{filename}.gii')
+        #     sio.write_texture(band_tex, band_path)
             
         # Also save the full frecomposed array as a numpy file for future analysis
         np_path = os.path.join(full_dir, f'frecomposed_full_{filename}.npy')
