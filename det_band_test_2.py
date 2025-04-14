@@ -195,14 +195,14 @@ def process_single_file(mesh_file):
                                                                         eigVects, eigVal)
     
     # Calculate local dominance map
-    loc_det_band, frecomposed = local_determinance_map(coefficients, mean_curv,
+    loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, mean_curv,
                                                         nlevels, group_indices,
                                                         eigVects)
     
     file = extract_sub_sess_left(mesh_file)
 
     tex_path = f"/envau/work/meca/users/dienye.h/det_band_test_results/textures/spangy_det_band_{file}.gii"
-    tmp_tex = stex.TextureND(loc_det_band)
+    tmp_tex = stex.TextureND(loc_dom_band)
     # tmp_tex.z_score_filtering(z_thresh=3)
     sio.write_texture(tmp_tex, tex_path)
 
@@ -254,11 +254,11 @@ def process_single_file(mesh_file):
     band_areas = []
     band_area_percentages = []
     
-    max_band = np.max(loc_det_band)  # Get the highest available band
+    max_band = np.max(loc_dom_band)  # Get the highest available band
     
     for band_idx in [4, 5, 6]:
         if band_idx <= max_band:
-            num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_det_band, band_idx)
+            num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
         else:
             # Set zeros for unavailable bands
             num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
