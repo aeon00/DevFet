@@ -219,12 +219,12 @@ def process_single_file(mesh_file):
     os.makedirs(bands_dir, exist_ok=True)
     os.makedirs(full_dir, exist_ok=True)
     
-    # Convert each band of frecomposed to a texture and save it
-    for i in range(frecomposed.shape[1]):
-        band_data = frecomposed[:, i]
-        band_tex = stex.TextureND(band_data)
-        band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{file}.gii')
-        sio.write_texture(band_tex, band_path)
+    ## Convert each band of frecomposed to a texture and save it
+    # for i in range(frecomposed.shape[1]):
+    #     band_data = frecomposed[:, i]
+    #     band_tex = stex.TextureND(band_data)
+    #     band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{file}.gii')
+    #     sio.write_texture(band_tex, band_path)
         
     # Also save the full frecomposed array as a numpy file for future analysis
     np_path = os.path.join(full_dir, f'frecomposed_full_{file}.npy')
