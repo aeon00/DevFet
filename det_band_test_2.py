@@ -210,7 +210,7 @@ def process_single_file(mesh_file):
     print(type(frecomposed))
     print(frecomposed.dtype)
     # Create base directory and subdirectories for frecomposed data
-    frecomposed_dir = "/scratch/hdienye/dhcp_full_info/frecomposed/"
+    frecomposed_dir = "/envau/work/meca/users/dienye.h/det_band_test_results/frecomposed/"
     bands_dir = os.path.join(frecomposed_dir, "bands")
     full_dir = os.path.join(frecomposed_dir, "full")
     
