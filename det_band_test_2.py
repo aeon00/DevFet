@@ -175,7 +175,7 @@ def process_single_file(mesh_file):
 
     # Load mesh'
     start_time = time.time()
-    N = 5000
+    N = 1500
     mesh = sio.load_mesh(mesh_file)
     vertices = mesh.vertices
     num_vertices = len(vertices)
