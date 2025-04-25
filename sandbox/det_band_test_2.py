@@ -8,8 +8,80 @@ import os
 import slam.texture as stex
 import time
 import sys
+import copy
 
-def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_vec):
+# def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_vec):
+#     """
+#     Parameters
+#     ----------
+#     coefficients : Array of floats
+#         Fourier coefficients of the input function f2analyse
+#     f2analyse : Array of floats
+#         Scalar function to analyze (e.g. mean curvature)
+#     nlevels : Array of ints
+#         number of spectral bands
+#     group_indices : Array of ints
+#         indices of spectral bands
+#     eig_vec : Array of floats
+#         eigenvectors (reversed order for computation and memory reasons)
+
+#     Returns
+#     -------
+#     loc_det_band : Array of floats
+#         texture with the differential contribution of each frequency band
+#     frecomposed : Array of floats
+#         recomposition of f2analyse in each frequency band
+#     """
+#     N = np.size(coefficients)
+#     num_vertices = len(f2analyse)
+
+#     # Band by band recomposition
+#     frecomposed = np.zeros((num_vertices, nlevels - 1), dtype=np.float64)
+#     eig_vec = np.flip(eig_vec, 1)
+
+#     for i in range(nlevels - 1):
+#         levels_i = np.arange(
+#             group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
+#         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
+#         frecomposed[:, i] = f_ii
+
+#     # Compute cumulative synthesis
+#     cumulative_synthesis = np.zeros((num_vertices, nlevels))
+#     for k in range(1, nlevels):
+#         if k == 1:
+#             cumulative_synthesis[:, k] = frecomposed[:, k-1]
+#         else:
+#             cumulative_synthesis[:, k] = cumulative_synthesis[:, k-1] + frecomposed[:, k-1]
+
+#     # Compute SMk according to formula C.2-C.4 in the paper
+#     SMk = np.zeros((num_vertices, nlevels))
+#     for k in range(1, nlevels):
+#         # Formula C.3
+#         positive_mask = (cumulative_synthesis[:, k] > 0)
+#         # Formula C.4
+#         positive_prev_mask = (cumulative_synthesis[:, k-1] > 0) if k > 1 else np.zeros(num_vertices, dtype=bool)
+        
+#         # Formula C.2
+#         SMk[:, k] = positive_mask.astype(int) - positive_prev_mask.astype(int)
+
+#     # Initialize determinant band map
+#     loc_det_band = np.zeros(num_vertices)
+
+#     # Apply the segmentation logic from the paper
+#     # First assign the highest band that causes a sign change
+#     for k in range(nlevels-1, 0, -1):  # Start from highest band and work down
+#         # Sulci (negative sign change)
+#         sulci_indices = np.where((SMk[:, k] < 0))
+#         loc_det_band[sulci_indices] = -k
+        
+#         # Gyri (positive sign change)
+#         gyri_indices = np.where((SMk[:, k] > 0))
+#         loc_det_band[gyri_indices] = k
+
+#     return loc_det_band, frecomposed
+
+def local_determinance_map(
+        coefficients, f2analyse, nlevels, group_indices, eig_vec):
     """
     Parameters
     ----------
@@ -32,50 +104,29 @@ def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_
         recomposition of f2analyse in each frequency band
     """
     N = np.size(coefficients)
-    num_vertices = len(f2analyse)
 
-    # Band by band recomposition
-    frecomposed = np.zeros((num_vertices, nlevels - 1), dtype=np.float64)
+    frecomposed = np.zeros((len(f2analyse), nlevels - 1), dtype='object')
     eig_vec = np.flip(eig_vec, 1)
 
+    # band by band recomposition
     for i in range(nlevels - 1):
+        # levels_ii: number of frequency band wihin the compact Band i
         levels_i = np.arange(
             group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
+        # np.array((number of vertices, number of levels_ii))
         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
         frecomposed[:, i] = f_ii
 
-    # Compute cumulative synthesis
-    cumulative_synthesis = np.zeros((num_vertices, nlevels))
-    for k in range(1, nlevels):
-        if k == 1:
-            cumulative_synthesis[:, k] = frecomposed[:, k-1]
-        else:
-            cumulative_synthesis[:, k] = cumulative_synthesis[:, k-1] + frecomposed[:, k-1]
+    # locally determinant band
 
-    # Compute SMk according to formula C.2-C.4 in the paper
-    SMk = np.zeros((num_vertices, nlevels))
-    for k in range(1, nlevels):
-        # Formula C.3
-        positive_mask = (cumulative_synthesis[:, k] > 0)
-        # Formula C.4
-        positive_prev_mask = (cumulative_synthesis[:, k-1] > 0) if k > 1 else np.zeros(num_vertices, dtype=bool)
-        
-        # Formula C.2
-        SMk[:, k] = positive_mask.astype(int) - positive_prev_mask.astype(int)
+    map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
+    map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
+    map1 = np.cumsum(frecomposed)[:,4]
+    spemap3 = np.sign(map3) * 3
+    loc_det_band = copy.deepcopy(spemap3)
+    loc_det_band[spemap3==0] = map2[spemap3==0]
+    loc_det_band[np.logical_and(spemap3 ==0, map2==0)] = map1[np.logical_and(spemap3 ==0, map2==0)]
 
-    # Initialize determinant band map
-    loc_det_band = np.zeros(num_vertices)
-
-    # Apply the segmentation logic from the paper
-    # First assign the highest band that causes a sign change
-    for k in range(nlevels-1, 0, -1):  # Start from highest band and work down
-        # Sulci (negative sign change)
-        sulci_indices = np.where((SMk[:, k] < 0))
-        loc_det_band[sulci_indices] = -k
-        
-        # Gyri (positive sign change)
-        gyri_indices = np.where((SMk[:, k] > 0))
-        loc_det_band[gyri_indices] = k
 
     return loc_det_band, frecomposed
 
