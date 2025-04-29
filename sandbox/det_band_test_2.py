@@ -121,7 +121,7 @@ def local_determinance_map(
 
     map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
     map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
-    map1 = np.cumsum(frecomposed)[:,4]
+    map1 = np.cumsum(frecomposed, axis=0)[:,4]
     spemap3 = np.sign(map3) * 3
     loc_det_band = copy.deepcopy(spemap3)
     loc_det_band[spemap3==0] = map2[spemap3==0]
