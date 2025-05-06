@@ -113,9 +113,29 @@ def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_
         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
         frecomposed[:, i] = f_ii
     # locally determinant band
-    map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
-    map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
-    map1 = np.cumsum(frecomposed, axis=0)[:,4]
+# Check if we have enough bands before accessing high indices
+    if frecomposed.shape[1] > 6:
+        map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
+    else:
+        # Create an array of zeros with the same length as the first dimension
+        map3 = np.zeros(frecomposed.shape[0])
+
+    # Similarly, ensure we handle the case where we don't have enough bands for map2
+    if frecomposed.shape[1] > 5:
+        map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
+    else:
+        map2 = np.zeros(frecomposed.shape[0])
+
+    # And for map1, ensure we have at least 5 bands
+    if frecomposed.shape[1] > 4:
+        map1 = np.cumsum(frecomposed, axis=0)[:,4]
+    else:
+        # If we don't have enough bands, use the highest available band or zeros
+        if frecomposed.shape[1] > 0:
+            map1 = np.cumsum(frecomposed, axis=0)[:,frecomposed.shape[1]-1]
+        else:
+            map1 = np.zeros(frecomposed.shape[0])
+    
     spemap3 = np.sign(map3) * 3
     loc_det_band = np.array(spemap3, dtype=float)
     loc_det_band[spemap3==0] = map2[spemap3==0]
