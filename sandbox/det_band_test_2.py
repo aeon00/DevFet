@@ -228,7 +228,7 @@ def process_single_file(mesh_file):
 
     # Load mesh'
     start_time = time.time()
-    N = 500
+    N = 5000
     mesh = sio.load_mesh(mesh_file)
     vertices = mesh.vertices
     num_vertices = len(vertices)
@@ -334,7 +334,7 @@ def main():
     #     sys.exit(1)
 
         # Paths
-    mesh_path = '/envau/work/meca/users/dienye.h/det_band_test_results/example_meshes/'
+    mesh_path = '/envau/work/meca/users/dienye.h/rough_hemisphere/mesh_surfaces/'
     
     print("Scanning directory: {}".format(mesh_path))
     # Get list of files
