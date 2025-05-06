@@ -80,8 +80,7 @@ import copy
 
 #     return loc_det_band, frecomposed
 
-def local_determinance_map(
-        coefficients, f2analyse, nlevels, group_indices, eig_vec):
+def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_vec):
     """
     Parameters
     ----------
@@ -95,7 +94,6 @@ def local_determinance_map(
         indices of spectral bands
     eig_vec : Array of floats
         eigenvectors (reversed order for computation and memory reasons)
-
     Returns
     -------
     loc_det_band : Array of floats
@@ -104,10 +102,8 @@ def local_determinance_map(
         recomposition of f2analyse in each frequency band
     """
     N = np.size(coefficients)
-
-    frecomposed = np.zeros((len(f2analyse), nlevels - 1), dtype='object')
+    frecomposed = np.zeros((len(f2analyse), nlevels - 1), dtype=float)
     eig_vec = np.flip(eig_vec, 1)
-
     # band by band recomposition
     for i in range(nlevels - 1):
         # levels_ii: number of frequency band wihin the compact Band i
@@ -116,18 +112,14 @@ def local_determinance_map(
         # np.array((number of vertices, number of levels_ii))
         f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
         frecomposed[:, i] = f_ii
-
     # locally determinant band
-
     map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
     map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
     map1 = np.cumsum(frecomposed, axis=0)[:,4]
     spemap3 = np.sign(map3) * 3
-    loc_det_band = copy.deepcopy(spemap3)
+    loc_det_band = np.array(spemap3, dtype=float)
     loc_det_band[spemap3==0] = map2[spemap3==0]
-    loc_det_band[np.logical_and(spemap3 ==0, map2==0)] = map1[np.logical_and(spemap3 ==0, map2==0)]
-
-
+    loc_det_band[np.logical_and(spemap3==0, map2==0)] = map1[np.logical_and(spemap3==0, map2==0)]
     return loc_det_band, frecomposed
 
 def extract_sub_sess_left(filename):
