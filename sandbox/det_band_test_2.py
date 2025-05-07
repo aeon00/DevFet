@@ -102,26 +102,106 @@ def local_determinance_map(coefficients, f2analyse, nlevels, group_indices, eig_
         recomposition of f2analyse in each frequency band
     """
     N = np.size(coefficients)
-    frecomposed = np.zeros((len(f2analyse), nlevels - 1), dtype=float)
-    eig_vec = np.flip(eig_vec, 1)
-    # band by band recomposition
-    for i in range(nlevels - 1):
-        # levels_ii: number of frequency band wihin the compact Band i
-        levels_i = np.arange(
-            group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
-        # np.array((number of vertices, number of levels_ii))
-        f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
-        frecomposed[:, i] = f_ii
-        
-    # locally determinant band
-    map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
-    map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
-    map1 = np.cumsum(frecomposed, axis=0)[:,4]
+    n_vertices = len(f2analyse)
     
+    # Check if we have enough levels
+    if nlevels < 8:  # We need at least 7 bands for indices 0-6
+        print(f"Warning: Not enough spectral bands ({nlevels-1}). Need at least 7.")
+    
+    frecomposed = np.zeros((n_vertices, nlevels - 1), dtype=float)
+    eig_vec = np.flip(eig_vec, 1)
+    
+    # Band by band recomposition
+    for i in range(nlevels - 1):
+        # Check if indices are valid
+        if i + 1 >= len(group_indices):
+            print(f"Warning: group_indices[{i+1}] is out of bounds.")
+            continue
+        
+        # Get frequency band indices
+        try:
+            levels_i = np.arange(
+                group_indices[i + 1, 0], group_indices[i + 1, 1] + 1)
+            
+            # Check if indices are valid
+            if np.max(levels_i) >= N:
+                print(f"Warning: levels_i contains indices >= {N}. Skipping band {i}.")
+                continue
+                
+            # Compute band reconstruction
+            f_ii = np.dot(eig_vec[:, N - levels_i - 1], coefficients[levels_i].T)
+            frecomposed[:, i] = f_ii
+        except Exception as e:
+            print(f"Error in band {i}: {e}")
+    
+    # Determine which bands to use for map3, map2, map1
+    band_idx = min(nlevels - 1, 7) - 1  # Default highest band
+    
+    # Create maps with proper bounds checking
+    # For map3: ideally use bands 6 and 5
+    if frecomposed.shape[1] > 6:
+        map3 = np.sign(frecomposed[:,6]) - np.sign(frecomposed[:,5])
+    elif frecomposed.shape[1] > 5:
+        # If band 6 isn't available but band 5 is
+        map3 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
+        print("Warning: Using bands 5 and 4 for map3 calculation.")
+    else:
+        # Not enough bands, use zeros
+        map3 = np.zeros(n_vertices)
+        print("Warning: Not enough bands for map3. Using zeros.")
+    
+    # For map2: ideally use bands 5 and 4
+    if frecomposed.shape[1] > 5:
+        map2 = np.sign(frecomposed[:,5]) - np.sign(frecomposed[:,4])
+    elif frecomposed.shape[1] > 4:
+        # If band 5 isn't available but band 4 is
+        map2 = np.sign(frecomposed[:,4]) - np.sign(frecomposed[:,3])
+        print("Warning: Using bands 4 and 3 for map2 calculation.")
+    else:
+        # Not enough bands, use zeros
+        map2 = np.zeros(n_vertices)
+        print("Warning: Not enough bands for map2. Using zeros.")
+    
+    # For map1: ideally use cumsum up to band 4
+    if frecomposed.shape[1] > 4:
+        map1 = np.cumsum(frecomposed, axis=0)[:,4]
+    elif frecomposed.shape[1] > 0:
+        # If band 4 isn't available, use the highest available band
+        highest_band = frecomposed.shape[1] - 1
+        map1 = np.cumsum(frecomposed, axis=0)[:,highest_band]
+        print(f"Warning: Using band {highest_band} for map1 calculation.")
+    else:
+        # No bands available, use zeros
+        map1 = np.zeros(n_vertices)
+        print("Warning: No bands available for map1. Using zeros.")
+    
+    # Debug information
+    print(f"frecomposed shape: {frecomposed.shape}")
+    print(f"map3 range: {np.min(map3)} to {np.max(map3)}")
+    print(f"map2 range: {np.min(map2)} to {np.max(map2)}")
+    print(f"map1 range: {np.min(map1)} to {np.max(map1)}")
+    
+    # Create determinance map
     spemap3 = np.sign(map3) * 3
     loc_det_band = np.array(spemap3, dtype=float)
-    loc_det_band[spemap3==0] = map2[spemap3==0]
-    loc_det_band[np.logical_and(spemap3==0, map2==0)] = map1[np.logical_and(spemap3==0, map2==0)]
+    
+    # Apply map2 where map3 is zero
+    zero_map3 = (spemap3 == 0)
+    if np.any(zero_map3):
+        loc_det_band[zero_map3] = map2[zero_map3]
+    
+    # Apply map1 where both map3 and map2 are zero
+    zero_both = np.logical_and(zero_map3, map2 == 0)
+    if np.any(zero_both):
+        loc_det_band[zero_both] = map1[zero_both]
+    
+    # Final check to make sure we're returning valid values
+    loc_det_band = np.nan_to_num(loc_det_band)  # Replace NaNs with zeros
+    
+    # Debug information
+    print(f"loc_det_band range: {np.min(loc_det_band)} to {np.max(loc_det_band)}")
+    print(f"Non-zero elements in loc_det_band: {np.count_nonzero(loc_det_band)}/{len(loc_det_band)}")
+    
     return loc_det_band, frecomposed
 
 def extract_sub_sess_left(filename):
