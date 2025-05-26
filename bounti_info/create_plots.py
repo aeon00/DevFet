@@ -567,4 +567,4 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
