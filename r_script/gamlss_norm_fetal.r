@@ -29,7 +29,7 @@ colnames(df1)[colnames(df1) == "band_power_B5"] <- "B5 Band Power"
 colnames(df1)[colnames(df1) == "band_power_B6"] <- "B6 Band Power"
 
 
-y_values <- list("Surface Area cm2", "Folding Power", "B4 Vertex Percentage", "B5 Vertex Percentage","B6 Vertex Percentage", "Band_parcels B4", "Band Parcels B5", "Band Parcels B6", "Hemispheric Volume", "Gyrification Index", "Hull Area", "B4 Surface Area", "B5 Surface Area", "B6 Surface Area", "B4 Surface Area Percentage", "B5 Surface Area Percentage", "B6 Surface Area Percentage")
+y_values <- list("Surface Area cm2", "Folding Power", "B4 Vertex Percentage", "B5 Vertex Percentage","B6 Vertex Percentage", "Band_parcels B4", "Band Parcels B5", "Band Parcels B6", "Hemispheric Volume", "Gyrification Index", "Hull Area", "B4 Surface Area", "B5 Surface Area", "B6 Surface Area", "B4 Surface Area Percentage", "B5 Surface Area Percentage", "B6 Surface Area Percentage", "B4 Band Power", "B5 Band Power", "B6 Band Power")
 
 results <- data.frame(Model = character(),
                       Y_feature = character(),
