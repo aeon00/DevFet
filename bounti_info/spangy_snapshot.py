@@ -304,7 +304,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/scratch/hdienye/home/dhcp_full_info/spangy/inflated_snapshots/{participant_session}.png")
+            fig.write_image(f"/scratch/hdienye/dhcp_full_info/spangy/inflated_snapshots/{participant_session}.png")
 
 
 
