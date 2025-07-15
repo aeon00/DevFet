@@ -278,12 +278,13 @@ for filename in os.listdir(directory):
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("spangy_dom_band_", "")
+        original_filename = filename
         filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
         #Load meshfile
-            mesh_file = os.path.join(directory, filename)
+            mesh_file = os.path.join(directory, original_filename)
             mesh = sio.load_mesh(mesh_file)
             mesh, camera_medial, camera_lateral = mesh_orientation(mesh, 'left') # mesh of left brain hemisphere
             # mesh.apply_transform(mesh.principal_inertia_transform)
