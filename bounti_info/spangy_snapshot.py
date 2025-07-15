@@ -244,7 +244,7 @@ def mesh_orientation(mesh, hemisphere):
             [0, 0, 0, 1]     # Fourth row
         ])
         mesh.apply_transform(transfo_180)
-        mesh.apply_transform(transfo_180)
+        # mesh.apply_transform(transfo_180)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
