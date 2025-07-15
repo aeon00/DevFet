@@ -8,7 +8,7 @@ library(cowplot)
 library(patchwork)
 
 # Read and prepare data
-df1 <- read.csv("/home/INT/dienye.h/python_files/dhcp_dataset_info/combined_results.csv", header=TRUE, stringsAsFactors = FALSE)
+df1 <- read.csv("/home/INT/dienye.h/python_files/rough/results_df/both_df_combined_results.csv", header=TRUE, stringsAsFactors = FALSE)
 
 # Column renaming (same as original)
 colnames(df1)[colnames(df1) == "surface_area_cm2"] <- "Surface Area cm2"
@@ -36,7 +36,7 @@ colnames(df1)[colnames(df1) == "B5_band_relative_power"] <- "B5 Band Relative Po
 colnames(df1)[colnames(df1) == "B6_band_relative_power"] <- "B6 Band Relative Power"
 
 # Select key variables for combined plotting (you can modify this list)
-selected_variables <- c("B4 Surface Area Percentage", "B5 Surface Area Percentage", "B6 Surface Area Percentage")
+selected_variables <- c("B4 Band Power", "B5 Band Power", "B6 Band Power")
 
 # Function to normalize data to 0-1 scale for comparison
 normalize_data <- function(x) {
@@ -105,9 +105,9 @@ for (var in selected_variables) {
 
 
 custom_colors <- c(
-  "B4 Surface Area Percentage" = "#00BFC4",  # Teal (original B6 color)
-  "B5 Surface Area Percentage" = "#00BA38",  # Green 
-  "B6 Surface Area Percentage" = "#F8766D"   # Red (original B4 color)
+  "B4 Band Power" = "#00BFC4",  # Teal (original B6 color)
+  "B5 Band Power" = "#00BA38",  # Green 
+  "B6 Band Power" = "#F8766D"   # Red (original B4 color)
 )
 
 # Create the combined plot with 95% confidence intervals (most common choice)
@@ -161,7 +161,7 @@ p_combined <- ggplot() +
 print(p_combined)
 
 # Save the plot
-ggsave("/home/INT/dienye.h/python_files/GAMLSS/Combined_GAMLSS_Variables.png", 
+ggsave("/home/INT/dienye.h/python_files/GAMLSS/Combined_GAMLSS_Variables_both_df_power.png", 
        p_combined, width = 12, height = 8, units = 'in', bg="white", dpi = 300)
 
 # Optional: Create a plot with 80% confidence intervals (more conservative)
@@ -208,7 +208,7 @@ p_combined_80 <- ggplot() +
   )
 
 # Save the 80% CI version
-ggsave("/home/INT/dienye.h/python_files/GAMLSS/Combined_GAMLSS_Variables_80CI.png", 
+ggsave("/home/INT/dienye.h/python_files/GAMLSS/Combined_GAMLSS_Variables_80CI_both_df_power.png", 
        p_combined_80, width = 12, height = 8, units = 'in', bg="white", dpi = 300)
 
 cat("Combined plots saved successfully!\n")

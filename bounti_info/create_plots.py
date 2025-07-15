@@ -305,6 +305,7 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
                 legend_title='Variables',
                 template='plotly_white',
                 height=700,
+                width=700,
                 hovermode='closest'
             )
             
@@ -330,7 +331,8 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
                 title='Multiple Box Plots',
                 yaxis_title='Values',
                 template='plotly_white',
-                height=700
+                height=700,
+                width=700
             )
             
         elif plot_type == 'histogram':
@@ -352,7 +354,8 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
                 yaxis_title='Count',
                 barmode='overlay',
                 template='plotly_white',
-                height=700
+                height=700,
+                width=700
             )
             
         elif plot_type == 'violin':
@@ -372,7 +375,8 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
                 title='Multiple Violin Plots',
                 yaxis_title='Values',
                 template='plotly_white',
-                height=700
+                height=700,
+                width=700
             )
             
         elif plot_type == 'scatter3d':
@@ -424,7 +428,8 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
                     zaxis_title=z_var
                 ),
                 template='plotly_white',
-                height=700
+                height=700,
+                width=700
             )
             
         else:
@@ -550,6 +555,7 @@ def update_graph(n_clicks, data, plot_type, x_var, y_vars, z_var, color_var, siz
         fig.update_layout(
             template='plotly_white',
             height=700,
+            width=700,
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
             margin=dict(l=40, r=40, t=60, b=40),
             hovermode='closest'  # Ensure the closest point is always shown in hover
