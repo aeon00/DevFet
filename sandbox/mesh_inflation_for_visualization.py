@@ -18,7 +18,7 @@ def process_single_file(filename, surface_path, df):
     """
     try:
         # Define output paths that will be used to check if this file was already processed
-        smooth_output_path = os.path.join('/scratch/hdienye/dhcp_full_info/inflated_mesh', 'inflated_{}.gii'.format(str(filename)))
+        smooth_output_path = os.path.join('/scratch/hdienye/marsfet_full_info/inflated_mesh', 'inflated_{}.gii'.format(str(filename)))
         
         # Check if output files already exist, indicating this file was already processed
         if os.path.exists(smooth_output_path):
@@ -46,8 +46,8 @@ def process_single_file(filename, surface_path, df):
 def main():
     try:
         # Paths
-        surface_path = "/scratch/gauzias/data/datasets/dhcp_fetal_bids/output/svrtk_BOUNTI/output_BOUNTI_surfaces/"
-        mesh_info_path = "/scratch/hdienye/participants.tsv"
+        surface_path = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste/"
+        mesh_info_path = "/scratch/hdienye/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
         
         print("Reading data from {}".format(mesh_info_path))
         # Read dataframe
@@ -64,7 +64,7 @@ def main():
         
         for filename in all_files:
             # Define output paths that will be used to check if this file was already processed
-            smooth_output_path = os.path.join('/scratch/hdienye/dhcp_full_info/inflated_mesh', 'inflated_{}.gii'.format(str(filename)))
+            smooth_output_path = os.path.join('/scratch/hdienye/marsfet_full_info/inflated_mesh', 'inflated_{}.gii'.format(str(filename)))
             
             if os.path.exists(smooth_output_path):
                 processed_files.append(filename)
