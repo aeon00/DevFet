@@ -244,6 +244,7 @@ def mesh_orientation(mesh, hemisphere):
             [0, 0, 0, 1]     # Fourth row
         ])
         mesh.apply_transform(transfo_180)
+        mesh.apply_transform(transfo_180)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
@@ -286,7 +287,7 @@ for filename in os.listdir(directory):
         #Load meshfile
             mesh_file = os.path.join(directory, original_filename)
             mesh = sio.load_mesh(mesh_file)
-            mesh, camera_medial, camera_lateral = mesh_orientation(mesh, 'left') # mesh of left brain hemisphere
+            mesh, camera_medial, camera_lateral = mesh_orientation(mesh, clean_filename.split('_')[-1].split('.')[0]) # mesh of left brain hemisphere
             # mesh.apply_transform(mesh.principal_inertia_transform)
             vertices = mesh.vertices
             faces = mesh.faces
