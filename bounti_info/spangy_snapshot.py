@@ -275,10 +275,10 @@ tex_dir = '/scratch/hdienye/dhcp_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
+    original_filename = filename
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("spangy_dom_band_", "")
-        original_filename = filename
         filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
 
         if filename == clean_filename:
