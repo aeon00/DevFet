@@ -270,15 +270,15 @@ sulci = [-6, -5, -4]
 
 # Example Usage
 
-directory = "/scratch/gauzias/data/datasets/MarsFet/output/svrtk_BOUNTI/output_BOUNTI_surfaces/haste"  # Add your directory path here
-tex_dir = '/scratch/hdienye/spangy/textures'
-df = pd.read_csv('/scratch/hdienye/spangy/results/combined_results.csv')
+directory = "/scratch/hdienye/dhcp_full_info/inflated_mesh"  # Add your directory path here
+tex_dir = '/scratch/hdienye/home/dhcp_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
-        clean_filename = file.replace("spangy_dom_band_", "").replace(".gii.gii", ".gii")
+        clean_filename = file.replace("spangy_dom_band_", "")
+        filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
@@ -303,7 +303,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/home/INT/dienye.h/Python Codes/rough_hemisphere/spangy_textures/{participant_session}.png")
+            fig.write_image(f"/scratch/hdienye/home/dhcp_full_info/spangy/inflated_snapshots/{participant_session}.png")
 
 
 
