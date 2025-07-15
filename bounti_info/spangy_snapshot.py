@@ -271,7 +271,7 @@ sulci = [-6, -5, -4]
 # Example Usage
 
 directory = "/scratch/hdienye/dhcp_full_info/inflated_mesh"  # Add your directory path here
-tex_dir = '/scratch/hdienye/home/dhcp_full_info/spangy/textures'
+tex_dir = '/scratch/hdienye/dhcp_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
