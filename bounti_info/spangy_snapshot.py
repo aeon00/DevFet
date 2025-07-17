@@ -272,8 +272,8 @@ sulci = [-6, -5, -4]
 
 # Example Usage
 
-directory = "/scratch/hdienye/dhcp_full_info/inflated_mesh"  # Add your directory path here
-tex_dir = '/scratch/hdienye/dhcp_full_info/spangy/textures'
+directory = "/scratch/hdienye/marsfet_full_info/inflated_mesh"  # Add your directory path here
+tex_dir = '/scratch/hdienye/marsfet_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
@@ -307,7 +307,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/scratch/hdienye/dhcp_full_info/spangy/inflated_snapshots/{participant_session}_{hem_det}.png")
+            fig.write_image(f"/scratch/hdienye/marsfet_full_info/spangy/inflated_snapshots/{participant_session}_{hem_det}.png")
 
 
 
