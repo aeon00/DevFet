@@ -222,7 +222,7 @@ def mesh_orientation(mesh, hemisphere):
         mesh.apply_transform(transfo_180)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
-            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
+            eye=dict(x=0, y=2, z=0),    # Camera position from lateral side
             center=dict(x=0, y=0, z=0),  # Looking at center
             up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
         )
