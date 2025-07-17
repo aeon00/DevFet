@@ -219,15 +219,15 @@ def mesh_orientation(mesh, hemisphere):
             [0, -1, 0, 0],   # Third row
             [0, 0, 0, 1]     # Fourth row
         ])
-        # mesh.apply_transform(transfo_180)
+        mesh.apply_transform(transfo_180)
         # Example camera positions (you can modify these as needed)
-        camera_lateral = dict(
-            eye=dict(x=0, y=2, z=0),    # Camera position from lateral side
+        camera_medial = dict(
+            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
             center=dict(x=0, y=0, z=0),  # Looking at center
             up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
         )
 
-        camera_medial = dict(
+        camera_lateral = dict(
             eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
             center=dict(x=0, y=0, z=0),   # Looking at center
             up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
@@ -243,8 +243,7 @@ def mesh_orientation(mesh, hemisphere):
             [0, -1, 0, 0],   # Third row
             [0, 0, 0, 1]     # Fourth row
         ])
-        # mesh.apply_transform(transfo_180)
-        # mesh.apply_transform(transfo_180)
+        mesh.apply_transform(transfo_180)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
