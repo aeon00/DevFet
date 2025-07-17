@@ -219,7 +219,8 @@ def mesh_orientation(mesh, hemisphere):
             [0, -1, 0, 0],   # Third row
             [0, 0, 0, 1]     # Fourth row
         ])
-        mesh.apply_transform(transfo_180)
+        transfo_360 = np.eye(4) 
+        mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
         camera_medial = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
@@ -243,7 +244,8 @@ def mesh_orientation(mesh, hemisphere):
             [0, -1, 0, 0],   # Third row
             [0, 0, 0, 1]     # Fourth row
         ])
-        mesh.apply_transform(transfo_180)
+        transfo_360 = np.eye(4)
+        mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
