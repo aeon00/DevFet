@@ -287,6 +287,7 @@ for filename in os.listdir(directory):
         #Load meshfile
             mesh_file = os.path.join(directory, original_filename)
             mesh = sio.load_mesh(mesh_file)
+            mesh.apply_transform(mesh.principal_inertia_transform)
             mesh, camera_medial, camera_lateral = mesh_orientation(mesh, clean_filename.split('_')[-1].split('.')[0]) # mesh of left brain hemisphere
             # mesh.apply_transform(mesh.principal_inertia_transform)
             vertices = mesh.vertices
