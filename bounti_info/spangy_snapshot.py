@@ -288,6 +288,7 @@ for filename in os.listdir(directory):
         #Load meshfile
             mesh_file = os.path.join(directory, original_filename)
             mesh = sio.load_mesh(mesh_file)
+            hem_det = clean_filename.split('_')[-1].split('.')[0]
             mesh, camera_medial, camera_lateral = mesh_orientation(mesh, clean_filename.split('_')[-1].split('.')[0]) # mesh of left brain hemisphere
             # mesh.apply_transform(mesh.principal_inertia_transform)
             vertices = mesh.vertices
@@ -306,7 +307,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/scratch/hdienye/dhcp_full_info/spangy/inflated_snapshots/{participant_session}.png")
+            fig.write_image(f"/scratch/hdienye/dhcp_full_info/spangy/inflated_snapshots/{participant_session}_{hem_det}.png")
 
 
 
