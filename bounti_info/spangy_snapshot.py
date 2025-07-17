@@ -304,7 +304,7 @@ for filename in os.listdir(directory):
                 faces=mesh.faces,
                 scalars=loc_dom_band_texture,
                 selected_bands=sulci,  # Will show only sulci bands 4, 5, 6
-                camera=camera_lateral,
+                camera=camera_medial,
                 title='Negative Bands Visualization'
             )
             fig.write_image(f"/scratch/hdienye/marsfet_full_info/spangy/inflated_snapshots/{participant_session}_{hem_det}.png")
