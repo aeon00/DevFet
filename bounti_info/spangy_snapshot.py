@@ -280,7 +280,7 @@ for filename in os.listdir(directory):
     original_filename = filename
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
-        clean_filename = file.replace("spangy_dom_band_", "")
+        clean_filename = file.replace("smooth_5_spangy_dom_band_", "")
         filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
 
         if filename == clean_filename:
