@@ -22,5 +22,5 @@ def clean_duplicate_gii(directory):
 # Example usage
 if __name__ == "__main__":
     # Replace with your directory path
-    directory_path = '/envau/work/meca/users/dienye.h/Curvature/mean_curv_tex/'
+    directory_path = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mean_curv_tex/'
     clean_duplicate_gii(directory_path)
