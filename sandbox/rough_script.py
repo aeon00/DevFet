@@ -9,9 +9,9 @@ def ensure_dir_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-mesh_dir = '/scratch/gauzias/data/datasets/dhcp_fetal_bids/output/svrtk_BOUNTI/output_BOUNTI_surfaces/'
-mean_tex_dir = '/scratch/hdienye/dhcp_full_info/mean_curv_tex/'
-principal_tex_dir = '/scratch/hdienye/dhcp_full_info/principal_curv_tex/'
+mesh_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mesh'
+mean_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mean_curv_tex/'
+principal_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/principal_curv_tex/'
 
 # Ensure output directories exist
 ensure_dir_exists(mean_tex_dir)
