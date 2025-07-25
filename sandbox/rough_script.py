@@ -1,4 +1,4 @@
-import slam as sio
+import slam.io as sio
 import slam.texture as stex
 import slam.curvature as scurv
 import os
