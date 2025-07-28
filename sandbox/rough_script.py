@@ -9,7 +9,7 @@ def ensure_dir_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-mesh_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mesh'
+mesh_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/missing_mean_curv_mesh'
 mean_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mean_curv_tex/'
 principal_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/principal_curv_tex/'
 
