@@ -264,357 +264,583 @@
 
 # print("Processing complete!")
 
+# #!/usr/bin/env python3
+# """
+# Script to check if all generated meshes have their corresponding mean curvature files.
+
+# This script verifies the correspondence between:
+# 1. Smoothed meshes in /scratch/hdienye/dhcp_full_info/mesh/
+# 2. Mean curvature textures in /scratch/hdienye/dhcp_full_info/mean_curv_tex/
+
+# Based on the processing pipeline in the provided code.
+# """
+
+# import os
+# import glob
+# import pandas as pd
+# from pathlib import Path
+
+# def extract_base_filename(filepath, prefix_to_remove=""):
+#     """
+#     Extract the base filename without directory and specific prefixes.
+    
+#     Parameters:
+#     filepath: Path to the file
+#     prefix_to_remove: Prefix to remove from filename (e.g., 'smooth_5_', 'filt_mean_curv_')
+    
+#     Returns:
+#     str: Base filename
+#     """
+#     filename = os.path.basename(filepath)
+#     if prefix_to_remove and filename.startswith(prefix_to_remove):
+#         filename = filename[len(prefix_to_remove):]
+#     return filename
+
+# def check_mesh_curvature_correspondence():
+#     """
+#     Check correspondence between generated meshes and mean curvature files.
+#     """
+#     # Define paths based on the original code
+#     mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
+#     mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
+    
+#     print("=== Mesh and Mean Curvature Correspondence Checker ===\n")
+    
+#     # Check if directories exist
+#     if not os.path.exists(mesh_path):
+#         print(f"ERROR: Mesh directory does not exist: {mesh_path}")
+#         return
+    
+#     if not os.path.exists(mean_curv_path):
+#         print(f"ERROR: Mean curvature directory does not exist: {mean_curv_path}")
+#         return
+    
+#     print(f"Mesh directory: {mesh_path}")
+#     print(f"Mean curvature directory: {mean_curv_path}\n")
+    
+#     # Get all files in both directories first to debug
+#     print("DEBUG: Scanning directories...")
+#     all_mesh_files = os.listdir(mesh_path) if os.path.exists(mesh_path) else []
+#     all_curv_files = os.listdir(mean_curv_path) if os.path.exists(mean_curv_path) else []
+    
+#     print(f"Total files in mesh directory: {len(all_mesh_files)}")
+#     print(f"Total files in curvature directory: {len(all_curv_files)}")
+    
+#     # Show examples of actual filenames
+#     if all_mesh_files:
+#         print(f"Example mesh files:")
+#         for f in all_mesh_files[:3]:
+#             print(f"  {f}")
+    
+#     if all_curv_files:
+#         print(f"Example curvature files:")
+#         for f in all_curv_files[:3]:
+#             print(f"  {f}")
+#     print()
+    
+#     # Try multiple patterns to find mesh files
+#     mesh_patterns = [
+#         "smooth_5_*.gii",
+#         "smooth_5_*.surf.gii", 
+#         "smooth_5_*"
+#     ]
+    
+#     mesh_files = []
+#     for pattern in mesh_patterns:
+#         full_pattern = os.path.join(mesh_path, pattern)
+#         found = glob.glob(full_pattern)
+#         if found:
+#             mesh_files = found
+#             print(f"Found mesh files using pattern: {pattern}")
+#             break
+    
+#     # Try multiple patterns to find curvature files
+#     curv_patterns = [
+#         "filt_mean_curv_*.gii",
+#         "filt_mean_curv_*.surf.gii",
+#         "filt_mean_curv_*"
+#     ]
+    
+#     curv_files = []
+#     for pattern in curv_patterns:
+#         full_pattern = os.path.join(mean_curv_path, pattern) 
+#         found = glob.glob(full_pattern)
+#         if found:
+#             curv_files = found
+#             print(f"Found curvature files using pattern: {pattern}")
+#             break
+    
+#     print(f"Found {len(mesh_files)} mesh files")
+#     print(f"Found {len(curv_files)} mean curvature files\n")
+    
+#     if len(mesh_files) == 0 and len(curv_files) == 0:
+#         print("WARNING: No files found in either directory. Processing may not have been completed.")
+#         print("Please check if the file paths and naming conventions are correct.")
+#         return
+    
+#     # Debug: Show first few files found
+#     if mesh_files:
+#         print("First few mesh files found:")
+#         for i, f in enumerate(mesh_files[:3]):
+#             print(f"  {i+1}. {os.path.basename(f)}")
+#         print()
+    
+#     if curv_files:
+#         print("First few curvature files found:")
+#         for i, f in enumerate(curv_files[:3]):
+#             print(f"  {i+1}. {os.path.basename(f)}")
+#         print()
+    
+#     # Extract base filenames more carefully
+#     mesh_bases = set()
+#     for mesh_file in mesh_files:
+#         filename = os.path.basename(mesh_file)
+#         # Remove 'smooth_5_' prefix more carefully
+#         if filename.startswith("smooth_5_"):
+#             base = filename[len("smooth_5_"):]
+#             mesh_bases.add(base)
+#         else:
+#             print(f"Warning: Unexpected mesh filename format: {filename}")
+    
+#     curv_bases = set()
+#     for curv_file in curv_files:
+#         filename = os.path.basename(curv_file)
+#         # Remove 'filt_mean_curv_' prefix more carefully
+#         if filename.startswith("filt_mean_curv_"):
+#             base = filename[len("filt_mean_curv_"):]
+#             curv_bases.add(base)
+#         else:
+#             print(f"Warning: Unexpected curvature filename format: {filename}")
+    
+#     print(f"DEBUG: Extracted {len(mesh_bases)} unique mesh base names")
+#     print(f"DEBUG: Extracted {len(curv_bases)} unique curvature base names")
+    
+#     # Show a few examples of extracted base names
+#     if mesh_bases:
+#         print("Example mesh base names:")
+#         for i, base in enumerate(list(mesh_bases)[:3]):
+#             print(f"  {i+1}. {base}")
+    
+#     if curv_bases:
+#         print("Example curvature base names:")
+#         for i, base in enumerate(list(curv_bases)[:3]):
+#             print(f"  {i+1}. {base}")
+#     print()
+    
+#     # Find matches and mismatches
+#     both_exist = mesh_bases.intersection(curv_bases)
+#     mesh_only = mesh_bases - curv_bases
+#     curv_only = curv_bases - mesh_bases
+    
+#     print("=== CORRESPONDENCE ANALYSIS ===")
+#     print(f"Files with both mesh and curvature: {len(both_exist)}")
+#     print(f"Files with mesh only: {len(mesh_only)}")
+#     print(f"Files with curvature only: {len(curv_only)}")
+    
+#     # Calculate statistics
+#     total_unique = len(mesh_bases.union(curv_bases))
+#     correspondence_rate = 0
+#     if total_unique > 0:
+#         correspondence_rate = (len(both_exist) / total_unique) * 100
+#         print(f"Correspondence rate: {correspondence_rate:.1f}%\n")
+    
+#     # Report missing correspondences
+#     if mesh_only:
+#         print("=== MESHES WITHOUT CORRESPONDING MEAN CURVATURE ===")
+#         print(f"Found {len(mesh_only)} mesh files without mean curvature:")
+#         for i, base in enumerate(sorted(mesh_only), 1):
+#             print(f"{i:3d}. {base}")
+#         print()
+    
+#     if curv_only:
+#         print("=== MEAN CURVATURES WITHOUT CORRESPONDING MESH ===")
+#         print(f"Found {len(curv_only)} mean curvature files without mesh:")
+#         for i, base in enumerate(sorted(curv_only), 1):
+#             print(f"{i:3d}. {base}")
+#         print()
+    
+#     # Create detailed report
+#     if both_exist or mesh_only or curv_only:
+#         create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path)
+    
+#     # Summary
+#     print("=== SUMMARY ===")
+#     if len(both_exist) == total_unique and total_unique > 0:
+#         print("✅ SUCCESS: All files have complete correspondence!")
+#     elif len(both_exist) > 0:
+#         print(f"⚠️  PARTIAL: {len(both_exist)}/{total_unique} files have complete correspondence")
+#         print(f"   Missing: {len(mesh_only)} curvature files, {len(curv_only)} mesh files")
+#     else:
+#         print("❌ ERROR: No files have complete correspondence!")
+    
+#     return {
+#         'both_exist': both_exist,
+#         'mesh_only': mesh_only,
+#         'curv_only': curv_only,
+#         'correspondence_rate': correspondence_rate
+#     }
+
+# def create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path):
+#     """
+#     Create a detailed CSV report of the correspondence analysis.
+#     """
+#     report_data = []
+    
+#     # Add complete pairs
+#     for base in both_exist:
+#         report_data.append({
+#             'base_filename': base,
+#             'has_mesh': True,
+#             'has_curvature': True,
+#             'status': 'Complete',
+#             'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
+#             'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
+#         })
+    
+#     # Add mesh-only files
+#     for base in mesh_only:
+#         report_data.append({
+#             'base_filename': base,
+#             'has_mesh': True,
+#             'has_curvature': False,
+#             'status': 'Missing curvature',
+#             'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
+#             'curvature_path': 'MISSING'
+#         })
+    
+#     # Add curvature-only files
+#     for base in curv_only:
+#         report_data.append({
+#             'base_filename': base,
+#             'has_mesh': False,
+#             'has_curvature': True,
+#             'status': 'Missing mesh',
+#             'mesh_path': 'MISSING',
+#             'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
+#         })
+    
+#     # Create DataFrame and save report
+#     if report_data:
+#         df = pd.DataFrame(report_data)
+#         df = df.sort_values('base_filename')
+        
+#         report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
+#         df.to_csv(report_path, index=False)
+#         print(f"📄 Detailed report saved to: {report_path}")
+
+# def check_file_sizes():
+#     """
+#     Additional check to verify file sizes and detect potentially corrupted files.
+#     """
+#     print("\n=== FILE SIZE ANALYSIS ===")
+    
+#     mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
+#     mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
+    
+#     # Check mesh file sizes
+#     mesh_files = []
+#     curv_files = []
+    
+#     # Try to find files with different patterns
+#     for pattern in ["smooth_5_*.gii", "smooth_5_*"]:
+#         mesh_files = glob.glob(os.path.join(mesh_path, pattern))
+#         if mesh_files:
+#             break
+            
+#     for pattern in ["filt_mean_curv_*.gii", "filt_mean_curv_*"]:
+#         curv_files = glob.glob(os.path.join(mean_curv_path, pattern))
+#         if curv_files:
+#             break
+    
+#     def analyze_file_sizes(files, file_type):
+#         if not files:
+#             print(f"No {file_type} files found")
+#             return
+        
+#         sizes = []
+#         small_files = []
+        
+#         for filepath in files:
+#             try:
+#                 size = os.path.getsize(filepath)
+#                 sizes.append(size)
+                
+#                 # Flag potentially problematic files (less than 1KB)
+#                 if size < 1024:
+#                     small_files.append((os.path.basename(filepath), size))
+#             except OSError:
+#                 print(f"Warning: Could not get size for {filepath}")
+        
+#         if sizes:
+#             avg_size = sum(sizes) / len(sizes)
+#             min_size = min(sizes)
+#             max_size = max(sizes)
+            
+#             print(f"{file_type} files:")
+#             print(f"  Count: {len(sizes)}")
+#             print(f"  Average size: {avg_size/1024:.1f} KB")
+#             print(f"  Size range: {min_size/1024:.1f} - {max_size/1024:.1f} KB")
+            
+#             if small_files:
+#                 print(f"  ⚠️  {len(small_files)} suspiciously small files:")
+#                 for filename, size in small_files[:5]:  # Show first 5
+#                     print(f"    {filename}: {size} bytes")
+#                 if len(small_files) > 5:
+#                     print(f"    ... and {len(small_files) - 5} more")
+#         print()
+    
+#     analyze_file_sizes(mesh_files, "Mesh")
+#     analyze_file_sizes(curv_files, "Mean curvature")
+
+# def main():
+#     """
+#     Main function to run all checks.
+#     """
+#     try:
+#         # Run correspondence check
+#         results = check_mesh_curvature_correspondence()
+        
+#         # Run file size analysis
+#         check_file_sizes()
+        
+#         # Provide recommendations
+#         print("=== RECOMMENDATIONS ===")
+#         if results and results['correspondence_rate'] < 100:
+#             print("1. Check the processing logs for errors during mesh smoothing or curvature calculation")
+#             print("2. Verify that the original surface files exist for missing correspondences")
+#             print("3. Consider re-running the processing for files with missing correspondences")
+#             print("4. Check disk space and permissions in output directories")
+#         else:
+#             print("✅ All checks passed! Your processing pipeline appears to be working correctly.")
+        
+#     except Exception as e:
+#         print(f"ERROR: An error occurred during checking: {str(e)}")
+#         import traceback
+#         traceback.print_exc()
+
+# if __name__ == "__main__":
+#     main()
+
 #!/usr/bin/env python3
 """
-Script to check if all generated meshes have their corresponding mean curvature files.
+Script to copy meshes without corresponding mean curvature files to a separate folder.
 
-This script verifies the correspondence between:
-1. Smoothed meshes in /scratch/hdienye/dhcp_full_info/mesh/
-2. Mean curvature textures in /scratch/hdienye/dhcp_full_info/mean_curv_tex/
-
-Based on the processing pipeline in the provided code.
+This script reads the correspondence report CSV and copies all mesh files that are
+missing their mean curvature counterparts to a new directory for easier processing.
 """
 
 import os
-import glob
+import shutil
 import pandas as pd
 from pathlib import Path
 
-def extract_base_filename(filepath, prefix_to_remove=""):
+def copy_missing_meshes():
     """
-    Extract the base filename without directory and specific prefixes.
-    
-    Parameters:
-    filepath: Path to the file
-    prefix_to_remove: Prefix to remove from filename (e.g., 'smooth_5_', 'filt_mean_curv_')
-    
-    Returns:
-    str: Base filename
+    Copy meshes without mean curvature files to a separate folder.
     """
-    filename = os.path.basename(filepath)
-    if prefix_to_remove and filename.startswith(prefix_to_remove):
-        filename = filename[len(prefix_to_remove):]
-    return filename
-
-def check_mesh_curvature_correspondence():
-    """
-    Check correspondence between generated meshes and mean curvature files.
-    """
-    # Define paths based on the original code
-    mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
-    mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
+    # Define paths
+    report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
+    mesh_source_path = "/scratch/hdienye/dhcp_full_info/mesh/"
+    missing_mesh_dest = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/"
     
-    print("=== Mesh and Mean Curvature Correspondence Checker ===\n")
+    print("=== Copying Meshes Missing Mean Curvature ===\n")
     
-    # Check if directories exist
-    if not os.path.exists(mesh_path):
-        print(f"ERROR: Mesh directory does not exist: {mesh_path}")
+    # Check if report file exists
+    if not os.path.exists(report_path):
+        print(f"ERROR: Report file not found: {report_path}")
+        print("Please run the correspondence checker first to generate the report.")
         return
     
-    if not os.path.exists(mean_curv_path):
-        print(f"ERROR: Mean curvature directory does not exist: {mean_curv_path}")
+    # Check if source mesh directory exists
+    if not os.path.exists(mesh_source_path):
+        print(f"ERROR: Source mesh directory not found: {mesh_source_path}")
         return
     
-    print(f"Mesh directory: {mesh_path}")
-    print(f"Mean curvature directory: {mean_curv_path}\n")
+    # Create destination directory
+    os.makedirs(missing_mesh_dest, exist_ok=True)
+    print(f"Created/verified destination directory: {missing_mesh_dest}")
     
-    # Get all files in both directories first to debug
-    print("DEBUG: Scanning directories...")
-    all_mesh_files = os.listdir(mesh_path) if os.path.exists(mesh_path) else []
-    all_curv_files = os.listdir(mean_curv_path) if os.path.exists(mean_curv_path) else []
-    
-    print(f"Total files in mesh directory: {len(all_mesh_files)}")
-    print(f"Total files in curvature directory: {len(all_curv_files)}")
-    
-    # Show examples of actual filenames
-    if all_mesh_files:
-        print(f"Example mesh files:")
-        for f in all_mesh_files[:3]:
-            print(f"  {f}")
-    
-    if all_curv_files:
-        print(f"Example curvature files:")
-        for f in all_curv_files[:3]:
-            print(f"  {f}")
-    print()
-    
-    # Try multiple patterns to find mesh files
-    mesh_patterns = [
-        "smooth_5_*.gii",
-        "smooth_5_*.surf.gii", 
-        "smooth_5_*"
-    ]
-    
-    mesh_files = []
-    for pattern in mesh_patterns:
-        full_pattern = os.path.join(mesh_path, pattern)
-        found = glob.glob(full_pattern)
-        if found:
-            mesh_files = found
-            print(f"Found mesh files using pattern: {pattern}")
-            break
-    
-    # Try multiple patterns to find curvature files
-    curv_patterns = [
-        "filt_mean_curv_*.gii",
-        "filt_mean_curv_*.surf.gii",
-        "filt_mean_curv_*"
-    ]
-    
-    curv_files = []
-    for pattern in curv_patterns:
-        full_pattern = os.path.join(mean_curv_path, pattern) 
-        found = glob.glob(full_pattern)
-        if found:
-            curv_files = found
-            print(f"Found curvature files using pattern: {pattern}")
-            break
-    
-    print(f"Found {len(mesh_files)} mesh files")
-    print(f"Found {len(curv_files)} mean curvature files\n")
-    
-    if len(mesh_files) == 0 and len(curv_files) == 0:
-        print("WARNING: No files found in either directory. Processing may not have been completed.")
-        print("Please check if the file paths and naming conventions are correct.")
+    # Read the correspondence report
+    try:
+        df = pd.read_csv(report_path)
+        print(f"Read correspondence report with {len(df)} entries")
+    except Exception as e:
+        print(f"ERROR reading report file: {e}")
         return
     
-    # Debug: Show first few files found
-    if mesh_files:
-        print("First few mesh files found:")
-        for i, f in enumerate(mesh_files[:3]):
-            print(f"  {i+1}. {os.path.basename(f)}")
-        print()
+    # Filter for meshes without curvature (status = 'Missing curvature')
+    missing_curv = df[df['status'] == 'Missing curvature']
+    print(f"Found {len(missing_curv)} meshes without mean curvature\n")
     
-    if curv_files:
-        print("First few curvature files found:")
-        for i, f in enumerate(curv_files[:3]):
-            print(f"  {i+1}. {os.path.basename(f)}")
-        print()
+    if len(missing_curv) == 0:
+        print("✅ Great! No meshes are missing their mean curvature files.")
+        return
     
-    # Extract base filenames more carefully
-    mesh_bases = set()
-    for mesh_file in mesh_files:
-        filename = os.path.basename(mesh_file)
-        # Remove 'smooth_5_' prefix more carefully
-        if filename.startswith("smooth_5_"):
-            base = filename[len("smooth_5_"):]
-            mesh_bases.add(base)
-        else:
-            print(f"Warning: Unexpected mesh filename format: {filename}")
+    # Copy the files
+    copied_count = 0
+    failed_count = 0
     
-    curv_bases = set()
-    for curv_file in curv_files:
-        filename = os.path.basename(curv_file)
-        # Remove 'filt_mean_curv_' prefix more carefully
-        if filename.startswith("filt_mean_curv_"):
-            base = filename[len("filt_mean_curv_"):]
-            curv_bases.add(base)
-        else:
-            print(f"Warning: Unexpected curvature filename format: {filename}")
-    
-    print(f"DEBUG: Extracted {len(mesh_bases)} unique mesh base names")
-    print(f"DEBUG: Extracted {len(curv_bases)} unique curvature base names")
-    
-    # Show a few examples of extracted base names
-    if mesh_bases:
-        print("Example mesh base names:")
-        for i, base in enumerate(list(mesh_bases)[:3]):
-            print(f"  {i+1}. {base}")
-    
-    if curv_bases:
-        print("Example curvature base names:")
-        for i, base in enumerate(list(curv_bases)[:3]):
-            print(f"  {i+1}. {base}")
-    print()
-    
-    # Find matches and mismatches
-    both_exist = mesh_bases.intersection(curv_bases)
-    mesh_only = mesh_bases - curv_bases
-    curv_only = curv_bases - mesh_bases
-    
-    print("=== CORRESPONDENCE ANALYSIS ===")
-    print(f"Files with both mesh and curvature: {len(both_exist)}")
-    print(f"Files with mesh only: {len(mesh_only)}")
-    print(f"Files with curvature only: {len(curv_only)}")
-    
-    # Calculate statistics
-    total_unique = len(mesh_bases.union(curv_bases))
-    correspondence_rate = 0
-    if total_unique > 0:
-        correspondence_rate = (len(both_exist) / total_unique) * 100
-        print(f"Correspondence rate: {correspondence_rate:.1f}%\n")
-    
-    # Report missing correspondences
-    if mesh_only:
-        print("=== MESHES WITHOUT CORRESPONDING MEAN CURVATURE ===")
-        print(f"Found {len(mesh_only)} mesh files without mean curvature:")
-        for i, base in enumerate(sorted(mesh_only), 1):
-            print(f"{i:3d}. {base}")
-        print()
-    
-    if curv_only:
-        print("=== MEAN CURVATURES WITHOUT CORRESPONDING MESH ===")
-        print(f"Found {len(curv_only)} mean curvature files without mesh:")
-        for i, base in enumerate(sorted(curv_only), 1):
-            print(f"{i:3d}. {base}")
-        print()
-    
-    # Create detailed report
-    if both_exist or mesh_only or curv_only:
-        create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path)
+    print("Copying files...")
+    for index, row in missing_curv.iterrows():
+        source_file = row['mesh_path']
+        filename = os.path.basename(source_file)
+        dest_file = os.path.join(missing_mesh_dest, filename)
+        
+        try:
+            if os.path.exists(source_file):
+                shutil.copy2(source_file, dest_file)
+                copied_count += 1
+                print(f"✓ Copied: {filename}")
+            else:
+                print(f"✗ Source file not found: {source_file}")
+                failed_count += 1
+                
+        except Exception as e:
+            print(f"✗ Failed to copy {filename}: {e}")
+            failed_count += 1
     
     # Summary
-    print("=== SUMMARY ===")
-    if len(both_exist) == total_unique and total_unique > 0:
-        print("✅ SUCCESS: All files have complete correspondence!")
-    elif len(both_exist) > 0:
-        print(f"⚠️  PARTIAL: {len(both_exist)}/{total_unique} files have complete correspondence")
-        print(f"   Missing: {len(mesh_only)} curvature files, {len(curv_only)} mesh files")
-    else:
-        print("❌ ERROR: No files have complete correspondence!")
+    print(f"\n=== COPY SUMMARY ===")
+    print(f"Successfully copied: {copied_count} files")
+    print(f"Failed to copy: {failed_count} files")
+    print(f"Destination directory: {missing_mesh_dest}")
     
-    return {
-        'both_exist': both_exist,
-        'mesh_only': mesh_only,
-        'curv_only': curv_only,
-        'correspondence_rate': correspondence_rate
-    }
+    # Create a summary file in the destination directory
+    create_copy_summary(missing_curv, missing_mesh_dest, copied_count, failed_count)
+    
+    return copied_count, failed_count
 
-def create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path):
+def create_copy_summary(missing_df, dest_dir, copied_count, failed_count):
     """
-    Create a detailed CSV report of the correspondence analysis.
+    Create a summary file with information about the copied meshes.
     """
-    report_data = []
+    summary_path = os.path.join(dest_dir, "copy_summary.txt")
     
-    # Add complete pairs
-    for base in both_exist:
-        report_data.append({
-            'base_filename': base,
-            'has_mesh': True,
-            'has_curvature': True,
-            'status': 'Complete',
-            'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
-            'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
-        })
-    
-    # Add mesh-only files
-    for base in mesh_only:
-        report_data.append({
-            'base_filename': base,
-            'has_mesh': True,
-            'has_curvature': False,
-            'status': 'Missing curvature',
-            'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
-            'curvature_path': 'MISSING'
-        })
-    
-    # Add curvature-only files
-    for base in curv_only:
-        report_data.append({
-            'base_filename': base,
-            'has_mesh': False,
-            'has_curvature': True,
-            'status': 'Missing mesh',
-            'mesh_path': 'MISSING',
-            'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
-        })
-    
-    # Create DataFrame and save report
-    if report_data:
-        df = pd.DataFrame(report_data)
-        df = df.sort_values('base_filename')
-        
-        report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
-        df.to_csv(report_path, index=False)
-        print(f"📄 Detailed report saved to: {report_path}")
-
-def check_file_sizes():
-    """
-    Additional check to verify file sizes and detect potentially corrupted files.
-    """
-    print("\n=== FILE SIZE ANALYSIS ===")
-    
-    mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
-    mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
-    
-    # Check mesh file sizes
-    mesh_files = []
-    curv_files = []
-    
-    # Try to find files with different patterns
-    for pattern in ["smooth_5_*.gii", "smooth_5_*"]:
-        mesh_files = glob.glob(os.path.join(mesh_path, pattern))
-        if mesh_files:
-            break
+    try:
+        with open(summary_path, 'w') as f:
+            f.write("=== MISSING MEAN CURVATURE MESHES COPY SUMMARY ===\n\n")
+            f.write(f"Total meshes without mean curvature: {len(missing_df)}\n")
+            f.write(f"Successfully copied: {copied_count}\n")
+            f.write(f"Failed to copy: {failed_count}\n")
+            f.write(f"Copy date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             
-    for pattern in ["filt_mean_curv_*.gii", "filt_mean_curv_*"]:
-        curv_files = glob.glob(os.path.join(mean_curv_path, pattern))
-        if curv_files:
-            break
+            f.write("=== FILES COPIED ===\n")
+            for index, row in missing_df.iterrows():
+                filename = os.path.basename(row['mesh_path'])
+                f.write(f"{filename}\n")
+            
+            f.write(f"\n=== INSTRUCTIONS ===\n")
+            f.write("These mesh files are missing their corresponding mean curvature files.\n")
+            f.write("To process them:\n")
+            f.write("1. Run the mean curvature calculation for these specific files\n")
+            f.write("2. Move the generated curvature files to the appropriate directory\n")
+            f.write("3. Re-run the correspondence checker to verify completion\n")
+        
+        print(f"📄 Copy summary saved to: {summary_path}")
+        
+    except Exception as e:
+        print(f"Warning: Could not create summary file: {e}")
+
+def create_reprocessing_list():
+    """
+    Create a list of base filenames for easy reprocessing.
+    """
+    report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
     
-    def analyze_file_sizes(files, file_type):
-        if not files:
-            print(f"No {file_type} files found")
+    if not os.path.exists(report_path):
+        print("No report file found for creating reprocessing list")
+        return
+    
+    try:
+        df = pd.read_csv(report_path)
+        missing_curv = df[df['status'] == 'Missing curvature']
+        
+        if len(missing_curv) == 0:
+            print("No files need reprocessing")
             return
         
-        sizes = []
-        small_files = []
+        # Create a simple text file with base filenames
+        reprocess_list_path = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/files_to_reprocess.txt"
         
-        for filepath in files:
+        with open(reprocess_list_path, 'w') as f:
+            f.write("# Files needing mean curvature calculation\n")
+            f.write("# Format: base_filename (without smooth_5_ prefix)\n\n")
+            
+            for index, row in missing_curv.iterrows():
+                base_filename = row['base_filename']
+                f.write(f"{base_filename}\n")
+        
+        print(f"📝 Reprocessing list saved to: {reprocess_list_path}")
+        
+    except Exception as e:
+        print(f"Error creating reprocessing list: {e}")
+
+def verify_copy_operation():
+    """
+    Verify that the copy operation was successful by checking file counts and sizes.
+    """
+    missing_mesh_dest = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/"
+    
+    if not os.path.exists(missing_mesh_dest):
+        print("Destination directory doesn't exist - no files were copied")
+        return
+    
+    copied_files = [f for f in os.listdir(missing_mesh_dest) 
+                   if f.endswith('.gii') and f.startswith('smooth_5_')]
+    
+    print(f"\n=== COPY VERIFICATION ===")
+    print(f"Files in destination directory: {len(copied_files)}")
+    
+    if copied_files:
+        # Check file sizes
+        total_size = 0
+        for filename in copied_files:
+            filepath = os.path.join(missing_mesh_dest, filename)
             try:
                 size = os.path.getsize(filepath)
-                sizes.append(size)
-                
-                # Flag potentially problematic files (less than 1KB)
-                if size < 1024:
-                    small_files.append((os.path.basename(filepath), size))
+                total_size += size
             except OSError:
-                print(f"Warning: Could not get size for {filepath}")
+                print(f"Warning: Could not get size for {filename}")
         
-        if sizes:
-            avg_size = sum(sizes) / len(sizes)
-            min_size = min(sizes)
-            max_size = max(sizes)
-            
-            print(f"{file_type} files:")
-            print(f"  Count: {len(sizes)}")
-            print(f"  Average size: {avg_size/1024:.1f} KB")
-            print(f"  Size range: {min_size/1024:.1f} - {max_size/1024:.1f} KB")
-            
-            if small_files:
-                print(f"  ⚠️  {len(small_files)} suspiciously small files:")
-                for filename, size in small_files[:5]:  # Show first 5
-                    print(f"    {filename}: {size} bytes")
-                if len(small_files) > 5:
-                    print(f"    ... and {len(small_files) - 5} more")
-        print()
-    
-    analyze_file_sizes(mesh_files, "Mesh")
-    analyze_file_sizes(curv_files, "Mean curvature")
+        avg_size = total_size / len(copied_files) if copied_files else 0
+        print(f"Average file size: {avg_size/1024:.1f} KB")
+        print(f"Total size: {total_size/(1024*1024):.1f} MB")
+        
+        # Show first few files
+        print("\nFirst few copied files:")
+        for i, filename in enumerate(copied_files[:5]):
+            print(f"  {i+1}. {filename}")
+        
+        if len(copied_files) > 5:
+            print(f"  ... and {len(copied_files) - 5} more files")
 
 def main():
     """
-    Main function to run all checks.
+    Main function to copy missing meshes and create summary files.
     """
     try:
-        # Run correspondence check
-        results = check_mesh_curvature_correspondence()
+        # Copy the missing meshes
+        copied, failed = copy_missing_meshes()
         
-        # Run file size analysis
-        check_file_sizes()
+        # Create additional helpful files
+        create_reprocessing_list()
         
-        # Provide recommendations
-        print("=== RECOMMENDATIONS ===")
-        if results and results['correspondence_rate'] < 100:
-            print("1. Check the processing logs for errors during mesh smoothing or curvature calculation")
-            print("2. Verify that the original surface files exist for missing correspondences")
-            print("3. Consider re-running the processing for files with missing correspondences")
-            print("4. Check disk space and permissions in output directories")
+        # Verify the copy operation
+        verify_copy_operation()
+        
+        # Final recommendations
+        print(f"\n=== NEXT STEPS ===")
+        if copied > 0:
+            print("1. Check the copied files in /scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/")
+            print("2. Process these meshes to generate their mean curvature files")
+            print("3. Copy the generated curvature files to /scratch/hdienye/dhcp_full_info/mean_curv_tex/")
+            print("4. Re-run the correspondence checker to verify completion")
+            print("5. Use files_to_reprocess.txt for batch processing if needed")
         else:
-            print("✅ All checks passed! Your processing pipeline appears to be working correctly.")
-        
+            print("✅ No files needed copying - all meshes have their mean curvature files!")
+            
     except Exception as e:
-        print(f"ERROR: An error occurred during checking: {str(e)}")
+        print(f"ERROR in main execution: {e}")
         import traceback
         traceback.print_exc()
 
