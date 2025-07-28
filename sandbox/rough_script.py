@@ -36,6 +36,7 @@ for mesh_file in os.listdir(mesh_dir):
     
     # Load and process the mesh
     mesh_path = os.path.join(mesh_dir, mesh_file)
+    mesh = sio.load_mesh(mesh_path)
     
     # CURVATURE
     print("compute the mean curvature")
