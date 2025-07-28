@@ -455,7 +455,7 @@ def check_file_sizes():
     
     # Check mesh file sizes
     mesh_files = glob.glob(os.path.join(mesh_path, "smooth_5_*.surf.gii"))
-    curv_files = glob.glob(os.path.join(mean_curv_path, "filt_mean_curv_*.surf.gii"))
+    curv_files = glob.glob(os.path.join(mean_curv_path, "filt_mean_curv_*.surf.gii.gii"))
     
     def analyze_file_sizes(files, file_type):
         if not files:
