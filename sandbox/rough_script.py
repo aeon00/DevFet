@@ -318,31 +318,114 @@ def check_mesh_curvature_correspondence():
     print(f"Mesh directory: {mesh_path}")
     print(f"Mean curvature directory: {mean_curv_path}\n")
     
-    # Get all mesh files (smoothed meshes with prefix 'smooth_5_')
-    mesh_pattern = os.path.join(mesh_path, "smooth_5_*.surf.gii")
-    mesh_files = glob.glob(mesh_pattern)
+    # Get all files in both directories first to debug
+    print("DEBUG: Scanning directories...")
+    all_mesh_files = os.listdir(mesh_path) if os.path.exists(mesh_path) else []
+    all_curv_files = os.listdir(mean_curv_path) if os.path.exists(mean_curv_path) else []
     
-    # Get all mean curvature files (with prefix 'filt_mean_curv_')
-    curv_pattern = os.path.join(mean_curv_path, "filt_mean_curv_*.surf.gii")
-    curv_files = glob.glob(curv_pattern)
+    print(f"Total files in mesh directory: {len(all_mesh_files)}")
+    print(f"Total files in curvature directory: {len(all_curv_files)}")
+    
+    # Show examples of actual filenames
+    if all_mesh_files:
+        print(f"Example mesh files:")
+        for f in all_mesh_files[:3]:
+            print(f"  {f}")
+    
+    if all_curv_files:
+        print(f"Example curvature files:")
+        for f in all_curv_files[:3]:
+            print(f"  {f}")
+    print()
+    
+    # Try multiple patterns to find mesh files
+    mesh_patterns = [
+        "smooth_5_*.gii",
+        "smooth_5_*.surf.gii", 
+        "smooth_5_*"
+    ]
+    
+    mesh_files = []
+    for pattern in mesh_patterns:
+        full_pattern = os.path.join(mesh_path, pattern)
+        found = glob.glob(full_pattern)
+        if found:
+            mesh_files = found
+            print(f"Found mesh files using pattern: {pattern}")
+            break
+    
+    # Try multiple patterns to find curvature files
+    curv_patterns = [
+        "filt_mean_curv_*.gii",
+        "filt_mean_curv_*.surf.gii",
+        "filt_mean_curv_*"
+    ]
+    
+    curv_files = []
+    for pattern in curv_patterns:
+        full_pattern = os.path.join(mean_curv_path, pattern) 
+        found = glob.glob(full_pattern)
+        if found:
+            curv_files = found
+            print(f"Found curvature files using pattern: {pattern}")
+            break
     
     print(f"Found {len(mesh_files)} mesh files")
     print(f"Found {len(curv_files)} mean curvature files\n")
     
     if len(mesh_files) == 0 and len(curv_files) == 0:
         print("WARNING: No files found in either directory. Processing may not have been completed.")
+        print("Please check if the file paths and naming conventions are correct.")
         return
     
-    # Extract base filenames
+    # Debug: Show first few files found
+    if mesh_files:
+        print("First few mesh files found:")
+        for i, f in enumerate(mesh_files[:3]):
+            print(f"  {i+1}. {os.path.basename(f)}")
+        print()
+    
+    if curv_files:
+        print("First few curvature files found:")
+        for i, f in enumerate(curv_files[:3]):
+            print(f"  {i+1}. {os.path.basename(f)}")
+        print()
+    
+    # Extract base filenames more carefully
     mesh_bases = set()
     for mesh_file in mesh_files:
-        base = extract_base_filename(mesh_file, "smooth_5_")
-        mesh_bases.add(base)
+        filename = os.path.basename(mesh_file)
+        # Remove 'smooth_5_' prefix more carefully
+        if filename.startswith("smooth_5_"):
+            base = filename[len("smooth_5_"):]
+            mesh_bases.add(base)
+        else:
+            print(f"Warning: Unexpected mesh filename format: {filename}")
     
     curv_bases = set()
     for curv_file in curv_files:
-        base = extract_base_filename(curv_file, "filt_mean_curv_")
-        curv_bases.add(base)
+        filename = os.path.basename(curv_file)
+        # Remove 'filt_mean_curv_' prefix more carefully
+        if filename.startswith("filt_mean_curv_"):
+            base = filename[len("filt_mean_curv_"):]
+            curv_bases.add(base)
+        else:
+            print(f"Warning: Unexpected curvature filename format: {filename}")
+    
+    print(f"DEBUG: Extracted {len(mesh_bases)} unique mesh base names")
+    print(f"DEBUG: Extracted {len(curv_bases)} unique curvature base names")
+    
+    # Show a few examples of extracted base names
+    if mesh_bases:
+        print("Example mesh base names:")
+        for i, base in enumerate(list(mesh_bases)[:3]):
+            print(f"  {i+1}. {base}")
+    
+    if curv_bases:
+        print("Example curvature base names:")
+        for i, base in enumerate(list(curv_bases)[:3]):
+            print(f"  {i+1}. {base}")
+    print()
     
     # Find matches and mismatches
     both_exist = mesh_bases.intersection(curv_bases)
@@ -356,6 +439,7 @@ def check_mesh_curvature_correspondence():
     
     # Calculate statistics
     total_unique = len(mesh_bases.union(curv_bases))
+    correspondence_rate = 0
     if total_unique > 0:
         correspondence_rate = (len(both_exist) / total_unique) * 100
         print(f"Correspondence rate: {correspondence_rate:.1f}%\n")
@@ -393,7 +477,7 @@ def check_mesh_curvature_correspondence():
         'both_exist': both_exist,
         'mesh_only': mesh_only,
         'curv_only': curv_only,
-        'correspondence_rate': correspondence_rate if total_unique > 0 else 0
+        'correspondence_rate': correspondence_rate
     }
 
 def create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path):
@@ -454,8 +538,19 @@ def check_file_sizes():
     mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
     
     # Check mesh file sizes
-    mesh_files = glob.glob(os.path.join(mesh_path, "smooth_5_*.surf.gii"))
-    curv_files = glob.glob(os.path.join(mean_curv_path, "filt_mean_curv_*.surf.gii.gii"))
+    mesh_files = []
+    curv_files = []
+    
+    # Try to find files with different patterns
+    for pattern in ["smooth_5_*.gii", "smooth_5_*"]:
+        mesh_files = glob.glob(os.path.join(mesh_path, pattern))
+        if mesh_files:
+            break
+            
+    for pattern in ["filt_mean_curv_*.gii", "filt_mean_curv_*"]:
+        curv_files = glob.glob(os.path.join(mean_curv_path, pattern))
+        if curv_files:
+            break
     
     def analyze_file_sizes(files, file_type):
         if not files:
