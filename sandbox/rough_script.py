@@ -36,9 +36,6 @@ for mesh_file in os.listdir(mesh_dir):
     
     # Load and process the mesh
     mesh_path = os.path.join(mesh_dir, mesh_file)
-    mesh = sio.load_mesh(mesh_path)
-    mesh_smooth_5 = laplacian_mesh_smoothing(mesh, nb_iter=5, dt=0.1)
-    mesh = mesh_smooth_5
     
     # CURVATURE
     print("compute the mean curvature")
