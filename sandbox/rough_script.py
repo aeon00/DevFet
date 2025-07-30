@@ -42,18 +42,18 @@ for mesh_file in os.listdir(mesh_dir):
     print("compute the mean curvature")
     PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
         scurv.curvatures_and_derivatives(mesh)
-    tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
+    # tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
     
-    # Save principal curvature texture
-    principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
-    sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
+    # # Save principal curvature texture
+    # principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
+    # sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
     
     # Compute and save mean curvature texture
     mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
-    tex_mean_curv = stex.TextureND(mean_curv)
-    tex_mean_curv.z_score_filtering(z_thresh=3)
+    # tex_mean_curv = stex.TextureND(mean_curv)
+    # tex_mean_curv.z_score_filtering(z_thresh=3)
     
-    sio.write_texture(tex_mean_curv, mean_tex_path)
+    # sio.write_texture(tex_mean_curv, mean_tex_path)
     print(f"Completed processing: {mesh_file}")
 
 print("All meshes processed!")
@@ -198,9 +198,9 @@ print("All meshes processed!")
 # # Main processing code with robust curvature computation
 # import warnings
 
-# mesh_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/missing_mean_curv_mesh'
-# mean_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mean_curv_tex/'
-# principal_tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/principal_curv_tex/'
+# mesh_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
+# mean_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
+# principal_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
 
 # # Ensure output directories exist
 # ensure_dir_exists(mean_tex_dir)
