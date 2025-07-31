@@ -1,849 +1,563 @@
-import slam.io as sio
-import slam.texture as stex
-import slam.curvature as scurv
-import os
-from slam.differential_geometry import laplacian_mesh_smoothing
-
-def ensure_dir_exists(directory):
-    """Create directory if it doesn't exist"""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-mesh_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
-mean_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
-principal_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
-
-# Ensure output directories exist
-ensure_dir_exists(mean_tex_dir)
-ensure_dir_exists(principal_tex_dir)
-
-for mesh_file in os.listdir(mesh_dir):
-    if not mesh_file.endswith(('.gii', '.mesh', '.ply')):  # Add appropriate mesh extensions
-        continue
-    
-    # Extract filename without extension for texture naming
-    filename = os.path.splitext(mesh_file)[0]
-    
-    # Define the path where the mean curvature texture would be saved
-    mean_tex_path = os.path.join(mean_tex_dir, 'filt_mean_curv_{}.gii'.format(filename))
-    
-    # Check if mean curvature texture already exists
-    if os.path.exists(mean_tex_path):
-        print(f"Mean curvature texture already exists for {mesh_file}, skipping...")
-        continue
-    
-    print(f"Processing mesh: {mesh_file}")
-    
-    # Load and process the mesh
-    mesh_path = os.path.join(mesh_dir, mesh_file)
-    mesh = sio.load_mesh(mesh_path)
-    
-    # CURVATURE
-    print("compute the mean curvature")
-    PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
-        scurv.curvatures_and_derivatives(mesh)
-    # tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
-    
-    # # Save principal curvature texture
-    # principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
-    # sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
-    
-    # Compute and save mean curvature texture
-    mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
-    print('it works')
-    # tex_mean_curv = stex.TextureND(mean_curv)
-    # tex_mean_curv.z_score_filtering(z_thresh=3)
-    
-    # sio.write_texture(tex_mean_curv, mean_tex_path)
-    print(f"Completed processing: {mesh_file}")
-
-print("All meshes processed!")
-
 # import slam.io as sio
 # import slam.texture as stex
 # import slam.curvature as scurv
-# import slam.topology as stop
-# import slam.remeshing as srem
 # import os
-# import numpy as np
 # from slam.differential_geometry import laplacian_mesh_smoothing
-
-# def clean_mesh(mesh, min_area_threshold=1e-10):
-#     """Clean mesh by removing degenerate triangles and isolated vertices"""
-    
-#     # Remove degenerate triangles (very small area)
-#     face_areas = []
-#     valid_faces = []
-    
-#     for i, face in enumerate(mesh.faces):
-#         v0, v1, v2 = mesh.vertices[face]
-#         # Calculate triangle area using cross product
-#         area = 0.5 * np.linalg.norm(np.cross(v1 - v0, v2 - v0))
-#         if area > min_area_threshold:
-#             face_areas.append(area)
-#             valid_faces.append(face)
-    
-#     if len(valid_faces) < len(mesh.faces):
-#         print(f"Removed {len(mesh.faces) - len(valid_faces)} degenerate triangles")
-#         # Create new mesh with valid faces only
-#         mesh.faces = np.array(valid_faces)
-    
-#     # Remove isolated vertices
-#     mesh = stop.remove_isolated_vertices(mesh)
-    
-#     return mesh
-
-# def robust_curvature_computation(mesh, max_attempts=3):
-#     """Compute curvature with multiple fallback strategies"""
-    
-#     original_mesh = mesh.copy()
-    
-#     for attempt in range(max_attempts):
-#         try:
-#             print(f"Curvature computation attempt {attempt + 1}")
-            
-#             if attempt == 0:
-#                 # First attempt: original mesh
-#                 current_mesh = mesh
-#             elif attempt == 1:
-#                 # Second attempt: more aggressive smoothing
-#                 print("Applying additional smoothing...")
-#                 current_mesh = laplacian_mesh_smoothing(original_mesh, nb_iter=10, dt=0.05)
-#             else:
-#                 # Third attempt: remesh to improve quality
-#                 print("Attempting remeshing...")
-#                 try:
-#                     current_mesh = srem.isotropic_remeshing(original_mesh)
-#                 except:
-#                     # If remeshing fails, use heavily smoothed version
-#                     current_mesh = laplacian_mesh_smoothing(original_mesh, nb_iter=20, dt=0.01)
-            
-#             # Clean the mesh
-#             current_mesh = clean_mesh(current_mesh)
-            
-#             # Validate mesh quality
-#             if not validate_mesh_quality(current_mesh):
-#                 continue
-                
-#             # Attempt curvature computation
-#             with warnings.catch_warnings():
-#                 warnings.filterwarnings("ignore")
-#                 PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
-#                     scurv.curvatures_and_derivatives(current_mesh)
-            
-#             # Check if computation was successful
-#             if (PrincipalCurvatures is not None and 
-#                 not np.all(np.isnan(PrincipalCurvatures)) and 
-#                 not np.all(np.isinf(PrincipalCurvatures))):
-                
-#                 print(f"Curvature computation successful on attempt {attempt + 1}")
-#                 return PrincipalCurvatures, PrincipalDir1, PrincipalDir2, current_mesh
-                
-#         except Exception as e:
-#             print(f"Attempt {attempt + 1} failed: {str(e)}")
-#             continue
-    
-#     print("All curvature computation attempts failed")
-#     return None, None, None, None
-
-# def validate_mesh_quality(mesh):
-#     """Validate mesh quality before curvature computation"""
-    
-#     # Check for minimum number of vertices and faces
-#     if mesh.vertices.shape[0] < 10 or mesh.faces.shape[0] < 10:
-#         print("Mesh too small for reliable curvature computation")
-#         return False
-    
-#     # Check for valid coordinates
-#     if (np.any(np.isnan(mesh.vertices)) or np.any(np.isinf(mesh.vertices)) or
-#         np.any(np.isnan(mesh.faces)) or np.any(np.isinf(mesh.faces))):
-#         print("Invalid coordinates detected")
-#         return False
-    
-#     # Check triangle quality (aspect ratio)
-#     min_quality = check_triangle_quality(mesh)
-#     if min_quality < 0.01:  # Very poor quality triangles
-#         print(f"Poor triangle quality detected: {min_quality}")
-#         return False
-    
-#     return True
-
-# def check_triangle_quality(mesh):
-#     """Check triangle quality (aspect ratio)"""
-#     qualities = []
-    
-#     for face in mesh.faces:
-#         v0, v1, v2 = mesh.vertices[face]
-        
-#         # Calculate edge lengths
-#         edge1 = np.linalg.norm(v1 - v0)
-#         edge2 = np.linalg.norm(v2 - v1)
-#         edge3 = np.linalg.norm(v0 - v2)
-        
-#         # Calculate area
-#         area = 0.5 * np.linalg.norm(np.cross(v1 - v0, v2 - v0))
-        
-#         # Calculate quality (area / perimeter^2)
-#         if area > 0:
-#             perimeter = edge1 + edge2 + edge3
-#             quality = 4 * np.sqrt(3) * area / (perimeter ** 2)
-#             qualities.append(quality)
-    
-#     return min(qualities) if qualities else 0
 
 # def ensure_dir_exists(directory):
 #     """Create directory if it doesn't exist"""
 #     if not os.path.exists(directory):
 #         os.makedirs(directory)
 
-# # Main processing code with robust curvature computation
-# import warnings
-
-# mesh_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
-# mean_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
-# principal_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
+# mesh_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
+# mean_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
+# principal_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
 
 # # Ensure output directories exist
 # ensure_dir_exists(mean_tex_dir)
 # ensure_dir_exists(principal_tex_dir)
 
 # for mesh_file in os.listdir(mesh_dir):
-#     if not mesh_file.endswith(('.gii', '.mesh', '.ply')):
+#     if not mesh_file.endswith(('.gii', '.mesh', '.ply')):  # Add appropriate mesh extensions
 #         continue
     
+#     # Extract filename without extension for texture naming
 #     filename = os.path.splitext(mesh_file)[0]
+    
+#     # Define the path where the mean curvature texture would be saved
 #     mean_tex_path = os.path.join(mean_tex_dir, 'filt_mean_curv_{}.gii'.format(filename))
     
+#     # Check if mean curvature texture already exists
 #     if os.path.exists(mean_tex_path):
 #         print(f"Mean curvature texture already exists for {mesh_file}, skipping...")
 #         continue
     
 #     print(f"Processing mesh: {mesh_file}")
     
-#     try:
-#         # Load mesh
-#         mesh_path = os.path.join(mesh_dir, mesh_file)
-#         mesh = sio.load_mesh(mesh_path)
-        
-#         # Initial mesh cleaning and smoothing
-#         mesh = clean_mesh(mesh)
-#         mesh = laplacian_mesh_smoothing(mesh, nb_iter=5, dt=0.1)
-        
-#         # Robust curvature computation
-#         PrincipalCurvatures, PrincipalDir1, PrincipalDir2, processed_mesh = \
-#             robust_curvature_computation(mesh)
-        
-#         if PrincipalCurvatures is None:
-#             print(f"Failed to compute curvatures for {mesh_file}, skipping...")
-#             continue
-        
-#         # Process and save results
-#         tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
-#         principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
-#         sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
-        
-#         # Compute mean curvature
-#         mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
-        
-#         # Handle NaN values
-#         if np.any(np.isnan(mean_curv)):
-#             nan_ratio = np.sum(np.isnan(mean_curv)) / len(mean_curv)
-#             if nan_ratio > 0.1:
-#                 print(f"Too many NaN values ({nan_ratio:.2%}) in {mesh_file}, skipping...")
-#                 continue
-#             mean_curv = np.nan_to_num(mean_curv, nan=0.0)
-        
-#         tex_mean_curv = stex.TextureND(mean_curv)
-#         tex_mean_curv.z_score_filtering(z_thresh=3)
-#         sio.write_texture(tex_mean_curv, mean_tex_path)
-        
-#         print(f"Successfully processed: {mesh_file}")
-        
-#     except Exception as e:
-#         print(f"Error processing {mesh_file}: {str(e)}")
-#         continue
+#     # Load and process the mesh
+#     mesh_path = os.path.join(mesh_dir, mesh_file)
+#     mesh = sio.load_mesh(mesh_path)
+    
+#     # CURVATURE
+#     print("compute the mean curvature")
+#     PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
+#         scurv.curvatures_and_derivatives(mesh)
+#     # tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
+    
+#     # # Save principal curvature texture
+#     # principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
+#     # sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
+    
+#     # Compute and save mean curvature texture
+#     mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+#     print('it works')
+#     # tex_mean_curv = stex.TextureND(mean_curv)
+#     # tex_mean_curv.z_score_filtering(z_thresh=3)
+    
+#     # sio.write_texture(tex_mean_curv, mean_tex_path)
+#     print(f"Completed processing: {mesh_file}")
 
-# print("Processing complete!")
+# print("All meshes processed!")
 
-# #!/usr/bin/env python3
-# """
-# Script to check if all generated meshes have their corresponding mean curvature files.
+import slam.io as sio
+import slam.texture as stex
+import slam.curvature as scurv
+import os
+import pandas as pd
+import time
+import slam.spangy as spgy
+from slam.differential_geometry import laplacian_mesh_smoothing
+import numpy as np
+import matplotlib.pyplot as plt
+import trimesh
+import sys
 
-# This script verifies the correspondence between:
-# 1. Smoothed meshes in /scratch/hdienye/dhcp_full_info/mesh/
-# 2. Mean curvature textures in /scratch/hdienye/dhcp_full_info/mean_curv_tex/
+# Function to get hull area
+def get_hull_area(mesh):
+    convex_hull = trimesh.convex.convex_hull(mesh)
+    return float(convex_hull.area)  # Convert to float to ensure it's a numeric value
 
-# Based on the processing pipeline in the provided code.
-# """
+def get_gyrification_index(mesh):
+    """
+    Gyrification index as surface ratio between a mesh and its convex hull
+    
+    Parameters
+    ----------
+    mesh : Trimesh
+        Triangular watertight mesh
+    
+    Returns
+    -------
+    gyrification_index : Float
+        surface ratio between a mesh and its convex hull
+    hull_area : Float
+        area of the convex hull
+    """
+    hull_area = get_hull_area(mesh)
+    gyrification_index = float(mesh.area) / hull_area  # Convert both to float
+    return gyrification_index, hull_area
 
-# import os
-# import glob
-# import pandas as pd
-# from pathlib import Path
-
-# def extract_base_filename(filepath, prefix_to_remove=""):
-#     """
-#     Extract the base filename without directory and specific prefixes.
+def calculate_band_wavelength(eigVal, group_indices):
+    """
+    Calculate the wavelength for each band based on eigenvalues
     
-#     Parameters:
-#     filepath: Path to the file
-#     prefix_to_remove: Prefix to remove from filename (e.g., 'smooth_5_', 'filt_mean_curv_')
+    Parameters
+    ----------
+    eigVal : ndarray
+        Eigenvalues from the spectrum analysis
+    group_indices : list of arrays
+        Indices of eigenvalues in each band
     
-#     Returns:
-#     str: Base filename
-#     """
-#     filename = os.path.basename(filepath)
-#     if prefix_to_remove and filename.startswith(prefix_to_remove):
-#         filename = filename[len(prefix_to_remove):]
-#     return filename
-
-# def check_mesh_curvature_correspondence():
-#     """
-#     Check correspondence between generated meshes and mean curvature files.
-#     """
-#     # Define paths based on the original code
-#     mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
-#     mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
+    Returns
+    -------
+    band_wavelengths : list
+        Average wavelength for each band in mm
+    """
+    band_wavelengths = []
     
-#     print("=== Mesh and Mean Curvature Correspondence Checker ===\n")
-    
-#     # Check if directories exist
-#     if not os.path.exists(mesh_path):
-#         print(f"ERROR: Mesh directory does not exist: {mesh_path}")
-#         return
-    
-#     if not os.path.exists(mean_curv_path):
-#         print(f"ERROR: Mean curvature directory does not exist: {mean_curv_path}")
-#         return
-    
-#     print(f"Mesh directory: {mesh_path}")
-#     print(f"Mean curvature directory: {mean_curv_path}\n")
-    
-#     # Get all files in both directories first to debug
-#     print("DEBUG: Scanning directories...")
-#     all_mesh_files = os.listdir(mesh_path) if os.path.exists(mesh_path) else []
-#     all_curv_files = os.listdir(mean_curv_path) if os.path.exists(mean_curv_path) else []
-    
-#     print(f"Total files in mesh directory: {len(all_mesh_files)}")
-#     print(f"Total files in curvature directory: {len(all_curv_files)}")
-    
-#     # Show examples of actual filenames
-#     if all_mesh_files:
-#         print(f"Example mesh files:")
-#         for f in all_mesh_files[:3]:
-#             print(f"  {f}")
-    
-#     if all_curv_files:
-#         print(f"Example curvature files:")
-#         for f in all_curv_files[:3]:
-#             print(f"  {f}")
-#     print()
-    
-#     # Try multiple patterns to find mesh files
-#     mesh_patterns = [
-#         "smooth_5_*.gii",
-#         "smooth_5_*.surf.gii", 
-#         "smooth_5_*"
-#     ]
-    
-#     mesh_files = []
-#     for pattern in mesh_patterns:
-#         full_pattern = os.path.join(mesh_path, pattern)
-#         found = glob.glob(full_pattern)
-#         if found:
-#             mesh_files = found
-#             print(f"Found mesh files using pattern: {pattern}")
-#             break
-    
-#     # Try multiple patterns to find curvature files
-#     curv_patterns = [
-#         "filt_mean_curv_*.gii",
-#         "filt_mean_curv_*.surf.gii",
-#         "filt_mean_curv_*"
-#     ]
-    
-#     curv_files = []
-#     for pattern in curv_patterns:
-#         full_pattern = os.path.join(mean_curv_path, pattern) 
-#         found = glob.glob(full_pattern)
-#         if found:
-#             curv_files = found
-#             print(f"Found curvature files using pattern: {pattern}")
-#             break
-    
-#     print(f"Found {len(mesh_files)} mesh files")
-#     print(f"Found {len(curv_files)} mean curvature files\n")
-    
-#     if len(mesh_files) == 0 and len(curv_files) == 0:
-#         print("WARNING: No files found in either directory. Processing may not have been completed.")
-#         print("Please check if the file paths and naming conventions are correct.")
-#         return
-    
-#     # Debug: Show first few files found
-#     if mesh_files:
-#         print("First few mesh files found:")
-#         for i, f in enumerate(mesh_files[:3]):
-#             print(f"  {i+1}. {os.path.basename(f)}")
-#         print()
-    
-#     if curv_files:
-#         print("First few curvature files found:")
-#         for i, f in enumerate(curv_files[:3]):
-#             print(f"  {i+1}. {os.path.basename(f)}")
-#         print()
-    
-#     # Extract base filenames more carefully
-#     mesh_bases = set()
-#     for mesh_file in mesh_files:
-#         filename = os.path.basename(mesh_file)
-#         # Remove 'smooth_5_' prefix more carefully
-#         if filename.startswith("smooth_5_"):
-#             base = filename[len("smooth_5_"):]
-#             mesh_bases.add(base)
-#         else:
-#             print(f"Warning: Unexpected mesh filename format: {filename}")
-    
-#     curv_bases = set()
-#     for curv_file in curv_files:
-#         filename = os.path.basename(curv_file)
-#         # Remove 'filt_mean_curv_' prefix more carefully
-#         if filename.startswith("filt_mean_curv_"):
-#             base = filename[len("filt_mean_curv_"):]
-#             curv_bases.add(base)
-#         else:
-#             print(f"Warning: Unexpected curvature filename format: {filename}")
-    
-#     print(f"DEBUG: Extracted {len(mesh_bases)} unique mesh base names")
-#     print(f"DEBUG: Extracted {len(curv_bases)} unique curvature base names")
-    
-#     # Show a few examples of extracted base names
-#     if mesh_bases:
-#         print("Example mesh base names:")
-#         for i, base in enumerate(list(mesh_bases)[:3]):
-#             print(f"  {i+1}. {base}")
-    
-#     if curv_bases:
-#         print("Example curvature base names:")
-#         for i, base in enumerate(list(curv_bases)[:3]):
-#             print(f"  {i+1}. {base}")
-#     print()
-    
-#     # Find matches and mismatches
-#     both_exist = mesh_bases.intersection(curv_bases)
-#     mesh_only = mesh_bases - curv_bases
-#     curv_only = curv_bases - mesh_bases
-    
-#     print("=== CORRESPONDENCE ANALYSIS ===")
-#     print(f"Files with both mesh and curvature: {len(both_exist)}")
-#     print(f"Files with mesh only: {len(mesh_only)}")
-#     print(f"Files with curvature only: {len(curv_only)}")
-    
-#     # Calculate statistics
-#     total_unique = len(mesh_bases.union(curv_bases))
-#     correspondence_rate = 0
-#     if total_unique > 0:
-#         correspondence_rate = (len(both_exist) / total_unique) * 100
-#         print(f"Correspondence rate: {correspondence_rate:.1f}%\n")
-    
-#     # Report missing correspondences
-#     if mesh_only:
-#         print("=== MESHES WITHOUT CORRESPONDING MEAN CURVATURE ===")
-#         print(f"Found {len(mesh_only)} mesh files without mean curvature:")
-#         for i, base in enumerate(sorted(mesh_only), 1):
-#             print(f"{i:3d}. {base}")
-#         print()
-    
-#     if curv_only:
-#         print("=== MEAN CURVATURES WITHOUT CORRESPONDING MESH ===")
-#         print(f"Found {len(curv_only)} mean curvature files without mesh:")
-#         for i, base in enumerate(sorted(curv_only), 1):
-#             print(f"{i:3d}. {base}")
-#         print()
-    
-#     # Create detailed report
-#     if both_exist or mesh_only or curv_only:
-#         create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path)
-    
-#     # Summary
-#     print("=== SUMMARY ===")
-#     if len(both_exist) == total_unique and total_unique > 0:
-#         print("✅ SUCCESS: All files have complete correspondence!")
-#     elif len(both_exist) > 0:
-#         print(f"⚠️  PARTIAL: {len(both_exist)}/{total_unique} files have complete correspondence")
-#         print(f"   Missing: {len(mesh_only)} curvature files, {len(curv_only)} mesh files")
-#     else:
-#         print("❌ ERROR: No files have complete correspondence!")
-    
-#     return {
-#         'both_exist': both_exist,
-#         'mesh_only': mesh_only,
-#         'curv_only': curv_only,
-#         'correspondence_rate': correspondence_rate
-#     }
-
-# def create_detailed_report(both_exist, mesh_only, curv_only, mesh_path, mean_curv_path):
-#     """
-#     Create a detailed CSV report of the correspondence analysis.
-#     """
-#     report_data = []
-    
-#     # Add complete pairs
-#     for base in both_exist:
-#         report_data.append({
-#             'base_filename': base,
-#             'has_mesh': True,
-#             'has_curvature': True,
-#             'status': 'Complete',
-#             'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
-#             'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
-#         })
-    
-#     # Add mesh-only files
-#     for base in mesh_only:
-#         report_data.append({
-#             'base_filename': base,
-#             'has_mesh': True,
-#             'has_curvature': False,
-#             'status': 'Missing curvature',
-#             'mesh_path': os.path.join(mesh_path, f"smooth_5_{base}"),
-#             'curvature_path': 'MISSING'
-#         })
-    
-#     # Add curvature-only files
-#     for base in curv_only:
-#         report_data.append({
-#             'base_filename': base,
-#             'has_mesh': False,
-#             'has_curvature': True,
-#             'status': 'Missing mesh',
-#             'mesh_path': 'MISSING',
-#             'curvature_path': os.path.join(mean_curv_path, f"filt_mean_curv_{base}")
-#         })
-    
-#     # Create DataFrame and save report
-#     if report_data:
-#         df = pd.DataFrame(report_data)
-#         df = df.sort_values('base_filename')
-        
-#         report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
-#         df.to_csv(report_path, index=False)
-#         print(f"📄 Detailed report saved to: {report_path}")
-
-# def check_file_sizes():
-#     """
-#     Additional check to verify file sizes and detect potentially corrupted files.
-#     """
-#     print("\n=== FILE SIZE ANALYSIS ===")
-    
-#     mesh_path = "/scratch/hdienye/dhcp_full_info/mesh/"
-#     mean_curv_path = "/scratch/hdienye/dhcp_full_info/mean_curv_tex/"
-    
-#     # Check mesh file sizes
-#     mesh_files = []
-#     curv_files = []
-    
-#     # Try to find files with different patterns
-#     for pattern in ["smooth_5_*.gii", "smooth_5_*"]:
-#         mesh_files = glob.glob(os.path.join(mesh_path, pattern))
-#         if mesh_files:
-#             break
+    for indices in group_indices:
+        if len(indices) == 0:  # Check if array is empty
+            band_wavelengths.append(0)
+            continue
             
-#     for pattern in ["filt_mean_curv_*.gii", "filt_mean_curv_*"]:
-#         curv_files = glob.glob(os.path.join(mean_curv_path, pattern))
-#         if curv_files:
-#             break
+        # Calculate frequency from eigenvalues using equation in Appendix A.1
+        band_frequencies = np.sqrt(eigVal[indices] / (2 * np.pi))
+        
+        # Wavelength = 1/frequency (in mm)
+        if np.mean(band_frequencies) > 0:
+            avg_wavelength = 1 / np.mean(band_frequencies)
+        else:
+            avg_wavelength = 0
+            
+        band_wavelengths.append(avg_wavelength)
     
-#     def analyze_file_sizes(files, file_type):
-#         if not files:
-#             print(f"No {file_type} files found")
-#             return
+    return band_wavelengths
+
+def calculate_parcels_per_band(loc_dom_band, levels):
+    """
+    Calculate the number of parcels (connected components) for each band
+    
+    Parameters
+    ----------
+    loc_dom_band : ndarray
+        Local dominant band map
+    levels : int
+        Number of frequency bands
+    
+    Returns
+    -------
+    parcels_per_band : list
+        Number of parcels for each band
+    """
+    from scipy import ndimage
+    
+    parcels_per_band = []
+    
+    for i in range(levels):
+        # Create binary mask for this band
+        band_mask = (loc_dom_band == i).astype(int)
         
-#         sizes = []
-#         small_files = []
+        # Check if the band exists at all
+        if np.sum(band_mask) == 0:
+            parcels_per_band.append(0)
+            continue
+            
+        # Label connected components
+        labeled_array, num_parcels = ndimage.label(band_mask)
         
-#         for filepath in files:
-#             try:
-#                 size = os.path.getsize(filepath)
-#                 sizes.append(size)
+        parcels_per_band.append(num_parcels)
+    
+    return parcels_per_band
+
+def calculate_band_coverage(mesh, loc_dom_band, band_idx):
+    """
+    Calculate the coverage metrics for a specific frequency band using local dominance map.
+    
+    Parameters:
+    mesh: Mesh object containing vertices and faces
+    loc_dom_band: Array of local dominant bands for each vertex
+    band_idx: Index of the band to analyze (e.g., 4 for B4)
+    
+    Returns:
+    float: Number of vertices where this band is dominant
+    float: Percentage of total vertices
+    float: Surface area covered by the band in mm²
+    float: Percentage of total surface area
+    """
+    # Count vertices where this band is dominant
+    band_vertices = loc_dom_band == band_idx
+    num_vertices = np.sum(band_vertices)
+    vertex_percentage = (num_vertices / len(loc_dom_band)) * 100
+    
+    # Calculate surface area coverage
+    total_area = 0
+    faces = mesh.faces
+    vertices = mesh.vertices
+    
+    for face in faces:
+        # If any vertex in the face has this dominant band, include face area
+        if any(band_vertices[face]):
+            v1, v2, v3 = vertices[face]
+            # Calculate face area using cross product
+            area = 0.5 * np.linalg.norm(np.cross(v2 - v1, v3 - v1))
+            total_area += area
+    
+    area_percentage = (total_area / mesh.area) * 100
+    return num_vertices, vertex_percentage, total_area, area_percentage
+
+def process_single_file(filename, surface_path, df):
+    """
+    Process a single surface file and compute various metrics.
+    """
+    try:
+        start_time = time.time()
+        print("Starting processing of {}".format(filename))
+
+        hemisphere = 'left' if filename.endswith('left.surf.gii') else 'right'
+        participant_session = filename.split('_')[0] + '_' + filename.split('_')[1] + f'_{hemisphere}'
+        base_participant_session = filename.split('_')[0] + '_' + filename.split('_')[1]
+        
+        # Get corresponding gestational age
+        try:
+            gestational_age = df[df['participant_session'] == base_participant_session]['scan_age'].values[0]
+        except:
+            print(f"Warning: No matching gestational age found for {base_participant_session}")
+            return None
+
+        mesh_file = os.path.join(surface_path, filename)
+        if not os.path.exists(mesh_file):
+            print("Error: Mesh file not found: {}".format(mesh_file))
+            return None
+            
+        mesh = sio.load_mesh(mesh_file)
+        mesh_smooth_5 = mesh
+        mesh = mesh_smooth_5
+        mesh_save_path = "/scratch/hdienye/mesh_no_curvature/dhcp_full_info/mesh/"
+        ensure_dir_exists(mesh_save_path)
+        new_mesh_path = os.path.join(mesh_save_path, 'smooth_5_{}'.format(filename))
+        sio.write_mesh(mesh, new_mesh_path)
+        N = 5000
+        
+        # Compute eigenpairs and mass matrix
+        print("compute the eigen vectors and eigen values")
+        eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
+
+        # CURVATURE
+        print("compute the mean curvature")
+        PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
+            scurv.curvatures_and_derivatives(mesh)
+        tex_PrincipalCurvatures = stex.TextureND(PrincipalCurvatures)
+        principal_tex_dir = '/scratch/hdienye/mesh_no_curvature/dhcp_full_info/principal_curv_tex/'
+        ensure_dir_exists(principal_tex_dir)
+        principal_tex_path = os.path.join(principal_tex_dir, 'principal_curv_{}.gii'.format(filename))
+        sio.write_texture(tex_PrincipalCurvatures, principal_tex_path)
+        
+        mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+        tex_mean_curv = stex.TextureND(mean_curv)
+        tex_mean_curv.z_score_filtering(z_thresh=3)
+        
+        mean_tex_dir = '/scratch/hdienye/mesh_no_curvature/dhcp_full_info/mean_curv_tex/'
+        ensure_dir_exists(mean_tex_dir)
+        mean_tex_path = os.path.join(mean_tex_dir, 'filt_mean_curv_{}.gii'.format(filename))
+        sio.write_texture(tex_mean_curv, mean_tex_path)
+        filt_mean_curv = tex_mean_curv.darray.squeeze()
+        total_mean_curv = sum(filt_mean_curv)
+        # gyral_mask = np.where(filt_mean_curv > 0, 0, filt_mean_curv) # To mask gyri and only focus on sulci
+
+        # WHOLE BRAIN MEAN-CURVATURE SPECTRUM
+        grouped_spectrum, group_indices, coefficients, nlevels \
+            = spgy.spectrum(filt_mean_curv, lap_b, eigVects, eigVal)
+        levels = len(group_indices)
+
+        # Calculate additional measures
+        # 1. Power distribution across bands (normalized to percentage)
+        total_power = np.sum(grouped_spectrum)
+        power_distribution = (grouped_spectrum / total_power) * 100 if total_power > 0 else np.zeros_like(grouped_spectrum)
+        
+        # 2. Band wavelength for each band
+        band_wavelengths = calculate_band_wavelength(eigVal, group_indices)
+        
+        # Plot coefficients and bands for all mean curvature signal
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+        frequency = np.sqrt(eigVal/2*np.pi) # from equations in Appendix A.1
+        ax1.scatter(frequency,
+        coefficients, marker='o', s=20, linewidths=0.5)
+        ax1.set_xlabel('Frequency (m⁻¹)')
+        ax1.set_ylabel('Coefficients')
+
+        ax2.scatter(frequency[1:],
+        coefficients[1:], marker='o', s=20, linewidths=0.5) # remove B0 coefficients
+        ax2.set_xlabel('Frequency (m⁻¹)')
+        ax2.set_ylabel('Coefficients')
+
+        ax3.bar(np.arange(0, levels), grouped_spectrum)
+        ax3.set_xlabel('Spangy Frequency Bands')
+        ax3.set_ylabel('Power Spectrum')
+        plt.tight_layout()  # Adjust the spacing between subplots
+        
+        # Ensure plots directory exists
+        plots_dir = '/scratch/hdienye/mesh_no_curvature/dhcp_full_info/spangy/plots/'
+        ensure_dir_exists(plots_dir)
+        
+        # Save first plot
+        fig.savefig(f'{plots_dir}/{filename}.png', bbox_inches='tight', dpi=300)
+        plt.close(fig)
+        
+        # Add a second plot for power distribution
+        fig, ax = plt.subplots(figsize=(10, 6))
+        band_names = [f'B{i}' for i in range(levels)]
+        ax.bar(band_names, power_distribution)
+        ax.set_xlabel('Frequency Bands')
+        ax.set_ylabel('Power Distribution (%)')
+        ax.set_title(f'SPANGY Power Distribution - {participant_session}')
+        for i, v in enumerate(power_distribution):
+            ax.text(i, v + 0.5, f'{v:.1f}%', ha='center')
+        plt.tight_layout()
+        fig.savefig(f'{plots_dir}/power_distribution_{filename}.png', bbox_inches='tight', dpi=300)
+        plt.close(fig)
+        
+        # a. Whole brain parameters
+        mL_in_MM3 = 1000
+        CM2_in_MM2 = 100
+        volume = mesh.volume
+        surface_area = mesh.area
+        afp = np.sum(grouped_spectrum[1:])
+        print('** a. Whole brain parameters **')
+        print('Volume = %d mL, Area = %d cm², Analyze Folding Power = %f,' %
+            (np.floor(volume / mL_in_MM3), np.floor(surface_area / CM2_in_MM2), afp))
+
+        # LOCAL SPECTRAL BANDS
+        loc_dom_band, frecomposed = spgy.local_dominance_map(coefficients, filt_mean_curv,
+                                                            levels, group_indices,
+                                                            eigVects)
+        
+        # 3. Calculate number of parcels per band
+        parcels_per_band = calculate_parcels_per_band(loc_dom_band, levels)
+        
+        # Print band number of parcels
+        print('** b. Band number of parcels **')
+        for i in range(levels):
+            print(f'B{i} = {parcels_per_band[i]}', end=', ')
+        print()
+        
+        # Print band wavelengths
+        print('** Band wavelengths (mm) **')
+        for i in range(levels):
+            print(f'B{i} = {band_wavelengths[i]:.2f}', end=', ')
+        print()
+
+        # c. Band power
+        print('** c. Band power **')
+        for i in range(levels):
+            print(f'B{i} = {grouped_spectrum[i]:.6f}', end=', ')
+        print()
+
+        # d. Band relative power
+        print('** d. Band relative power **')
+        for i in range(levels):
+            print(f'B{i} = {power_distribution[i]:.2f}%', end=', ')
+        print()
+
+        tex_path = f"/scratch/hdienye/mesh_no_curvature/dhcp_full_info/spangy/textures/spangy_dom_band_{participant_session}.gii"
+        tmp_tex = stex.TextureND(loc_dom_band)
+        # tmp_tex.z_score_filtering(z_thresh=3)
+
+        # Ensure output directories exist before saving files
+        ensure_dir_exists(os.path.dirname(tex_path))
+        sio.write_texture(tmp_tex, tex_path)
+        
+
+
+        # Save frecomposed data
+        # Create base directory and subdirectories for frecomposed data
+        frecomposed_dir = "/scratch/hdienye/mesh_no_curvature/dhcp_full_info/frecomposed/"
+        bands_dir = os.path.join(frecomposed_dir, "bands")
+        full_dir = os.path.join(frecomposed_dir, "full")
+        
+        # Create all directories, ensuring they exist
+        os.makedirs(frecomposed_dir, exist_ok=True)
+        os.makedirs(bands_dir, exist_ok=True)
+        os.makedirs(full_dir, exist_ok=True)
+        
+        # Convert each band of frecomposed to a texture and save it
+        # for i in range(frecomposed.shape[1]):
+        #     band_data = frecomposed[:, i]
+        #     band_tex = stex.TextureND(band_data)
+        #     band_path = os.path.join(bands_dir, f'frecomposed_band{i+1}_{filename}.gii')
+        #     sio.write_texture(band_tex, band_path)
+            
+        # Also save the full frecomposed array as a numpy file for future analysis
+        np_path = os.path.join(full_dir, f'frecomposed_full_{filename}.npy')
+        np.save(np_path, frecomposed)
+        
+        # Get hull area and gyrification index
+        gyrification_index, hull_area = get_gyrification_index(mesh)
+
+            # Calculate coverage for bands 4, 5, 6 and 7
+        band_vertices = []
+        band_vertex_percentages = []
+        band_areas = []
+        band_area_percentages = []
+        
+        max_band = np.max(loc_dom_band)  # Get the highest available band
+        
+        for band_idx in [4, 5, 6]:
+            if band_idx <= max_band:
+                num_verts, vert_pct, area, area_pct = calculate_band_coverage(mesh, loc_dom_band, band_idx)
+            else:
+                # Set zeros for unavailable bands
+                num_verts, vert_pct, area, area_pct = 0, 0, 0, 0
+            
+            band_vertices.append(num_verts)
+            band_vertex_percentages.append(vert_pct)
+            band_areas.append(area)
+            band_area_percentages.append(area_pct)
+        
+        band_powers = []
+        band_rel_powers = []        
+        for band_idx in [4, 5, 6]:
+            if band_idx < len(grouped_spectrum):
+                band_powers.append(grouped_spectrum[band_idx])
+                band_rel_powers.append(grouped_spectrum[band_idx]/afp)
+            else:
+                band_powers.append(0)
+                band_rel_powers.append(0)
+
+        # Calculate and print execution time for this iteration
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"\nExecution time for {filename}: {execution_time:.2f} seconds")
+        print("----------------------------------------\n")
+        
+        # Create result dictionary with all the requested measures
+        result = {
+            'participant_session': participant_session,
+            'gestational_age': gestational_age,
+            'total_mean_curvature': total_mean_curv,
+            'gyrification_index': gyrification_index,
+            'hull_area': hull_area,
+            'volume_ml': np.floor(volume / mL_in_MM3),
+            'surface_area_cm2': np.floor(surface_area / CM2_in_MM2),
+            'analyze_folding_power': afp,
+            'processing_time': execution_time,
+            "B4_band_relative_power" : band_rel_powers[0],
+            "B5_band_relative_power": band_rel_powers[1], 
+            "B6_band_relative_power": band_rel_powers[2],
+            "B4_number_of_vertices" : band_vertices[0],
+            "B5_number_of_vertices": band_vertices[1], 
+            "B5_number_of_vertices" : band_vertices[2], 
+            # f.write(f"B7: {band_vertices[3]} vertices ({band_vertex_percentages[3]:.2f}%)\n")
+            "B4_vertex_percentage" : band_vertex_percentages[0],
+            "B5_vertex_percentage" : band_vertex_percentages[1],
+            "B6_vertex_percentage" : band_vertex_percentages[2], 
+            "B4_surface_area": band_areas[0],
+            "B5_surface_area": band_areas[1], 
+            "B6_surface_area": band_areas[2], 
+            "B4_surface_area_percentage": band_area_percentages[0],
+            "B5_surface_area_percentage": band_area_percentages[1],
+            "B6_surface_area_percentage": band_area_percentages[2]
+        }
+        
+        # Add band power data
+        for i in range(levels):
+            result[f'band_power_B{i}'] = grouped_spectrum[i]
+            result[f'band_power_pct_B{i}'] = power_distribution[i]
+            result[f'band_wavelength_B{i}'] = band_wavelengths[i]
+            result[f'band_parcels_B{i}'] = parcels_per_band[i]
+        
+        return result
+        
+    except Exception as e:
+        print("Error processing {}: {}".format(filename, str(e)))
+        import traceback
+        traceback.print_exc()
+        return None
+
+def ensure_dir_exists(directory):
+    """
+    Make sure a directory exists, creating it if necessary
+    Handle the case where the directory might be created between check and creation
+    """
+    try:
+        if not os.path.exists(directory):
+            print(f"Creating directory: {directory}")
+            os.makedirs(directory, exist_ok=True)
+    except FileExistsError:
+        # Directory already exists (race condition handled)
+        print(f"Directory already exists: {directory}")
+        pass
+
+def main():
+    try:
+        # Paths
+        surface_path = "/scratch/hdienye/mesh_no_curvature/"
+        mesh_info_path = "/scratch/hdienye/participants.tsv"
+        
+        # Ensure all output directories exist
+        ensure_dir_exists('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/principal_curv_tex/')
+        ensure_dir_exists('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/mean_curv_tex/')
+        ensure_dir_exists('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/spangy/plots/')
+        ensure_dir_exists('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/spangy/textures/')
+        ensure_dir_exists('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/info/')
+        
+        print("Reading data from {}".format(mesh_info_path))
+        # Read dataframe
+        df = pd.read_csv(mesh_info_path, sep='\t')
+        df['participant_session'] = df['subject_id'] + '_' + df['session_id']
+        
+        print("Scanning directory: {}".format(surface_path))
+        # Get list of files
+        all_files = [f for f in os.listdir(surface_path) if f.endswith('left.surf.gii') or f.endswith('right.surf.gii')]
+        print("Found {} files to process".format(len(all_files)))
+        
+        # Process directly if not in SLURM environment
+        if 'SLURM_ARRAY_TASK_ID' not in os.environ:
+            print("Running in local mode - processing all files")
+            results = []
+            for filename in all_files:
+                result = process_single_file(filename, surface_path, df)
+                if result:
+                    results.append(result)
+                    
+            if results:
+                results_df = pd.DataFrame(results)
+                output_file = os.path.join('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/info/', 'all_results.csv')
+                results_df.to_csv(output_file, index=False)
+                print(f"All results saved to {output_file}")
+            else:
+                print("Warning: No results generated")
+            return
                 
-#                 # Flag potentially problematic files (less than 1KB)
-#                 if size < 1024:
-#                     small_files.append((os.path.basename(filepath), size))
-#             except OSError:
-#                 print(f"Warning: Could not get size for {filepath}")
+        # Calculate chunk for this array task
+        task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
+        n_tasks = int(os.environ['SLURM_ARRAY_TASK_COUNT'])
+        chunk_size = len(all_files) // n_tasks + (1 if len(all_files) % n_tasks > 0 else 0)
+        start_idx = task_id * chunk_size
+        end_idx = min((task_id + 1) * chunk_size, len(all_files))
         
-#         if sizes:
-#             avg_size = sum(sizes) / len(sizes)
-#             min_size = min(sizes)
-#             max_size = max(sizes)
+        print("Processing chunk {}/{} (files {} to {})".format(task_id + 1, n_tasks, start_idx, end_idx))
+        
+        # Process files in this chunk
+        results = []
+        for filename in all_files[start_idx:end_idx]:
+            result = process_single_file(filename, surface_path, df)
+            if result:
+                results.append(result)
+        
+        # Save results for this chunk
+        if results:
+            results_df = pd.DataFrame(results)
+            chunk_file = os.path.join('/scratch/hdienye/mesh_no_curvature/dhcp_full_info/info/', 'chunk_{}_results.csv'.format(task_id))
+            results_df.to_csv(chunk_file, index=False)
+            print("Results for chunk {} saved to {}".format(task_id, chunk_file))
+        else:
+            print("Warning: No results generated for chunk {}".format(task_id))
             
-#             print(f"{file_type} files:")
-#             print(f"  Count: {len(sizes)}")
-#             print(f"  Average size: {avg_size/1024:.1f} KB")
-#             print(f"  Size range: {min_size/1024:.1f} - {max_size/1024:.1f} KB")
-            
-#             if small_files:
-#                 print(f"  ⚠️  {len(small_files)} suspiciously small files:")
-#                 for filename, size in small_files[:5]:  # Show first 5
-#                     print(f"    {filename}: {size} bytes")
-#                 if len(small_files) > 5:
-#                     print(f"    ... and {len(small_files) - 5} more")
-#         print()
-    
-#     analyze_file_sizes(mesh_files, "Mesh")
-#     analyze_file_sizes(curv_files, "Mean curvature")
+    except Exception as e:
+        print("Critical error in main: {}".format(str(e)))
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
-# def main():
-#     """
-#     Main function to run all checks.
-#     """
-#     try:
-#         # Run correspondence check
-#         results = check_mesh_curvature_correspondence()
-        
-#         # Run file size analysis
-#         check_file_sizes()
-        
-#         # Provide recommendations
-#         print("=== RECOMMENDATIONS ===")
-#         if results and results['correspondence_rate'] < 100:
-#             print("1. Check the processing logs for errors during mesh smoothing or curvature calculation")
-#             print("2. Verify that the original surface files exist for missing correspondences")
-#             print("3. Consider re-running the processing for files with missing correspondences")
-#             print("4. Check disk space and permissions in output directories")
-#         else:
-#             print("✅ All checks passed! Your processing pipeline appears to be working correctly.")
-        
-#     except Exception as e:
-#         print(f"ERROR: An error occurred during checking: {str(e)}")
-#         import traceback
-#         traceback.print_exc()
-
-# if __name__ == "__main__":
-#     main()
-
-# #!/usr/bin/env python3
-# """
-# Script to copy meshes without corresponding mean curvature files to a separate folder.
-
-# This script reads the correspondence report CSV and copies all mesh files that are
-# missing their mean curvature counterparts to a new directory for easier processing.
-# """
-
-# import os
-# import shutil
-# import pandas as pd
-# from pathlib import Path
-
-# def copy_missing_meshes():
-#     """
-#     Copy meshes without mean curvature files to a separate folder.
-#     """
-#     # Define paths
-#     report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
-#     mesh_source_path = "/scratch/hdienye/dhcp_full_info/mesh/"
-#     missing_mesh_dest = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/"
-    
-#     print("=== Copying Meshes Missing Mean Curvature ===\n")
-    
-#     # Check if report file exists
-#     if not os.path.exists(report_path):
-#         print(f"ERROR: Report file not found: {report_path}")
-#         print("Please run the correspondence checker first to generate the report.")
-#         return
-    
-#     # Check if source mesh directory exists
-#     if not os.path.exists(mesh_source_path):
-#         print(f"ERROR: Source mesh directory not found: {mesh_source_path}")
-#         return
-    
-#     # Create destination directory
-#     os.makedirs(missing_mesh_dest, exist_ok=True)
-#     print(f"Created/verified destination directory: {missing_mesh_dest}")
-    
-#     # Read the correspondence report
-#     try:
-#         df = pd.read_csv(report_path)
-#         print(f"Read correspondence report with {len(df)} entries")
-#     except Exception as e:
-#         print(f"ERROR reading report file: {e}")
-#         return
-    
-#     # Filter for meshes without curvature (status = 'Missing curvature')
-#     missing_curv = df[df['status'] == 'Missing curvature']
-#     print(f"Found {len(missing_curv)} meshes without mean curvature\n")
-    
-#     if len(missing_curv) == 0:
-#         print("✅ Great! No meshes are missing their mean curvature files.")
-#         return
-    
-#     # Copy the files
-#     copied_count = 0
-#     failed_count = 0
-    
-#     print("Copying files...")
-#     for index, row in missing_curv.iterrows():
-#         source_file = row['mesh_path']
-#         filename = os.path.basename(source_file)
-#         dest_file = os.path.join(missing_mesh_dest, filename)
-        
-#         try:
-#             if os.path.exists(source_file):
-#                 shutil.copy2(source_file, dest_file)
-#                 copied_count += 1
-#                 print(f"✓ Copied: {filename}")
-#             else:
-#                 print(f"✗ Source file not found: {source_file}")
-#                 failed_count += 1
-                
-#         except Exception as e:
-#             print(f"✗ Failed to copy {filename}: {e}")
-#             failed_count += 1
-    
-#     # Summary
-#     print(f"\n=== COPY SUMMARY ===")
-#     print(f"Successfully copied: {copied_count} files")
-#     print(f"Failed to copy: {failed_count} files")
-#     print(f"Destination directory: {missing_mesh_dest}")
-    
-#     # Create a summary file in the destination directory
-#     create_copy_summary(missing_curv, missing_mesh_dest, copied_count, failed_count)
-    
-#     return copied_count, failed_count
-
-# def create_copy_summary(missing_df, dest_dir, copied_count, failed_count):
-#     """
-#     Create a summary file with information about the copied meshes.
-#     """
-#     summary_path = os.path.join(dest_dir, "copy_summary.txt")
-    
-#     try:
-#         with open(summary_path, 'w') as f:
-#             f.write("=== MISSING MEAN CURVATURE MESHES COPY SUMMARY ===\n\n")
-#             f.write(f"Total meshes without mean curvature: {len(missing_df)}\n")
-#             f.write(f"Successfully copied: {copied_count}\n")
-#             f.write(f"Failed to copy: {failed_count}\n")
-#             f.write(f"Copy date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            
-#             f.write("=== FILES COPIED ===\n")
-#             for index, row in missing_df.iterrows():
-#                 filename = os.path.basename(row['mesh_path'])
-#                 f.write(f"{filename}\n")
-            
-#             f.write(f"\n=== INSTRUCTIONS ===\n")
-#             f.write("These mesh files are missing their corresponding mean curvature files.\n")
-#             f.write("To process them:\n")
-#             f.write("1. Run the mean curvature calculation for these specific files\n")
-#             f.write("2. Move the generated curvature files to the appropriate directory\n")
-#             f.write("3. Re-run the correspondence checker to verify completion\n")
-        
-#         print(f"📄 Copy summary saved to: {summary_path}")
-        
-#     except Exception as e:
-#         print(f"Warning: Could not create summary file: {e}")
-
-# def create_reprocessing_list():
-#     """
-#     Create a list of base filenames for easy reprocessing.
-#     """
-#     report_path = "/scratch/hdienye/dhcp_full_info/mesh_curvature_correspondence_report.csv"
-    
-#     if not os.path.exists(report_path):
-#         print("No report file found for creating reprocessing list")
-#         return
-    
-#     try:
-#         df = pd.read_csv(report_path)
-#         missing_curv = df[df['status'] == 'Missing curvature']
-        
-#         if len(missing_curv) == 0:
-#             print("No files need reprocessing")
-#             return
-        
-#         # Create a simple text file with base filenames
-#         reprocess_list_path = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/files_to_reprocess.txt"
-        
-#         with open(reprocess_list_path, 'w') as f:
-#             f.write("# Files needing mean curvature calculation\n")
-#             f.write("# Format: base_filename (without smooth_5_ prefix)\n\n")
-            
-#             for index, row in missing_curv.iterrows():
-#                 base_filename = row['base_filename']
-#                 f.write(f"{base_filename}\n")
-        
-#         print(f"📝 Reprocessing list saved to: {reprocess_list_path}")
-        
-#     except Exception as e:
-#         print(f"Error creating reprocessing list: {e}")
-
-# def verify_copy_operation():
-#     """
-#     Verify that the copy operation was successful by checking file counts and sizes.
-#     """
-#     missing_mesh_dest = "/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/"
-    
-#     if not os.path.exists(missing_mesh_dest):
-#         print("Destination directory doesn't exist - no files were copied")
-#         return
-    
-#     copied_files = [f for f in os.listdir(missing_mesh_dest) 
-#                    if f.endswith('.gii') and f.startswith('smooth_5_')]
-    
-#     print(f"\n=== COPY VERIFICATION ===")
-#     print(f"Files in destination directory: {len(copied_files)}")
-    
-#     if copied_files:
-#         # Check file sizes
-#         total_size = 0
-#         for filename in copied_files:
-#             filepath = os.path.join(missing_mesh_dest, filename)
-#             try:
-#                 size = os.path.getsize(filepath)
-#                 total_size += size
-#             except OSError:
-#                 print(f"Warning: Could not get size for {filename}")
-        
-#         avg_size = total_size / len(copied_files) if copied_files else 0
-#         print(f"Average file size: {avg_size/1024:.1f} KB")
-#         print(f"Total size: {total_size/(1024*1024):.1f} MB")
-        
-#         # Show first few files
-#         print("\nFirst few copied files:")
-#         for i, filename in enumerate(copied_files[:5]):
-#             print(f"  {i+1}. {filename}")
-        
-#         if len(copied_files) > 5:
-#             print(f"  ... and {len(copied_files) - 5} more files")
-
-# def main():
-#     """
-#     Main function to copy missing meshes and create summary files.
-#     """
-#     try:
-#         # Copy the missing meshes
-#         copied, failed = copy_missing_meshes()
-        
-#         # Create additional helpful files
-#         create_reprocessing_list()
-        
-#         # Verify the copy operation
-#         verify_copy_operation()
-        
-#         # Final recommendations
-#         print(f"\n=== NEXT STEPS ===")
-#         if copied > 0:
-#             print("1. Check the copied files in /scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/")
-#             print("2. Process these meshes to generate their mean curvature files")
-#             print("3. Copy the generated curvature files to /scratch/hdienye/dhcp_full_info/mean_curv_tex/")
-#             print("4. Re-run the correspondence checker to verify completion")
-#             print("5. Use files_to_reprocess.txt for batch processing if needed")
-#         else:
-#             print("✅ No files needed copying - all meshes have their mean curvature files!")
-            
-#     except Exception as e:
-#         print(f"ERROR in main execution: {e}")
-#         import traceback
-#         traceback.print_exc()
-
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
