@@ -9,9 +9,9 @@ def ensure_dir_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-mesh_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
-mean_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
-principal_tex_dir = '/scratch/hdienye/dhcp_full_info/missing_mean_curv_mesh/'
+mesh_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
+mean_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
+principal_tex_dir = '/envau/work/meca/users/dienye.h/qc_identified_meshes/mesh_no_curvature'
 
 # Ensure output directories exist
 ensure_dir_exists(mean_tex_dir)
@@ -50,6 +50,7 @@ for mesh_file in os.listdir(mesh_dir):
     
     # Compute and save mean curvature texture
     mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+    print('it works')
     # tex_mean_curv = stex.TextureND(mean_curv)
     # tex_mean_curv.z_score_filtering(z_thresh=3)
     
