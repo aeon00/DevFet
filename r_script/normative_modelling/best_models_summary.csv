@@ -1,0 +1,24 @@
+"Model","Y_feature","Site_Effect","Complexity","BIC","AIC"
+"m3c","Surface Area cm2","random","smooth_mean_var",4497.71930044531,4448.91048031159
+"m3d","Folding Power","random","shash_constant",6466.72698364816,6391.75635770627
+"m3c","B4 Vertex Percentage","random","smooth_mean_var",2308.33254504706,2248.7696769462
+"m1b","B5 Vertex Percentage","none","smooth_mean",2057.96737215483,2023.40793203552
+"m3d","B6 Vertex Percentage","random","shash_constant",1670.10270469596,1594.54802836809
+"m3c","Band_parcels B4","random","smooth_mean_var",10183.581315813,10107.7195914507
+"m1c","Band Parcels B5","none","smooth_mean_var",10335.9980491411,10274.4771017162
+"m3d","Band Parcels B6","random","shash_constant",10079.0161337321,10005.7183366399
+"m3c","Hemispheric Volume","random","smooth_mean_var",3802.2379689353,3752.16724680186
+"m3c","Gyrification Index","random","smooth_mean_var",-2681.93493337448,-2744.56639642077
+"m3c","Hull Area","random","smooth_mean_var",9764.25576211166,9718.78386351967
+"m3c","B4 Surface Area","random","smooth_mean_var",8574.28385119322,8504.92088287082
+"m3d","B5 Surface Area","random","shash_constant",8839.11745809771,8781.5657159559
+"m3d","B6 Surface Area","random","shash_constant",8344.78326535244,8277.21683280011
+"m3b","B4 Surface Area Percentage","random","smooth_mean",2267.99328919992,2223.58413206312
+"m3b","B5 Surface Area Percentage","random","smooth_mean",2157.24266178495,2123.41527324974
+"m2e","B6 Surface Area Percentage","fixed","shash_full",2029.54502391466,1921.18567448062
+"m3c","B4 Band Power","random","smooth_mean_var",5100.80970649791,5034.77369152743
+"m3e","B5 Band Power","random","shash_full",5508.9501069845,5394.08796170588
+"m3e","B6 Band Power","random","shash_full",4402.46364858625,4294.41630229537
+"m3d","B4 Band Relative Power","random","shash_constant",-2302.97882543173,-2373.28608557044
+"m3e","B5 Band Relative Power","random","shash_full",-2424.23772704074,-2549.76385492005
+"m3d","B6 Band Relative Power","random","shash_constant",-3069.69758127652,-3144.18934781107

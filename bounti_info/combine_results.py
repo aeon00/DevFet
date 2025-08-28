@@ -23,7 +23,7 @@ import os
 
 try:
      # Combine all chunk results
-     result_files = glob.glob('/home/INT/dienye.h/python_files/rough/results_df/*')
+     result_files = glob.glob('/home/INT/dienye.h/python_files/combined_dataset/*')
      if not result_files:
          print("No result files found!")
          exit(1)
@@ -32,7 +32,7 @@ try:
      combined_df = pd.concat([pd.read_csv(f) for f in result_files])
     
     # Save combined results
-     output_file = '/home/INT/dienye.h/python_files/rough/results_df/both_df_combined_results.csv'
+     output_file = '/home/INT/dienye.h/python_files/combined_dataset/combined_dataset_qc_results.csv'
      combined_df.to_csv(output_file, index=False)
      print(f"Combined results saved to {output_file}")
      print(f"Total records processed: {len(combined_df)}")

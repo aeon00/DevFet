@@ -1,0 +1,38 @@
+<table style="border-collapse:collapse; border:none;">
+<tr>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; text-align:left; ">model</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; ">logscore</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; ">skewness</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; ">kurtosis</th>
+<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; ">W</th>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">M1a</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">-4.51</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">M1b</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">-4.51</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">M1c</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">-4.26</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; ">NaN</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; border-bottom: double; ">M1d</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; border-bottom: double; ">-4.20</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; border-bottom: double; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; border-bottom: double; ">NaN</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; border-bottom: double; ">NaN</td>
+</tr>
+</table>
+

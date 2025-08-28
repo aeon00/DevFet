@@ -1,0 +1,346 @@
+"Model","Y_feature","Site_Effect","Complexity","BIC","AIC"
+"m1a","Surface Area cm2","none","linear",4978.14019176916,4964.87045087856
+"m1b","Surface Area cm2","none","smooth_mean",4810.98635779957,4778.96946885901
+"m1c","Surface Area cm2","none","smooth_mean_var",4578.00424796831,4534.1882579989
+"m1d","Surface Area cm2","none","shash_constant",4570.38083909113,4517.69080644697
+"m1e","Surface Area cm2","none","shash_full",4587.37833992667,4508.4763170959
+"m2a","Surface Area cm2","fixed","linear",4946.93337641955,4929.24038856542
+"m2b","Surface Area cm2","fixed","smooth_mean",4796.5317111586,4760.49398990267
+"m2c","Surface Area cm2","fixed","smooth_mean_var",4507.85582621852,4458.42874627198
+"m2d","Surface Area cm2","fixed","shash_constant",4517.49680999438,4459.80376259159
+"m2e","Surface Area cm2","fixed","shash_full",4546.16587544866,4455.91121953307
+"m3a","Surface Area cm2","random","linear",4946.79212737318,4929.21461687964
+"m3b","Surface Area cm2","random","smooth_mean",4796.2854889524,4760.4341719974
+"m3c","Surface Area cm2","random","smooth_mean_var",4506.97500140183,4458.29928693083
+"m3d","Surface Area cm2","random","shash_constant",4517.20942313601,4459.73683982628
+"m3e","Surface Area cm2","random","shash_full",4533.11624738341,4452.05495435248
+"m1a","Folding Power","none","linear",7684.23494040283,7670.96519951223
+"m1b","Folding Power","none","smooth_mean",7047.55514630344,7009.89071586282
+"m1c","Folding Power","none","smooth_mean_var",6635.34789521457,6575.49351253145
+"m1d","Folding Power","none","shash_constant",6545.76504176889,6479.09540590844
+"m1e","Folding Power","none","shash_full",6542.25007412641,6456.82949963969
+"m2a","Folding Power","fixed","linear",7687.99777740236,7670.30478954823
+"m2b","Folding Power","fixed","smooth_mean",7039.2751873191,6996.82542039843
+"m2c","Folding Power","fixed","smooth_mean_var",6491.93737777838,6426.24273726011
+"m2d","Folding Power","fixed","shash_constant",6470.61281340919,6396.49811574409
+"m2e","Folding Power","fixed","shash_full",6550.76128096233,6435.67885137425
+"m3a","Folding Power","random","linear",7685.88031647755,7669.9298580469
+"m3b","Folding Power","random","smooth_mean",7038.90860437461,6996.77494575679
+"m3c","Folding Power","random","smooth_mean_var",6491.792410059,6426.20949496606
+"m3d","Folding Power","random","shash_constant",6470.28996606052,6396.42974461149
+"m3e","Folding Power","random","shash_full",6537.00721890545,6436.02249971518
+"m1a","B4 Vertex Percentage","none","linear",2919.16682215799,2905.89708126739
+"m1b","B4 Vertex Percentage","none","smooth_mean",2366.29607978438,2327.75433571218
+"m1c","B4 Vertex Percentage","none","smooth_mean_var",2367.33329272502,2314.13177948798
+"m1d","B4 Vertex Percentage","none","shash_constant",2371.7336714911,2309.9261010764
+"m1e","B4 Vertex Percentage","none","shash_full",2377.81619112121,2298.02478264069
+"m2a","B4 Vertex Percentage","fixed","linear",2920.71117376736,2903.01818591323
+"m2b","B4 Vertex Percentage","fixed","smooth_mean",2286.74066878528,2242.95284539664
+"m2c","B4 Vertex Percentage","fixed","smooth_mean_var",2292.74747711106,2235.25042475755
+"m2d","B4 Vertex Percentage","fixed","shash_constant",2297.98245064952,2232.28962223387
+"m2e","B4 Vertex Percentage","fixed","shash_full",2324.17887264975,2233.0311485689
+"m3a","B4 Vertex Percentage","random","linear",2919.59972555763,2902.81378308172
+"m3b","B4 Vertex Percentage","random","smooth_mean",2286.69750340512,2242.94664108917
+"m3c","B4 Vertex Percentage","random","smooth_mean_var",2291.08279976187,2234.80057751855
+"m3d","B4 Vertex Percentage","random","shash_constant",2296.62189013582,2231.90165819536
+"m3e","B4 Vertex Percentage","random","shash_full",2310.17392715536,2228.85504695906
+"m1a","B5 Vertex Percentage","none","linear",2050.1868180184,2036.9170771278
+"m1b","B5 Vertex Percentage","none","smooth_mean",2048.33595691262,2014.6727997127
+"m1c","B5 Vertex Percentage","none","smooth_mean_var",2057.80052663138,2010.50309339109
+"m1d","B5 Vertex Percentage","none","shash_constant",2069.55374881477,2013.40661590458
+"m1e","B5 Vertex Percentage","none","shash_full",2081.28222299921,2014.70741052071
+"m2a","B5 Vertex Percentage","fixed","linear",2052.01091944913,2034.31793159499
+"m2b","B5 Vertex Percentage","fixed","smooth_mean",2052.50085118639,2014.62064602504
+"m2c","B5 Vertex Percentage","fixed","smooth_mean_var",2068.09613653723,2012.30378162317
+"m2d","B5 Vertex Percentage","fixed","shash_constant",2079.64059373859,2015.12902376882
+"m2e","B5 Vertex Percentage","fixed","shash_full",2104.05410137302,2018.60479526026
+"m3a","B5 Vertex Percentage","random","linear",2050.82996683481,2034.10103591458
+"m3b","B5 Vertex Percentage","random","smooth_mean",2050.08071877585,2014.09592579452
+"m3c","B5 Vertex Percentage","random","smooth_mean_var",2059.46125009522,2009.88243689554
+"m3d","B5 Vertex Percentage","random","shash_constant",2071.16921715564,2012.71224558437
+"m3e","B5 Vertex Percentage","random","shash_full",2083.28598099571,2014.41204998968
+"m1a","B6 Vertex Percentage","none","linear",2009.94173580589,1996.67199491529
+"m1b","B6 Vertex Percentage","none","smooth_mean",1893.23063789503,1857.23785531421
+"m1c","B6 Vertex Percentage","none","smooth_mean_var",1893.9612007966,1836.73860410122
+"m1d","B6 Vertex Percentage","none","shash_constant",1851.32570370315,1782.17863150205
+"m1e","B6 Vertex Percentage","none","shash_full",1840.83875901642,1763.6249156865
+"m2a","B6 Vertex Percentage","fixed","linear",1954.6631792025,1936.97019134837
+"m2b","B6 Vertex Percentage","fixed","smooth_mean",1716.79102979674,1672.63116344737
+"m2c","B6 Vertex Percentage","fixed","smooth_mean_var",1716.21412043627,1641.49711612138
+"m2d","B6 Vertex Percentage","fixed","shash_constant",1677.20278434388,1592.13435243147
+"m2e","B6 Vertex Percentage","fixed","shash_full",1681.83893406054,1577.74020444403
+"m3a","B6 Vertex Percentage","random","linear",1954.57933934679,1936.95478101504
+"m3b","B6 Vertex Percentage","random","smooth_mean",1716.7609683344,1672.63492371121
+"m3c","B6 Vertex Percentage","random","smooth_mean_var",1715.7784231258,1641.52616304673
+"m3d","B6 Vertex Percentage","random","shash_constant",1676.83482631346,1592.17535525435
+"m3e","B6 Vertex Percentage","random","shash_full",1686.33681641254,1577.35959317986
+"m1a","Band_parcels B4","none","linear",10564.6736498668,10551.4039089762
+"m1b","Band_parcels B4","none","smooth_mean",10343.1036983837,10302.9823416181
+"m1c","Band_parcels B4","none","smooth_mean_var",10310.0074723857,10247.003421951
+"m1d","Band_parcels B4","none","shash_constant",10315.2071421349,10244.5304688736
+"m1e","Band_parcels B4","none","shash_full",10324.6632947473,10245.4536605388
+"m2a","Band_parcels B4","fixed","linear",10536.9171881609,10519.2242003068
+"m2b","Band_parcels B4","fixed","smooth_mean",10233.6366584834,10187.8654705653
+"m2c","Band_parcels B4","fixed","smooth_mean_var",10197.9379898885,10124.1276711361
+"m2d","Band_parcels B4","fixed","shash_constant",10202.5431810112,10120.292370309
+"m2e","Band_parcels B4","fixed","shash_full",10234.6136793894,10121.8091541081
+"m3a","Band_parcels B4","random","linear",10536.7611436044,10519.1957466962
+"m3b","Band_parcels B4","random","smooth_mean",10233.5898848137,10187.8601155806
+"m3c","Band_parcels B4","random","smooth_mean_var",10197.201944585,10123.8431514091
+"m3d","Band_parcels B4","random","shash_constant",10201.4995839495,10120.0556039148
+"m3e","Band_parcels B4","random","shash_full",10218.9591374709,10123.4767427777
+"m1a","Band Parcels B5","none","linear",10537.4838293423,10524.2140884517
+"m1b","Band Parcels B5","none","smooth_mean",10403.2849395489,10368.0512722397
+"m1c","Band Parcels B5","none","smooth_mean_var",10342.7155481894,10287.0131709746
+"m1d","Band Parcels B5","none","shash_constant",10353.8652804432,10289.4851897779
+"m1e","Band Parcels B5","none","shash_full",10361.0732695389,10287.2691435651
+"m2a","Band Parcels B5","fixed","linear",10519.7415158801,10502.0485280259
+"m2b","Band Parcels B5","fixed","smooth_mean",10402.2881936967,10362.9491461818
+"m2c","Band Parcels B5","fixed","smooth_mean_var",10354.5354968708,10290.3372951079
+"m2d","Band Parcels B5","fixed","shash_constant",10365.5859494763,10292.7720062157
+"m2e","Band Parcels B5","fixed","shash_full",10384.8470991478,10291.7647642413
+"m3a","Band Parcels B5","random","linear",10519.5163909288,10502.0079729861
+"m3b","Band Parcels B5","random","smooth_mean",10401.6631236187,10362.7495471515
+"m3c","Band Parcels B5","random","smooth_mean_var",10342.7168476543,10287.0134076783
+"m3d","Band Parcels B5","random","shash_constant",10353.9047321275,10289.4639696064
+"m3e","Band Parcels B5","random","shash_full",10361.6109835978,10286.8846535316
+"m1a","Band Parcels B6","none","linear",10576.57299142,10563.3032505294
+"m1b","Band Parcels B6","none","smooth_mean",10258.1856269409,10219.8292651788
+"m1c","Band Parcels B6","none","smooth_mean_var",10244.3490621717,10199.6316147452
+"m1d","Band Parcels B6","none","shash_constant",10207.4455362886,10148.2476138971
+"m1e","Band Parcels B6","none","shash_full",10215.1089938968,10142.3194903311
+"m2a","Band Parcels B6","fixed","linear",10577.8714983382,10560.1785104841
+"m2b","Band Parcels B6","fixed","smooth_mean",10173.2160213903,10128.2634800123
+"m2c","Band Parcels B6","fixed","smooth_mean_var",10118.9810933134,10055.3155833215
+"m2d","Band Parcels B6","fixed","shash_constant",10098.9840872307,10025.1038429196
+"m2e","Band Parcels B6","fixed","shash_full",10136.5884962637,10024.0867616326
+"m3a","Band Parcels B6","random","linear",10576.8005302324,10559.9840194059
+"m3b","Band Parcels B6","random","smooth_mean",10173.1658968376,10128.2676248667
+"m3c","Band Parcels B6","random","smooth_mean_var",10118.4453265124,10055.2532532775
+"m3d","Band Parcels B6","random","shash_constant",10098.5370919942,10025.0798589618
+"m3e","Band Parcels B6","random","shash_full",10109.6020945851,10016.7956253099
+"m1a","Hemispheric Volume","none","linear",4011.3981484004,3998.1284075098
+"m1b","Hemispheric Volume","none","smooth_mean",4016.81560348264,3994.1230717031
+"m1c","Hemispheric Volume","none","smooth_mean_var",3876.37723884343,3832.60342608942
+"m1d","Hemispheric Volume","none","shash_constant",3875.94289589348,3825.73185910131
+"m1e","Hemispheric Volume","none","shash_full",3892.73102386053,3819.06169292347
+"m2a","Hemispheric Volume","fixed","linear",4015.81497184941,3998.12198399528
+"m2b","Hemispheric Volume","fixed","smooth_mean",4020.69309404722,3994.42273635386
+"m2c","Hemispheric Volume","fixed","smooth_mean_var",3837.06321274002,3785.06206269157
+"m2d","Hemispheric Volume","fixed","shash_constant",3843.35363132494,3784.83677702005
+"m2e","Hemispheric Volume","fixed","shash_full",3868.01498309032,3779.62182647097
+"m3a","Hemispheric Volume","random","linear",4013.11181723999,3997.62338570155
+"m3b","Hemispheric Volume","random","smooth_mean",4018.18804820839,3993.77931485311
+"m3c","Hemispheric Volume","random","smooth_mean_var",3831.63653874551,3783.70434790151
+"m3d","Hemispheric Volume","random","shash_constant",3837.68481951848,3783.33239725292
+"m3e","Hemispheric Volume","random","shash_full",3856.86615498037,3780.29824286426
+"m1a","Gyrification Index","none","linear",-1931.55331952029,-1944.82306041089
+"m1b","Gyrification Index","none","smooth_mean",-2266.09714074921,-2302.18990920892
+"m1c","Gyrification Index","none","smooth_mean_var",-2644.52732978322,-2700.15818518804
+"m1d","Gyrification Index","none","shash_constant",-2633.98187535868,-2698.18288938204
+"m1e","Gyrification Index","none","shash_full",-2626.91758799513,-2707.24351153824
+"m2a","Gyrification Index","fixed","linear",-1996.39752500444,-2014.09051285858
+"m2b","Gyrification Index","fixed","smooth_mean",-2324.49622089969,-2365.13180392477
+"m2c","Gyrification Index","fixed","smooth_mean_var",-2679.43505913623,-2743.2276760828
+"m2d","Gyrification Index","fixed","shash_constant",-2670.01586874391,-2742.6437988803
+"m2e","Gyrification Index","fixed","shash_full",-2657.56834334267,-2755.5542629022
+"m3a","Gyrification Index","random","linear",-1996.46939839976,-2014.10374970838
+"m3b","Gyrification Index","random","smooth_mean",-2324.54037546598,-2365.14453897944
+"m3c","Gyrification Index","random","smooth_mean_var",-2679.91821746128,-2743.31875471971
+"m3d","Gyrification Index","random","shash_constant",-2670.45364262606,-2742.72294186577
+"m3e","Gyrification Index","random","shash_full",-2661.90531250321,-2756.68568125223
+"m1a","Hull Area","none","linear",9925.03792614303,9911.76818525243
+"m1b","Hull Area","none","smooth_mean",9931.44008442844,9909.35351435804
+"m1c","Hull Area","none","smooth_mean_var",9842.51570350118,9802.40382124358
+"m1d","Hull Area","none","shash_constant",9830.55056664451,9783.57350119838
+"m1e","Hull Area","none","shash_full",9846.03465190556,9779.2993366149
+"m2a","Hull Area","fixed","linear",9930.38943417128,9912.69644631715
+"m2b","Hull Area","fixed","smooth_mean",9936.47517894493,9908.61987364452
+"m2c","Hull Area","fixed","smooth_mean_var",9791.72842273975,9743.90482065375
+"m2d","Hull Area","fixed","shash_constant",9796.82383650202,9742.2328077802
+"m2e","Hull Area","fixed","shash_full",9819.45391537405,9736.83546082976
+"m3a","Hull Area","random","linear",9925.20692639204,9911.7640277769
+"m3b","Hull Area","random","smooth_mean",9933.71686406404,9908.41245380106
+"m3c","Hull Area","random","smooth_mean_var",9787.28276586083,9743.69854216361
+"m3d","Hull Area","random","shash_constant",9790.89301806586,9740.8301917184
+"m3e","Hull Area","random","shash_full",9809.11999157399,9736.14563436609
+"m1a","B4 Surface Area","none","linear",8963.84113107898,8950.57139018838
+"m1b","B4 Surface Area","none","smooth_mean",8803.56108035712,8768.58930351381
+"m1c","B4 Surface Area","none","smooth_mean_var",8690.87735047213,8637.75440392908
+"m1d","B4 Surface Area","none","shash_constant",8683.12174520863,8621.36578344128
+"m1e","B4 Surface Area","none","shash_full",8694.58855406998,8623.40122571261
+"m2a","B4 Surface Area","fixed","linear",8957.45183171086,8939.75884385673
+"m2b","B4 Surface Area","fixed","smooth_mean",8738.13150228307,8697.13491103864
+"m2c","B4 Surface Area","fixed","smooth_mean_var",8589.11945394589,8524.07926651904
+"m2d","B4 Surface Area","fixed","shash_constant",8601.74155782139,8528.00642547667
+"m2e","B4 Surface Area","fixed","shash_full",8624.56782677315,8532.05996008129
+"m3a","B4 Surface Area","random","linear",8957.02997675242,8939.68156796765
+"m3b","B4 Surface Area","random","smooth_mean",8738.04729826406,8697.13024308912
+"m3c","B4 Surface Area","random","smooth_mean_var",8588.83038675089,8524.09844303892
+"m3d","B4 Surface Area","random","shash_constant",8601.48026240266,8528.02957456449
+"m3e","B4 Surface Area","random","shash_full",8618.76772451474,8530.81513281651
+"m1a","B5 Surface Area","none","linear",9274.68758577596,9261.41784488536
+"m1b","B5 Surface Area","none","smooth_mean",9093.54135310958,9061.71996780544
+"m1c","B5 Surface Area","none","smooth_mean_var",8875.54875768164,8822.71966515396
+"m1d","B5 Surface Area","none","shash_constant",8872.41287713945,8814.8290397431
+"m1e","B5 Surface Area","none","shash_full",8891.45709993961,8810.56964284841
+"m2a","B5 Surface Area","fixed","linear",9262.71383444956,9245.02084659542
+"m2b","B5 Surface Area","fixed","smooth_mean",9093.36516055633,9057.24919256319
+"m2c","B5 Surface Area","fixed","smooth_mean_var",8861.26494411234,8798.5281961671
+"m2d","B5 Surface Area","fixed","shash_constant",8863.58398962136,8796.81152643437
+"m2e","B5 Surface Area","fixed","shash_full",8866.50312202584,8759.1243795384
+"m3a","B5 Surface Area","random","linear",9262.42274358362,9244.96727776905
+"m3b","B5 Surface Area","random","smooth_mean",9092.5466125738,9057.08611104162
+"m3c","B5 Surface Area","random","smooth_mean_var",8854.8657070691,8796.61336806276
+"m3d","B5 Surface Area","random","shash_constant",8857.29489154595,8794.67289968884
+"m3e","B5 Surface Area","random","shash_full",8860.1304370339,8757.65751862826
+"m1a","B6 Surface Area","none","linear",9021.87104655931,9008.60130566871
+"m1b","B6 Surface Area","none","smooth_mean",8654.98991179927,8618.27026271763
+"m1c","B6 Surface Area","none","smooth_mean_var",8486.16581538153,8439.99300988809
+"m1d","B6 Surface Area","none","shash_constant",8445.66872104222,8393.48947690487
+"m1e","B6 Surface Area","none","shash_full",8449.93437224474,8375.05887765277
+"m2a","B6 Surface Area","fixed","linear",9028.21512346896,9010.52213561483
+"m2b","B6 Surface Area","fixed","smooth_mean",8621.07441800068,8578.57337964636
+"m2c","B6 Surface Area","fixed","smooth_mean_var",8368.79262987115,8311.46054858795
+"m2d","B6 Surface Area","fixed","shash_constant",8365.2179615343,8297.56786221989
+"m2e","B6 Surface Area","fixed","shash_full",8377.06217301413,8283.3469455796
+"m3a","B6 Surface Area","random","linear",9021.87284113041,9008.60183320723
+"m3b","B6 Surface Area","random","smooth_mean",8620.97748389667,8578.57457667948
+"m3c","B6 Surface Area","random","smooth_mean_var",8368.4041578212,8311.46614046818
+"m3d","B6 Surface Area","random","shash_constant",8365.00778229478,8297.61072358038
+"m3e","B6 Surface Area","random","shash_full",8373.98245213107,8281.9490150246
+"m1a","B4 Surface Area Percentage","none","linear",2956.97694077902,2943.70719988842
+"m1b","B4 Surface Area Percentage","none","smooth_mean",2296.17389409532,2256.67699682832
+"m1c","B4 Surface Area Percentage","none","smooth_mean_var",2301.23316081996,2249.32177445229
+"m1d","B4 Surface Area Percentage","none","shash_constant",2306.05365521259,2246.06188158941
+"m1e","B4 Surface Area Percentage","none","shash_full",2314.68819142515,2236.28284041375
+"m2a","B4 Surface Area Percentage","fixed","linear",2963.23236892456,2945.53938107042
+"m2b","B4 Surface Area Percentage","fixed","smooth_mean",2250.35642944444,2205.89810824945
+"m2c","B4 Surface Area Percentage","fixed","smooth_mean_var",2258.13166585185,2201.61626308995
+"m2d","B4 Surface Area Percentage","fixed","shash_constant",2262.08545503943,2198.48095512504
+"m2e","B4 Surface Area Percentage","fixed","shash_full",2288.75903180749,2199.49221058575
+"m3a","B4 Surface Area Percentage","random","linear",2956.98678791017,2943.70989226914
+"m3b","B4 Surface Area Percentage","random","smooth_mean",2250.26314833504,2205.88468490652
+"m3c","B4 Surface Area Percentage","random","smooth_mean_var",2255.99080653708,2201.78544718375
+"m3d","B4 Surface Area Percentage","random","shash_constant",2260.86512906962,2198.10113356516
+"m3e","B4 Surface Area Percentage","random","shash_full",2275.03714025948,2195.25274447479
+"m1a","B5 Surface Area Percentage","none","linear",2182.93161237449,2169.66187148389
+"m1b","B5 Surface Area Percentage","none","smooth_mean",2165.40420720778,2135.28504132027
+"m1c","B5 Surface Area Percentage","none","smooth_mean_var",2171.31981187553,2128.48698297601
+"m1d","B5 Surface Area Percentage","none","shash_constant",2183.42466592121,2131.49296064578
+"m1e","B5 Surface Area Percentage","none","shash_full",2190.74239157069,2132.95522363317
+"m2a","B5 Surface Area Percentage","fixed","linear",2164.74367946499,2147.05069161086
+"m2b","B5 Surface Area Percentage","fixed","smooth_mean",2157.11660578991,2123.66136583821
+"m2c","B5 Surface Area Percentage","fixed","smooth_mean_var",2170.49820211087,2120.31994879926
+"m2d","B5 Surface Area Percentage","fixed","shash_constant",2182.41907477508,2123.37968399317
+"m2e","B5 Surface Area Percentage","fixed","shash_full",2202.62311130142,2127.75155972812
+"m3a","B5 Surface Area Percentage","random","linear",2164.52745732375,2147.01085478329
+"m3b","B5 Surface Area Percentage","random","smooth_mean",2156.86164195466,2123.52949115179
+"m3c","B5 Surface Area Percentage","random","smooth_mean_var",2163.90721885527,2118.40167842401
+"m3d","B5 Surface Area Percentage","random","shash_constant",2175.87570837189,2121.44459168443
+"m3e","B5 Surface Area Percentage","random","shash_full",2184.04229646762,2122.87461022924
+"m1a","B6 Surface Area Percentage","none","linear",2330.62036482,2317.3506239294
+"m1b","B6 Surface Area Percentage","none","smooth_mean",2281.73979354195,2249.57251731303
+"m1c","B6 Surface Area Percentage","none","smooth_mean_var",2269.1780878568,2215.88126718936
+"m1d","B6 Surface Area Percentage","none","shash_constant",2231.64918671732,2163.54945820786
+"m1e","B6 Surface Area Percentage","none","shash_full",2213.16320480971,2134.82273602773
+"m2a","B6 Surface Area Percentage","fixed","linear",2232.52581285429,2214.83282500015
+"m2b","B6 Surface Area Percentage","fixed","smooth_mean",2084.40068065593,2042.3940661879
+"m2c","B6 Surface Area Percentage","fixed","smooth_mean_var",2083.4091936556,2012.23182798433
+"m2d","B6 Surface Area Percentage","fixed","shash_constant",2040.46943698599,1959.25536213571
+"m2e","B6 Surface Area Percentage","fixed","shash_full",2022.12776413494,1922.2591789596
+"m3a","B6 Surface Area Percentage","random","linear",2232.4781523395,2214.82404545039
+"m3b","B6 Surface Area Percentage","random","smooth_mean",2084.3842634972,2042.39700014234
+"m3c","B6 Surface Area Percentage","random","smooth_mean_var",2082.91461944058,2012.34246187339
+"m3d","B6 Surface Area Percentage","random","shash_constant",2040.0811406842,1959.3138404904
+"m3e","B6 Surface Area Percentage","random","shash_full",2035.30559680996,1911.2407450044
+"m1a","B4 Band Power","none","linear",5769.17641817677,5755.90667728617
+"m1b","B4 Band Power","none","smooth_mean",5543.48718045206,5505.71338045869
+"m1c","B4 Band Power","none","smooth_mean_var",5260.47482267258,5188.7965153757
+"m1d","B4 Band Power","none","shash_constant",5196.21460820704,5123.87485315186
+"m1e","B4 Band Power","none","shash_full",5207.81301452339,5118.19146933739
+"m2a","B4 Band Power","fixed","linear",5775.52715651325,5757.83416865911
+"m2b","B4 Band Power","fixed","smooth_mean",5549.29855121737,5507.02848311558
+"m2c","B4 Band Power","fixed","smooth_mean_var",5196.58091912306,5119.9524124021
+"m2d","B4 Band Power","fixed","shash_constant",5169.16711773235,5087.85208937161
+"m2e","B4 Band Power","fixed","shash_full",5181.99864320759,5083.38152078743
+"m3a","B4 Band Power","random","linear",5769.17776637782,5755.90707562779
+"m3b","B4 Band Power","random","smooth_mean",5543.49853040412,5505.71491974247
+"m3c","B4 Band Power","random","smooth_mean_var",5190.24844265026,5118.14993466639
+"m3d","B4 Band Power","random","shash_constant",5164.49554779348,5088.05281229714
+"m3e","B4 Band Power","random","shash_full",5175.97745861369,5080.43290685758
+"m1a","B5 Band Power","none","linear",6956.39408940851,6943.12434851791
+"m1b","B5 Band Power","none","smooth_mean",6244.85825296291,6206.43234390328
+"m1c","B5 Band Power","none","smooth_mean_var",5724.57156712555,5663.01828455536
+"m1d","B5 Band Power","none","shash_constant",5591.10634905723,5521.92355012061
+"m1e","B5 Band Power","none","shash_full",5558.14161913675,5467.28132075216
+"m2a","B5 Band Power","fixed","linear",6948.31909061556,6930.62610276142
+"m2b","B5 Band Power","fixed","smooth_mean",6251.1686694909,6208.30960971703
+"m2c","B5 Band Power","fixed","smooth_mean_var",5601.80355529698,5524.1390967424
+"m2d","B5 Band Power","fixed","shash_constant",5530.65810901644,5452.59590181116
+"m2e","B5 Band Power","fixed","shash_full",5548.05134586203,5433.93849087961
+"m3a","B5 Band Power","random","linear",6947.94795903971,6930.55790635153
+"m3b","B5 Band Power","random","smooth_mean",6244.86009727457,6206.43286859143
+"m3c","B5 Band Power","random","smooth_mean_var",5601.63255728561,5524.19987290337
+"m3d","B5 Band Power","random","shash_constant",5530.36047312774,5452.53845190337
+"m3e","B5 Band Power","random","shash_full",5537.98360989876,5429.77423021276
+"m1a","B6 Band Power","none","linear",6377.55556717342,6364.28582628281
+"m1b","B6 Band Power","none","smooth_mean",5718.66057890422,5678.10278366055
+"m1c","B6 Band Power","none","smooth_mean_var",5060.2564693555,4981.33736490454
+"m1d","B6 Band Power","none","shash_constant",4566.42483053299,4497.39942834796
+"m1e","B6 Band Power","none","shash_full",4543.86379732647,4440.43939413766
+"m2a","B6 Band Power","fixed","linear",6383.79823515352,6366.10524729938
+"m2b","B6 Band Power","fixed","smooth_mean",5648.70353499618,5602.17143378042
+"m2c","B6 Band Power","fixed","smooth_mean_var",4662.15768441821,4581.83008418705
+"m2d","B6 Band Power","fixed","shash_constant",4415.38650364298,4336.42899817131
+"m2e","B6 Band Power","fixed","shash_full",4376.76417709944,4258.50776304201
+"m3a","B6 Band Power","random","linear",6377.56372378573,6364.28803144761
+"m3b","B6 Band Power","random","smooth_mean",5648.62844658822,5602.1732513725
+"m3c","B6 Band Power","random","smooth_mean_var",4662.10088643583,4581.83459730382
+"m3d","B6 Band Power","random","shash_constant",4415.20154931431,4336.27641821109
+"m3e","B6 Band Power","random","shash_full",4385.83175418797,4260.95851883282
+"m1a","B4 Band Relative Power","none","linear",-1699.24196425382,-1712.51170514442
+"m1b","B4 Band Relative Power","none","smooth_mean",-2062.56113578242,-2099.8254458362
+"m1c","B4 Band Relative Power","none","smooth_mean_var",-2114.47201970861,-2172.12150727199
+"m1d","B4 Band Relative Power","none","shash_constant",-2160.68283822105,-2229.3269298916
+"m1e","B4 Band Relative Power","none","shash_full",-2177.12152718653,-2275.43432210783
+"m2a","B4 Band Relative Power","fixed","linear",-1717.92663148784,-1735.61961934197
+"m2b","B4 Band Relative Power","fixed","smooth_mean",-2175.77376066279,-2218.40959904381
+"m2c","B4 Band Relative Power","fixed","smooth_mean_var",-2236.83372256848,-2302.20864185143
+"m2d","B4 Band Relative Power","fixed","shash_constant",-2261.87577918652,-2335.19736178998
+"m2e","B4 Band Relative Power","fixed","shash_full",-2266.91360495094,-2369.30418771091
+"m3a","B4 Band Relative Power","random","linear",-1718.13840010889,-1735.65865199238
+"m3b","B4 Band Relative Power","random","smooth_mean",-2175.786789359,-2218.41351562991
+"m3c","B4 Band Relative Power","random","smooth_mean_var",-2237.0105251324,-2302.26898030473
+"m3d","B4 Band Relative Power","random","shash_constant",-2262.02661729387,-2335.26125118792
+"m3e","B4 Band Relative Power","random","shash_full",-2275.69518220118,-2371.82600101194
+"m1a","B5 Band Relative Power","none","linear",-2225.63668911617,-2238.90643000677
+"m1b","B5 Band Relative Power","none","smooth_mean",-2353.25702176442,-2390.58930800065
+"m1c","B5 Band Relative Power","none","smooth_mean_var",-2353.76119858778,-2406.66648137802
+"m1d","B5 Band Relative Power","none","shash_constant",-2393.91653819349,-2457.49150225768
+"m1e","B5 Band Relative Power","none","shash_full",-2398.6310023833,-2482.29464667864
+"m2a","B5 Band Relative Power","fixed","linear",-2223.51051091664,-2241.20349877078
+"m2b","B5 Band Relative Power","fixed","smooth_mean",-2346.87871007039,-2388.60823269617
+"m2c","B5 Band Relative Power","fixed","smooth_mean_var",-2381.80875179699,-2445.86952925545
+"m2d","B5 Band Relative Power","fixed","shash_constant",-2405.13696910653,-2477.93653489515
+"m2e","B5 Band Relative Power","fixed","shash_full",-2411.58399928488,-2519.02461570921
+"m3a","B5 Band Relative Power","random","linear",-2224.7727983872,-2241.4357170115
+"m3b","B5 Band Relative Power","random","smooth_mean",-2352.88658640118,-2390.47563270268
+"m3c","B5 Band Relative Power","random","smooth_mean_var",-2383.79723804956,-2445.9052917496
+"m3d","B5 Band Relative Power","random","shash_constant",-2409.35605307952,-2478.19919499976
+"m3e","B5 Band Relative Power","random","shash_full",-2416.83065111315,-2509.56860517435
+"m1a","B6 Band Relative Power","none","linear",-2394.47283414934,-2407.74257503995
+"m1b","B6 Band Relative Power","none","smooth_mean",-2475.52919746732,-2504.46153239554
+"m1c","B6 Band Relative Power","none","smooth_mean_var",-2535.5932220569,-2595.17102319588
+"m1d","B6 Band Relative Power","none","shash_constant",-2825.35808762605,-2894.822393323
+"m1e","B6 Band Relative Power","none","shash_full",-2861.28899961802,-2966.18858512247
+"m2a","B6 Band Relative Power","fixed","linear",-2519.60090302275,-2537.29389087688
+"m2b","B6 Band Relative Power","fixed","smooth_mean",-2733.28946237068,-2772.81953168008
+"m2c","B6 Band Relative Power","fixed","smooth_mean_var",-2937.96756839175,-3014.314755053
+"m2d","B6 Band Relative Power","fixed","shash_constant",-3095.08236193762,-3163.24708394458
+"m2e","B6 Band Relative Power","fixed","shash_full",-3079.66216271403,-3189.03180677248
+"m3a","B6 Band Relative Power","random","linear",-2519.63789237329,-2537.30070999113
+"m3b","B6 Band Relative Power","random","smooth_mean",-2733.29712560731,-2772.81384296383
+"m3c","B6 Band Relative Power","random","smooth_mean_var",-2938.0409017866,-3014.29644549614
+"m3d","B6 Band Relative Power","random","shash_constant",-3081.72292720416,-3157.24102995131
+"m3e","B6 Band Relative Power","random","shash_full",-3067.51729129405,-3179.11463780737

@@ -1,0 +1,407 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+this whole thing takes about a minute, minute and a half, to run on my laptop, most spent on the fitting of m3d and m3e
+
+load
+
+```{r}
+set.seed(1)
+start.time <- Sys.time()
+
+
+library(caret)
+library(data.table)
+
+data <- as.data.frame(read.csv('/home/INT/dienye.h/python_files/combined_dataset/dhcp_qc_filtered.csv'))
+data$site_id <- 1
+data_ukbb <- as.data.frame(read.csv('/home/INT/dienye.h/python_files/combined_dataset/marsfet_qc_filtered.csv'))
+data_ukbb$site_id <- 2
+data <- rbind(data_ukbb, data)
+
+# get rid of small sites
+data$site_id <- as.factor(data$site_id)
+
+
+
+train_idx_ukbb <- createDataPartition(data$gestational_age, p = 0.7, list = F)
+df_train_ukbb <- data_ukbb[train_idx_ukbb,]
+df_test_ukbb <- data_ukbb[-train_idx_ukbb,]
+
+train_idx <- createDataPartition(data$site_id, p = 0.7, list = F)
+df_train_allsites <- data[train_idx,]
+df_test_allsites <- data[-train_idx,]
+```
+
+## fit age effects
+
+```{r}
+# df_train_ukbb_females <- df_train_ukbb[df_train_ukbb$gender == 1,]
+# df_test_ukbb_females <- df_test_ukbb[df_test_ukbb$gender == 1,]
+
+library(mgcv)
+
+# m1a - Fixed site effects + smooth gestational age
+m1a <- gam(list(band_power_B4 ~ site_id + s(gestational_age), # Fixed site + smooth age
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m1b - Random site effects + smooth gestational age  
+m1b <- gam(list(band_power_B4 ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m1c - Random site effects on both mean and variance + gestational age
+m1c <- gam(list(band_power_B4 ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age
+                ~ s(site_id, bs = "re") + s(gestational_age)), # Random site + smooth age on variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m1d - SHASH family with gestational age
+m1d <- gam(list(band_power_B4 ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age
+                ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age on variance
+                ~ 1, # Constant nu (skewness)
+                ~ 1), # Constant tau (kurtosis)
+           data = df_train_allsites,
+           family = shash(),
+           optimizer = 'efs')
+
+# m1e - Full SHASH with gestational age effects
+m1e <- gam(list(band_power_B4 ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age
+                ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age on variance
+                ~ s(site_id, bs = "re") + s(gestational_age), # Random site + smooth age on skewness
+                ~ s(site_id, bs = "re") + s(gestational_age)), # Random site + smooth age on kurtosis
+           data = df_train_allsites,
+           family = shash(),
+           optimizer = 'efs')
+```
+
+## modeling gender effects
+
+```{r}
+# m2a - Fixed site effects on mean only
+m2a <- gam(list(band_power_B5 ~ site_id, # Fixed effects for each site
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m2b - Random site effects on mean only
+m2b <- gam(list(band_power_B5 ~ s(site_id, bs = "re"), # Random effects
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m2c - Random site effects on both mean and variance (Gaussian family)
+m2c <- gam(list(band_power_B5 ~ s(site_id, bs = "re"), # Random effects on mean
+                ~ s(site_id, bs = "re")), # Random effects on variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m2d - Random site effects on mean and variance (SHASH family, 4 parameters)
+m2d <- gam(list(band_power_B5 ~ s(site_id, bs = "re"), # Random effects on mu (mean)
+                ~ s(site_id, bs = "re"), # Random effects on sigma (variance)
+                ~ 1, # Constant nu (skewness)
+                ~ 1), # Constant tau (kurtosis)
+           data = df_train_allsites,
+           family = shash(),
+           optimizer = 'efs')
+
+# m2e - Random site effects on all four distribution parameters
+# m2e <- gam(list(band_power_B5 ~ s(site_id, bs = "re"), # Random effects on mu (mean)
+#                 ~ s(site_id, bs = "re"), # Random effects on sigma (variance)
+#                 ~ s(site_id, bs = "re"), # Random effects on nu (skewness)
+#                 ~ s(site_id, bs = "re")), # Random effects on tau (kurtosis)
+#            data = df_train_allsites,
+#            family = shash(),
+#            optimizer = 'efs')
+```
+
+## modeling site effects
+
+```{r}
+# m3a - Fixed site effects on mean only
+m3a <- gam(list(band_power_B6 ~ site_id, # Fixed effects for each site
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m3b - Random site effects on mean only
+m3b <- gam(list(band_power_B6 ~ s(site_id, bs = "re"), # Random effects
+                ~ 1), # Constant variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m3c - Random site effects on both mean and variance (Gaussian family)
+m3c <- gam(list(band_power_B6 ~ s(site_id, bs = "re"), # Random effects on mean
+                ~ s(site_id, bs = "re")), # Random effects on variance
+           data = df_train_allsites,
+           family = gaulss(),
+           optimizer = 'efs')
+
+# m3d - Random site effects on mean and variance (SHASH family, 4 parameters)
+m3d <- gam(list(band_power_B6 ~ s(site_id, bs = "re"), # Random effects on mu (mean)
+                ~ s(site_id, bs = "re"), # Random effects on sigma (variance)
+                ~ 1, # Constant nu (skewness)
+                ~ 1), # Constant tau (kurtosis)
+           data = df_train_allsites,
+           family = shash(),
+           optimizer = 'efs')
+
+# m3e - Random site effects on all four distribution parameters
+m3e <- gam(list(band_power_B6 ~ s(site_id, bs = "re"), # Random effects on mu (mean)
+                ~ s(site_id, bs = "re"), # Random effects on sigma (variance)
+                ~ s(site_id, bs = "re"), # Random effects on nu (skewness)
+                ~ s(site_id, bs = "re")), # Random effects on tau (kurtosis)
+           data = df_train_allsites,
+           family = shash(),
+           optimizer = 'efs')
+```
+
+
+
+```{r}
+library(qpcR)
+
+create_training_set_table <- function(model_names, aic_values, bic_values){
+  return(data.frame(
+    model=model_names,
+    AIC=aic_values,
+    ΔAIC=qpcR::akaike.weights(aic_values)$weights,
+    # rel.AIC=qpcR::akaike.weights(aic_values)$rel.LL,
+    'AIC weights'=qpcR::akaike.weights(aic_values)$weights,
+    BIC=bic_values,
+    ΔBIC=qpcR::akaike.weights(bic_values)$weights,
+    # rel.BIC=qpcR::akaike.weights(bic_values)$rel.LL,
+    'BIC weights'=qpcR::akaike.weights(bic_values)$weights)
+  )
+}
+                 
+table_1a <- create_training_set_table(
+  model_names=c('M1a', 'M1b', 'M1c', 'M1d', 'M1e'),
+  aic_values = AIC(m1a, m1b, m1c, m1d, m1e)$AIC,
+  bic_values = BIC(m1a, m1b, m1c, m1d, m1e)$BIC)
+
+table_2a <- create_training_set_table(
+  model_names=c('M2a', 'M2b', 'M2c', 'M2d'),
+  aic_values = AIC(m2a, m2b, m2c, m2d)$AIC,
+  bic_values = BIC(m2a, m2b, m2c, m2d)$BIC)
+
+table_3a <- create_training_set_table(
+  model_names=c('M3a', 'M3b', 'M3c', 'M3d', 'M3e'),
+  aic_values = AIC(m3a, m3b, m3c, m3d, m3e)$AIC,
+  bic_values = BIC(m3a, m3b, m3c, m3d, m3e)$BIC)
+
+table_1a
+table_2a
+table_3a
+
+# library(sjPlot)
+# tab_df(table_1a, file="table1a.doc")
+# tab_df(table_2a, file="table2a.doc")
+# tab_df(table_3a, file="table3a.doc")
+```
+
+
+
+```{r}
+model <- m1a
+model_name <- 'M1a'
+source('helpers.R') 
+
+create_test_set_table <- function(fitted_models, model_names, df_test_data, target_variable){
+  results <- list()
+  for(i in seq_along(fitted_models)){
+    model <- fitted_models[[i]]
+    model_name <- model_names[i]
+    
+    predictions <- as.data.frame(predict(model, newdata =  df_test_data))
+    scores <- params_to_scores(target_variable, predictions)
+    descriptives <- calibration_descriptives(scores$z_randomized)
+    results[[i]] <- data.frame(model = model_name,
+               logscore = mean(scores$log_densities),
+               # avg.cens.logscore = mean(scores$log_densities_censored),
+               skewness = descriptives$skew,
+               kurtosis = descriptives$kurtosis,
+               W = descriptives$W)
+  }
+  return(do.call(rbind, results))
+}
+
+
+table_1b <- create_test_set_table(fitted_models = list(m1a, m1b, m1c, m1d),
+                      model_names = c('M1a', 'M1b', 'M1c', 'M1d'),
+                      df_test_data = df_test_allsites,
+                      target_variable = df_test_allsites$band_power_B4)
+
+table_2b <- create_test_set_table(fitted_models = list(m2a, m2b, m2c, m2d),
+                      model_names = c('M2a', 'M2b', 'M2c', 'M2d'),
+                      df_test_data = df_test_allsites,
+                      target_variable = df_test_allsites$band_power_B5)
+
+table_3b <- create_test_set_table(fitted_models = list(m3a, m3b, m3c, m3d, m3e),
+                      model_names = c('M3a', 'M3b', 'M3c', 'M3d', 'M3e'),
+                      df_test_data = df_test_allsites,
+                      target_variable = df_test_allsites$band_power_B6)
+
+
+table_1b
+table_2b
+table_3b
+
+library(sjPlot)
+tab_df(table_1b, file="table1b.doc")
+tab_df(table_2b, file="table2b.doc")
+tab_df(table_3b, file="table3b.doc")
+```
+
+```{r}
+# Check for issues with band_power_B4 in test data
+summary(df_test_allsites$band_power_B4)
+length(unique(df_test_allsites$band_power_B4))
+var(df_test_allsites$band_power_B4, na.rm = TRUE)
+
+# Check for missing or infinite values
+sum(is.na(df_test_allsites$band_power_B4))
+sum(is.infinite(df_test_allsites$band_power_B4))
+
+# Check if all values are the same (this causes the error)
+all_same <- length(unique(df_test_allsites$band_power_B4[!is.na(df_test_allsites$band_power_B4)])) == 1
+print(paste("All values identical:", all_same))
+```
+
+```{r}
+# Test each m1 model individually
+try({
+  table_1a_only <- create_test_set_table(fitted_models = list(m1a),
+                                          model_names = c('M1a'),
+                                          df_test_data = df_test_allsites,
+                                          target_variable = df_test_allsites$band_power_B4)
+  print("M1a works")
+  print(table_1a_only)
+}, silent = FALSE)
+
+try({
+  table_1b_only <- create_test_set_table(fitted_models = list(m1b),
+                                          model_names = c('M1b'),
+                                          df_test_data = df_test_allsites,
+                                          target_variable = df_test_allsites$band_power_B4)
+  print("M1b works")
+  print(table_1b_only)
+}, silent = FALSE)
+
+try({
+  table_1c_only <- create_test_set_table(fitted_models = list(m1c),
+                                          model_names = c('M1c'),
+                                          df_test_data = df_test_allsites,
+                                          target_variable = df_test_allsites$band_power_B4)
+  print("M1c works")
+  print(table_1c_only)
+}, silent = FALSE)
+
+try({
+  table_1d_only <- create_test_set_table(fitted_models = list(m1d),
+                                          model_names = c('M1d'),
+                                          df_test_data = df_test_allsites,
+                                          target_variable = df_test_allsites$band_power_B4)
+  print("M1d works")
+  print(table_1d_only)
+}, silent = FALSE)
+
+```
+
+```{r}
+predictions_quantiles_long_all <- list()
+scores_all <- list()
+
+models <- list('M1a'=m1a, 'M1b'=m1b, 'M1c'=m1c, 'M1d'=m1d)
+for (i in seq_along(models)){
+  model_name <- names(models)[i]
+  model <- models[[i]]
+  predictions <- as.data.frame(predict(model, newdata = df_test_allsites))
+  predictions_quantiles <- params_to_quantiles(predictions, pnorm(c(-2,-1,0,1,2)))
+  predictions_quantiles$gestational_age <- df_test_allsites$gestational_age
+  predicted_quantiles_long <- reshape2::melt(predictions_quantiles, id.vars = c('gestational_age'))
+  predicted_quantiles_long$model <- model_name
+  predictions_quantiles_long_all[[model_name]] <- predicted_quantiles_long
+  scores <- params_to_scores(df_test_allsites$band_power_B4,
+                             predictions)
+  scores$model <- model_name
+  scores_all[[i]] <- scores
+}
+predictions_quantiles_long_all <- do.call(rbind, predictions_quantiles_long_all)
+scores_all <- do.call(rbind, scores_all)
+```
+
+```{r}
+# First, check what columns are in scores_all
+print("Columns in scores_all:")
+colnames(scores_all)
+print("Structure of scores_all:")
+str(scores_all)
+head(scores_all)
+```
+
+```{r, fig.width=8, fig.height=4}
+library(ggpointdensity)
+library(cowplot)
+library(patchwork)
+library(qqplotr)
+
+# p1 - Fixed column names
+p1 <- ggplot(df_test_allsites) +
+  geom_pointdensity(aes(x=gestational_age, y=band_power_B4)) +
+  geom_line(data=predictions_quantiles_long_all, 
+            color='black',
+            aes(x=gestational_age, y=value, group=variable)) +
+  scale_color_distiller(palette = "Spectral") +
+  facet_wrap(~model) + 
+  theme_cowplot() +
+  theme(legend.position = 'none')
+
+# p2 - Using alternative color scale
+p2 <- ggplot(scores_all, aes(sample=z_randomized, color=model, shape=model)) + 
+  geom_qq(dparams = list('mean'=0, 'sd'=1)) +
+  geom_abline(intercept = 0, slope = 1, color='black') +
+  theme_cowplot() +
+  scale_color_viridis_d() +  # Alternative to scale_color_OkabeIto
+  theme(legend.position = c(0,0.9)) +
+  coord_fixed()
+
+# p3 - Using alternative color scale
+p3 <- ggplot(scores_all) + 
+  stat_qq_band(data=scores_all[scores_all$model=='M1a',],
+               aes(sample=z_randomized),
+               detrend=T, fill=NA, color='black', size=0.5) +
+  stat_qq_point(detrend=T, aes(sample = z_randomized, color=model, shape=model)) +
+  geom_hline(yintercept = 0) +
+  scale_shape_manual(values = 1:5) + 
+  scale_color_viridis_d() +  # Alternative to scale_color_OkabeIto
+  theme_cowplot() +
+  theme(legend.position = c(0.5,0.25)) +
+  coord_cartesian()
+
+# Combine plots
+p1 + p3 + plot_layout(widths = c(1.5,1)) +
+  plot_annotation(tag_levels = 'A')
+
+ggsave('fig_model_comparisons.png', width = 8, height = 4)
+```
+
+
+```{r}
+end.time <- Sys.time()
+elapsed.time <- round((end.time - start.time), 3)
+print(elapsed.time)
+```
