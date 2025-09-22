@@ -1172,3 +1172,22 @@ cat("\n================================================\n")
 cat("COMPLETE! Generated plots using composite scoring.\n")
 cat("Files saved in: /normative_curves_composite/\n")
 cat("================================================\n")
+
+# Save all fitted models to an RDS file
+saveRDS(all_fitted_models, 
+        file = "/home/INT/dienye.h/gamlss_normative_paper-main/test/single_site/all_fitted_models.rds")
+
+# Also save the results dataframe
+write.csv(results, 
+          "/home/INT/dienye.h/gamlss_normative_paper-main/test/single_site/model_results.csv", 
+          row.names = FALSE)
+
+# Save the training and test data with renamed columns
+saveRDS(list(df1 = df1, df_test = df_test_allsites), 
+        file = "/home/INT/dienye.h/gamlss_normative_paper-main/test/single_site/data_splits.rds")
+
+cat("\nModels and data saved successfully!\n")
+cat("Files created:\n")
+cat("- all_fitted_models.rds (all 15 models per feature)\n")
+cat("- model_results.csv (BIC/AIC table)\n")
+cat("- data_splits.rds (training and test datasets)\n")
