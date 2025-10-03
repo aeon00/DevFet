@@ -30,11 +30,11 @@ import os
 
 
 
-input_file = "/~/data_touse/finalized_df_qcglobal_and_z.csv"
+input_file = "/home/INT/dienye.h/python_files/combined_dataset/combined_qc_dataset_with_site.csv"
 
-output_dir = "/~/harmonization/All"
+output_dir = "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization"
 
-plot_dir = "/~/harmonization/All/plots/by_cohort/"
+plot_dir = "//home/INT/dienye.h/gamlss_normative_paper-main/harmonization/plots/by_cohort/"
 
 os.makedirs(output_dir, exist_ok=True)
 
@@ -51,25 +51,20 @@ data_df = pd.read_csv(input_file)
 
 
 
-data_df['batch'] = data_df['cohort']  #convert cohort variable to BATCH variable for analysis. Can change to "scanner_site".
+data_df['batch'] = data_df['SITE']  #convert cohort variable to BATCH variable for analysis. Can change to "scanner_site".
 
 
 
 
-data_df['age_at_scan'] = pd.to_numeric(data_df['age_at_scan'], errors='coerce')
-
-data_df['ICV'] = pd.to_numeric(data_df['ICV'], errors='coerce')
-
-
-
-
-
+data_df['gestational_age'] = pd.to_numeric(data_df['gestational_age'], errors='coerce')
 
 
 brain_cols = [
 
-    'CSF.Volume', 'cGrey.Matter.Volume', 'Lateral.Ventricles.Volume', 'Cerebellum.Volume', 'Basal.Ganglia.Volume',
-'Thalamus.Volume', 'White.Matter.Volume', 'CSF_total', 'eCSF_Ventricles_total'
+    'analyze_folding_power', 'surface_area_cm2', 'B4_vertex_percentage', 'B5_vertex_percentage', 'B6_vertex_percentage',
+'band_parcels_B4', 'band_parcels_B5', 'band_parcels_B6', 'volume_ml', 'gyrification_index', 'hull_area', 'B4_surface_area',
+'B5_surface_area', 'B6_surface_area', 'B4_surface_area_percentage', 'B5_surface_area_percentage', 'B6_surface_area_percentage',
+'band_power_B4', 'band_power_B5', 'band_power_B6', 'B4_band_relative_power', 'B5_band_relative_power', 'B6_band_relative_power'
 
 ]
 
@@ -78,9 +73,7 @@ brain_cols = [
 
 covars = pd.DataFrame({
 
-    "ICV": data_df["ICV"],
-
-    "age": data_df["age_at_scan"],
+    "age": data_df["gestational_age"],
 
     "batch": pd.Categorical(data_df["batch"]).codes
 
@@ -111,10 +104,11 @@ covars_harm = covars_harm.drop(columns=['batch'])
 
 data_array = data_scaled
 
+
 estimates, harmonized_data, s_data = harmonizationLearn(
 
     data_array, covars=covars_harm, smooth_terms=["age"], return_s_data=True,
-ref_batch="2", eb=True
+ref_batch="0", eb=True
 
 )
 
@@ -142,7 +136,7 @@ rescaled_harmonized_df = pd.DataFrame(harmonized_data_df, columns=brain_cols)
 
 harmonized_df = pd.concat([harmonized_df, rescaled_harmonized_df.add_suffix("_harm")], axis=1)
 
-harmonized_df.to_csv(os.path.join(output_dir, "harmonized_data_Sept2025_ALL.csv"), index=False)
+harmonized_df.to_csv(os.path.join(output_dir, "harmonized_data_dhcp_marsfet.csv"), index=False)
 
 
 
@@ -159,24 +153,24 @@ sharey=True)
 
     #Scatter
 
-    sns.scatterplot(ax=axes[0], x=data_df['age_at_scan'], y=data_df[col],
+    sns.scatterplot(ax=axes[0], x=data_df['gestational_age'], y=data_df[col],
 color='blue')
 
-    axes[0].set_title(f"Raw: {col} vs Age")
+    axes[0].set_title(f"Raw: {col} vs Gestational Age")
 
-    axes[0].set_xlabel("Age")
+    axes[0].set_xlabel("Gestational Age")
 
     axes[0].set_ylabel(col)
 
 
 
 
-    sns.scatterplot(ax=axes[1], x=data_df['age_at_scan'], y=harmonized_df[f"{col}_harm"],
+    sns.scatterplot(ax=axes[1], x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
 color='orange')
 
-    axes[1].set_title(f"Harmonized: {col} vs Age")
+    axes[1].set_title(f"Harmonized: {col} vs Gestational Age")
 
-    axes[1].set_xlabel("Age")
+    axes[1].set_xlabel("Gestational Age")
 
 
 
@@ -191,13 +185,13 @@ color='orange')
 
     plt.figure(figsize=(10, 6))
 
-    sns.scatterplot(x=data_df['age_at_scan'], y=data_df[col], color='blue',
+    sns.scatterplot(x=data_df['gestational_age'], y=data_df[col], color='blue',
 label='Raw Data')
 
-    sns.scatterplot(x=data_df['age_at_scan'], y=harmonized_df[f"{col}_harm"],
+    sns.scatterplot(x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
 color='orange', label='Harmonized Data')
 
-    plt.title(f"Raw and Harmonized: {col} vs Age")
+    plt.title(f"Raw and Harmonized: {col} vs Gestational Age")
 
     plt.xlabel("Age")
 
@@ -288,7 +282,7 @@ df_pca_before = pd.DataFrame(
 
         "batch": data_df["batch"],
 
-        "age": data_df["age_at_scan"],
+        "gestational_age": data_df["gestational_age"],
 
     }
 
@@ -309,7 +303,7 @@ df_pca_after = pd.DataFrame(
 
         "batch": data_df["batch"],
 
-        "age": data_df["age_at_scan"],
+        "gestational_age": data_df["gestational_age"],
 
     }
 
@@ -358,28 +352,28 @@ scatter1 = axes[1, 0].scatter(
 
     df_pca_before["PC2"],
 
-    c=df_pca_before["age"],
+    c=df_pca_before["gestational_age"],
 
     cmap="viridis",
 
 )
 
-axes[1, 0].set_title("Raw Data (Age)")
+axes[1, 0].set_title("Raw Data (Gestational Age)")
 
-plt.colorbar(scatter1, ax=axes[1, 0], label="Age (weeks)")
+plt.colorbar(scatter1, ax=axes[1, 0], label="Gestational Age (weeks)")
 
 
 
 
 scatter2 = axes[1, 1].scatter(
 
-    df_pca_after["PC1"], df_pca_after["PC2"], c=df_pca_after["age"], cmap="viridis"
+    df_pca_after["PC1"], df_pca_after["PC2"], c=df_pca_after["gestational_age"], cmap="viridis"
 
 )
 
-axes[1, 1].set_title("After Harmonization (Age)")
+axes[1, 1].set_title("After Harmonization (Gestational Age)")
 
-plt.colorbar(scatter2, ax=axes[1, 1], label="Age (weeks)")
+plt.colorbar(scatter2, ax=axes[1, 1], label="Gestational Age (weeks)")
 
 
 
