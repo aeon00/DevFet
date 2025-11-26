@@ -304,7 +304,7 @@ for filename in os.listdir(directory):
                 faces=mesh.faces,
                 scalars=loc_dom_band_texture,
                 selected_bands=sulci,  # Will show only sulci bands 4, 5, 6
-                camera=camera_medial,
+                camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
             fig.write_image(f"/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/spangy/snapshots/{participant_session}_{hem_det}.png")
