@@ -282,6 +282,8 @@ for filename in os.listdir(directory):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("smooth_5_spangy_dom_band_", "").replace('.gii', '')
         filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") 
+        print(clean_filename)
+        print(filename)
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
