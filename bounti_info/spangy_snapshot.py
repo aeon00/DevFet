@@ -272,8 +272,8 @@ sulci = [-6, -5, -4]
 
 # Example Usage
 
-directory = "/scratch/hdienye/marsfet_full_info/inflated_mesh"  # Add your directory path here
-tex_dir = '/scratch/hdienye/marsfet_full_info/spangy/textures'
+directory = "/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mesh"  # Add your directory path here
+tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
@@ -281,7 +281,7 @@ for filename in os.listdir(directory):
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("smooth_5_spangy_dom_band_", "")
-        filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
+        filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") if filename.startswith("inflated_") else filename
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
@@ -307,7 +307,7 @@ for filename in os.listdir(directory):
                 camera=camera_medial,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/scratch/hdienye/marsfet_full_info/spangy/inflated_snapshots/{participant_session}_{hem_det}.png")
+            fig.write_image(f"/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/spangy/snapshots/{participant_session}_{hem_det}.png")
 
 
 
