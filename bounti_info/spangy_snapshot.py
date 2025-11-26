@@ -220,7 +220,7 @@ def mesh_orientation(mesh, hemisphere):
             [0, 0, 0, 1]     # Fourth row
         ])
         transfo_360 = np.eye(4) 
-        mesh.apply_transform(transfo_180)
+        mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
         camera_lateral = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
@@ -245,7 +245,7 @@ def mesh_orientation(mesh, hemisphere):
             [0, 0, 0, 1]     # Fourth row
         ])
         transfo_360 = np.eye(4)
-        mesh.apply_transform(transfo_180)
+        mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
         camera_medial = dict(
             eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
@@ -282,8 +282,6 @@ for filename in os.listdir(directory):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("spangy_dom_band_", "").replace('.gii', '')
         filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") 
-        print(clean_filename)
-        print(filename)
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
