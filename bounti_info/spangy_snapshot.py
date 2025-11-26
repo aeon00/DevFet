@@ -272,15 +272,15 @@ sulci = [-6, -5, -4]
 
 # Example Usage
 
-directory = "/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/mesh"  # Add your directory path here
-tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/spangy/textures'
+directory = "/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/mesh"  # Add your directory path here
+tex_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/spangy/textures'
 
 # Collect vertex counts from all meshes
 for filename in os.listdir(directory):
     original_filename = filename
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
-        clean_filename = file.replace("spangy_dom_band_", "").replace('.gii', '')
+        clean_filename = file.replace("smooth_5_spangy_dom_band_", "").replace('.gii', '')
         filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") 
 
         if filename == clean_filename:
@@ -307,7 +307,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/spangy/snapshots/{participant_session}_{hem_det}.png")
+            fig.write_image(f"/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/spangy/snapshots/{participant_session}_{hem_det}.png")
 
 
 
