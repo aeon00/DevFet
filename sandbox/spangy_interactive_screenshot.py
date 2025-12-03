@@ -7,9 +7,6 @@ import os
 import pandas as pd
 
 
-import plotly.graph_objs as go
-import numpy as np
-
 def read_gii_file(file_path):
     """
     Read scalar data from a GIFTI file
@@ -206,94 +203,54 @@ def mesh_orientation(mesh, hemisphere):
     Oriented mesh and medial and lateral camera configuration'''
 
     # Define hemisphere
-
     hemisphere = str(hemisphere).lower()
 
     # Set configuration and transformation according to hemisphere
     if hemisphere == 'right':
-        # mesh.apply_transform(mesh.principal_inertia_transform)
-        transfo_180 = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, -1, 0], [0, 0, 0, 1]])
-        transfo_90 = np.array([
-            [1, 0, 0, 0],    # First row
-            [0, 0, 1, 0],    # Second row
-            [0, -1, 0, 0],   # Third row
-            [0, 0, 0, 1]     # Fourth row
-        ])
         transfo_360 = np.eye(4) 
         mesh.apply_transform(transfo_360)
-        # Example camera positions (you can modify these as needed)
-        # camera_lateral = dict(
-        #     eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
-        #     center=dict(x=0, y=0, z=0),  # Looking at center
-        #     up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
-        # )
-
-        # camera_medial = dict(
-        #     eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
-        #     center=dict(x=0, y=0, z=0),   # Looking at center
-        #     up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
-        # )
+        
         camera_medial = dict(
-            eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+            eye=dict(x=1.5, y=1.0, z=1.0),    # More anterior, slightly lower
+            center=dict(x=0, y=0.2, z=0.4),   # Center shifted slightly forward
             up=dict(x=0, y=0, z=-1)
         )
 
         camera_lateral = dict(
-            eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+            eye=dict(x=-1.5, y=1.0, z=1.0),   # More anterior, slightly lower
+            center=dict(x=0, y=0.2, z=0.4),   # Center shifted slightly forward
             up=dict(x=0, y=0, z=-1)
-        ) 
+        )
 
         
     elif hemisphere == 'left':
-        # mesh.apply_transform(mesh.principal_inertia_transform)
-        transfo_180 = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, -1, 0], [0, 0, 0, 1]])
-        transfo_90 = np.array([
-            [1, 0, 0, 0],    # First row
-            [0, 0, 1, 0],    # Second row
-            [0, -1, 0, 0],   # Third row
-            [0, 0, 0, 1]     # Fourth row
-        ])
         transfo_360 = np.eye(4)
         mesh.apply_transform(transfo_360)
-        # Example camera positions (you can modify these as needed)
-        # camera_medial = dict(
-        #     eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
-        #     center=dict(x=0, y=0, z=0),  # Looking at center
-        #     up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
-        # )
-
-        # camera_lateral = dict(
-        #     eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
-        #     center=dict(x=0, y=0, z=0),   # Looking at center
-        #     up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
-        # )
+        
         camera_medial = dict(
-            eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+            eye=dict(x=1.5, y=1.0, z=1.0),    # More anterior, slightly lower
+            center=dict(x=0, y=0.2, z=0.4),   # Center shifted slightly forward
             up=dict(x=0, y=0, z=-1)
         )
 
         camera_lateral = dict(
-            eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+            eye=dict(x=-1.5, y=1.0, z=1.0),   # More anterior, slightly lower
+            center=dict(x=0, y=0.2, z=0.4),   # Center shifted slightly forward
             up=dict(x=0, y=0, z=-1)
-        )    
+        )
     else:
         print('Invalid hemisphere parameter')
 
     return mesh, camera_medial, camera_lateral
 
 
-#Set band values for gyri and sulci (positive band values correspond to gyri, negative to sulci)
+# Set band values for gyri and sulci (positive band values correspond to gyri, negative to sulci)
 gyri = [4, 5, 6]
 sulci = [-6, -5, -4]
 
 
 # Example Usage
-
-directory = "/home/INT/dienye.h/python_files/rough/mesh/dhcp_mesh/"  # Add your directory path here
+directory = "/home/INT/dienye.h/python_files/rough/mesh/dhcp_mesh/"
 tex_dir = '/home/INT/dienye.h/python_files/rough/spangy_dom_band_textures/dhcp_textures'
 
 # Collect vertex counts from all meshes
@@ -303,17 +260,14 @@ for filename in os.listdir(directory):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("spangy_dom_band_", "").replace('.gii', '')
         filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") 
-        print(clean_filename)
-        print(filename)
 
         if filename == clean_filename:
             participant_session = clean_filename.split('_')[0] + '_' + clean_filename.split('_')[1]
-        #Load meshfile
+            # Load meshfile
             mesh_file = os.path.join(directory, original_filename)
             mesh = sio.load_mesh(mesh_file)
             hem_det = clean_filename.split('_')[-1].split('.')[0]
-            mesh, camera_medial, camera_lateral = mesh_orientation(mesh, clean_filename.split('_')[-1].split('.')[0]) # mesh of left brain hemisphere
-            # mesh.apply_transform(mesh.principal_inertia_transform)
+            mesh, camera_medial, camera_lateral = mesh_orientation(mesh, clean_filename.split('_')[-1].split('.')[0])
             vertices = mesh.vertices
             faces = mesh.faces
 
@@ -328,11 +282,24 @@ for filename in os.listdir(directory):
                 scalars=loc_dom_band_texture,
                 selected_bands=sulci,  # Will show only sulci bands 4, 5, 6
                 camera=camera_lateral,
-                title='Negative Bands Visualization'
+                title=f'{participant_session}_{hem_det} - Negative Bands Visualization'
             )
-            fig.write_image(f"/home/INT/dienye.h/python_files/rough/spangy_dom_band_textures/dhcp_central_sulcus_snapshots/{participant_session}_{hem_det}.png")
+            
+            # Show interactive plot in browser
+            # You can rotate, zoom, and pan the mesh
+            # Use the camera icon in the toolbar to save screenshots
+            print(f"\nDisplaying: {participant_session}_{hem_det}")
+            print("Tip: Use the camera icon in the toolbar to save a screenshot")
+            print("Close the browser window to proceed to the next mesh\n")
+            
+            fig.show(config={
+                'toImageButtonOptions': {
+                    'format': 'png',  # or 'svg', 'jpeg'
+                    'filename': f'{participant_session}_{hem_det}',
+                    'height': 1800,
+                    'width': 2000,
+                    'scale': 2  # Multiplier for resolution
+                }
+            })
 
-
-
-
-
+            fig.show()
