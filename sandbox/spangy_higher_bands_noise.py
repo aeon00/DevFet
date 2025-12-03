@@ -24,8 +24,13 @@ for texture_path in texture_files:
     print(f"\nProcessing: {subject_id}")
     
     try:
-        # Load the frecomposed array
-        frecomposed = np.load(texture_path)
+        # Load the frecomposed array (allow_pickle=True for object arrays)
+        frecomposed = np.load(texture_path, allow_pickle=True)
+        
+        # Convert object array to numeric array if needed
+        if frecomposed.dtype == 'object':
+            print(f"  Converting from object array to numeric array")
+            frecomposed = np.array(frecomposed.tolist(), dtype=float)
         
         # Check shape
         print(f"  Shape: {frecomposed.shape}")
@@ -66,6 +71,8 @@ for texture_path in texture_files:
         
     except Exception as e:
         print(f"  ERROR processing {subject_id}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         continue
 
 # Create DataFrame and save to CSV
