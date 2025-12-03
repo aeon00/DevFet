@@ -1,16 +1,14 @@
 import numpy as np
-import slam.io as sio
-import slam.texture as stex
 import pandas as pd
 import os
 from glob import glob
 
 # Directory containing frecomposed textures
-frecomposed_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/frecomposed/full'
+frecomposed_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/frecomposed/full/'
 output_csv = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/info/power_above_b6_results.csv'
 
-# Find all .gii files in directory
-texture_files = sorted(glob(os.path.join(frecomposed_dir, '*.gii')))
+# Find all .npy files in directory
+texture_files = sorted(glob(os.path.join(frecomposed_dir, '*.npy')))
 
 print(f"Found {len(texture_files)} texture files")
 
@@ -21,14 +19,16 @@ results = []
 for texture_path in texture_files:
     # Extract subject/filename identifier
     filename = os.path.basename(texture_path)
-    subject_id = os.path.splitext(filename)[0]  # Remove .gii extension
+    subject_id = os.path.splitext(filename)[0]  # Remove .npy extension
     
     print(f"\nProcessing: {subject_id}")
     
     try:
-        # Load the frecomposed texture
-        frecomposed_tex = sio.read_texture(texture_path)
-        frecomposed = frecomposed_tex.darray
+        # Load the frecomposed array
+        frecomposed = np.load(texture_path)
+        
+        # Check shape
+        print(f"  Shape: {frecomposed.shape}")
         
         # Get number of bands
         nlevels = frecomposed.shape[1] + 1
