@@ -4,8 +4,8 @@ import os
 from glob import glob
 
 # Directory containing frecomposed textures
-frecomposed_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/frecomposed/full/'
-output_csv = '/envau/work/meca/users/dienye.h/meso_envau_sync/dhcp_full_info/info/power_above_b6_results.csv'
+frecomposed_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/frecomposed/full/'
+output_csv = '/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/info/power_above_b6_results.csv'
 
 # Find all .npy files in directory
 texture_files = sorted(glob(os.path.join(frecomposed_dir, '*.npy')))
