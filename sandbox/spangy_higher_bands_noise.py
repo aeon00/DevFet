@@ -117,7 +117,7 @@ def process_single_file(filename, surface_path, df):
         
         # Get corresponding gestational age
         try:
-            gestational_age = df[df['participant_session'] == base_participant_session]['scan_age'].values[0]
+            gestational_age = df[df['participant_session'] == base_participant_session]['fetus_gestational_age_at_scan'].values[0]
         except:
             print(f"Warning: No matching gestational age found for {base_participant_session}")
             return None
@@ -210,8 +210,8 @@ def process_single_file(filename, surface_path, df):
 def main():
     try:
         # Paths
-        surface_path = "/envau/work/meca/users/dienye.h/rough/spangy/noise_test/mesh"
-        mesh_info_path = "/envau/work/meca/users/dienye.h/meso_envau_sync/participants.tsv"
+        surface_path = "/envau/work/meca/users/dienye.h/rough/spangy/noise_test/marsfet/mesh"
+        mesh_info_path = "/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_latest_participants.csv"
         
         
         print("Reading data from {}".format(mesh_info_path))
@@ -235,7 +235,7 @@ def main():
                     
             if results:
                 results_df = pd.DataFrame(results)
-                output_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/', 'all_results.csv')
+                output_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/marsfet/', 'all_results.csv')
                 results_df.to_csv(output_file, index=False)
                 print(f"All results saved to {output_file}")
             else:
@@ -261,7 +261,7 @@ def main():
         # Save results for this chunk
         if results:
             results_df = pd.DataFrame(results)
-            chunk_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/', 'chunk_{}_results.csv'.format(task_id))
+            chunk_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/marsfet/', 'chunk_{}_results.csv'.format(task_id))
             results_df.to_csv(chunk_file, index=False)
             print("Results for chunk {} saved to {}".format(task_id, chunk_file))
         else:
