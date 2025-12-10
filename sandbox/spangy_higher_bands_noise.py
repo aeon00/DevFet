@@ -117,7 +117,7 @@ def process_single_file(filename, surface_path, df):
         
         # Get corresponding gestational age
         try:
-            gestational_age = df[df['participant_session'] == base_participant_session]['fetus_gestational_age_at_scan'].values[0]
+            gestational_age = df[df['participant_session'] == base_participant_session]['scan_age'].values[0]
         except:
             print(f"Warning: No matching gestational age found for {base_participant_session}")
             return None
