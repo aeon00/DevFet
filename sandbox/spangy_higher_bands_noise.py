@@ -101,10 +101,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import trimesh
 import sys
+from slam.differential_geometry import laplacian_mesh_smoothing
 
 def process_single_file(filename, surface_path, df):
     """
-    Process a single surface file and compute various metrics.
+    Process a single surface file and compute various metrics at different smoothing levels.
     """
     try:
         start_time = time.time()
@@ -126,56 +127,79 @@ def process_single_file(filename, surface_path, df):
             print("Error: Mesh file not found: {}".format(mesh_file))
             return None
         
-        mesh = sio.load_mesh(mesh_file)
-        mesh.apply_transform(mesh.principal_inertia_transform)
-        N = 5000
+        # Load the base mesh once
+        base_mesh = sio.load_mesh(mesh_file)
         
-        # Compute eigenpairs and mass matrix
-        print("compute the eigen vectors and eigen values")
-        eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
+        # Define smoothing iterations to test
+        smoothing_levels = [0, 5, 10, 20]
+        results = []
         
-        # CURVATURE
-        print("compute the mean curvature")
-        PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
-            scurv.curvatures_and_derivatives(mesh)
-        mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
-        tex_mean_curv = stex.TextureND(mean_curv)
-        tex_mean_curv.z_score_filtering(z_thresh=3)
-        filt_mean_curv = tex_mean_curv.darray.squeeze()
+        for smooth_iter in smoothing_levels:
+            print(f"  Processing with {smooth_iter} smoothing iterations...")
+            iter_start_time = time.time()
+            
+            # Apply smoothing if needed
+            if smooth_iter == 0:
+                mesh = base_mesh.copy()
+            else:
+                mesh = laplacian_mesh_smoothing(base_mesh, nb_iter=smooth_iter, dt=0.1)
+            
+            # Apply principal inertia transform
+            mesh.apply_transform(mesh.principal_inertia_transform)
+            
+            N = 5000
+            
+            # Compute eigenpairs and mass matrix
+            print(f"    Computing eigen vectors and eigen values")
+            eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
+            
+            # CURVATURE
+            print(f"    Computing mean curvature")
+            PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
+                scurv.curvatures_and_derivatives(mesh)
+            mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+            
+            tex_mean_curv = stex.TextureND(mean_curv)
+            tex_mean_curv.z_score_filtering(z_thresh=3)
+            filt_mean_curv = tex_mean_curv.darray.squeeze()
+            
+            # WHOLE BRAIN MEAN-CURVATURE SPECTRUM
+            grouped_spectrum, group_indices, coefficients, nlevels \
+                = spgy.spectrum(filt_mean_curv, lap_b, eigVects, eigVal)
+            
+            # Compute total AFP (excluding B0)
+            afp_all = np.sum(grouped_spectrum[1:])
+            
+            # Compute power above B6
+            power_above_b6 = np.sum(grouped_spectrum[7:])  # B7 onwards
+            relative_power_above_b6 = power_above_b6 / afp_all if afp_all > 0 else 0
+            
+            # Print for verification
+            print(f"    Total bands: {len(grouped_spectrum)}")
+            print(f"    Power above B6: {power_above_b6:.6f}")
+            print(f"    Relative power above B6: {relative_power_above_b6:.6f}")
+            
+            # Store results
+            result = {
+                'subject_id': participant_session,
+                'gestational_age': gestational_age,
+                'hemisphere': hemisphere,
+                'smoothing_iterations': smooth_iter,
+                'total_power_above_b6': power_above_b6,
+                'relative_power_above_b6': relative_power_above_b6,
+                'total_afp': afp_all,
+                'n_bands': len(grouped_spectrum),
+                'processing_time': time.time() - iter_start_time
+            }
+            
+            # Optionally add individual band powers
+            for i in range(len(grouped_spectrum)):
+                result[f'B{i}_power'] = grouped_spectrum[i]
+            
+            results.append(result)
         
-        # WHOLE BRAIN MEAN-CURVATURE SPECTRUM
-        grouped_spectrum, group_indices, coefficients, nlevels \
-            = spgy.spectrum(filt_mean_curv, lap_b, eigVects, eigVal)
-        
-        # Compute total AFP (excluding B0)
-        afp_all = np.sum(grouped_spectrum[1:])
-        
-        # Compute power above B6 - SIMPLIFIED
-        power_above_b6 = np.sum(grouped_spectrum[7:])  # B7 onwards
-        relative_power_above_b6 = power_above_b6 / afp_all if afp_all > 0 else 0
-        
-        # Print for verification
-        print(f"  Total bands: {len(grouped_spectrum)}")
-        print(f"  Power above B6: {power_above_b6:.6f}")
-        print(f"  Relative power above B6: {relative_power_above_b6:.6f}")
-        
-        # Return results as dictionary
-        result = {
-            'subject_id': participant_session,
-            'gestational_age': gestational_age,
-            'hemisphere': hemisphere,
-            'total_power_above_b6': power_above_b6,
-            'relative_power_above_b6': relative_power_above_b6,
-            'total_afp': afp_all,
-            'n_bands': len(grouped_spectrum),
-            'processing_time': time.time() - start_time
-        }
-        
-        # Optionally add individual band powers
-        for i in range(len(grouped_spectrum)):
-            result[f'B{i}_power'] = grouped_spectrum[i]
-        
-        return result
+        print(f"Total processing time for {filename}: {time.time() - start_time:.2f}s")
+        return results
         
     except Exception as e:
         print("Error processing {}: {}".format(filename, str(e)))
