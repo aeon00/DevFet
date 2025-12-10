@@ -211,7 +211,7 @@ def main():
     try:
         # Paths
         surface_path = "/envau/work/meca/users/dienye.h/rough/spangy/noise_test/marsfet/mesh"
-        mesh_info_path = "/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_latest_participants.csv"
+        mesh_info_path = "/envau/work/meca/users/dienye.h/meso_envau_sync/marsFet_HASTE_lastest_volumes_BOUNTI.csv"
         
         
         print("Reading data from {}".format(mesh_info_path))
