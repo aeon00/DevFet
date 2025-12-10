@@ -216,7 +216,7 @@ def main():
         
         print("Reading data from {}".format(mesh_info_path))
         # Read dataframe
-        df = pd.read_csv(mesh_info_path, sep='\t')
+        df = pd.read_csv(mesh_info_path)
         df['participant_session'] = df['participant_id'] + '_' + df['session_id']
         
         print("Scanning directory: {}".format(surface_path))
