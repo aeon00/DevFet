@@ -222,28 +222,28 @@ def mesh_orientation(mesh, hemisphere):
         transfo_360 = np.eye(4) 
         mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
-        # camera_lateral = dict(
-        #     eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
-        #     center=dict(x=0, y=0, z=0),  # Looking at center
-        #     up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
-        # )
-
-        # camera_medial = dict(
-        #     eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
-        #     center=dict(x=0, y=0, z=0),   # Looking at center
-        #     up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
-        # )
-        camera_medial = dict(
-            eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
-            up=dict(x=0, y=0, z=-1)
+        camera_lateral = dict(
+            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
+            center=dict(x=0, y=0, z=0),  # Looking at center
+            up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
         )
 
-        camera_lateral = dict(
-            eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
-            up=dict(x=0, y=0, z=-1)
-        ) 
+        camera_medial = dict(
+            eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
+            center=dict(x=0, y=0, z=0),   # Looking at center
+            up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
+        )
+        # camera_medial = dict(
+        #     eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
+        #     center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+        #     up=dict(x=0, y=0, z=-1)
+        # )
+
+        # camera_lateral = dict(
+        #     eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
+        #     center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+        #     up=dict(x=0, y=0, z=-1)
+        # ) 
 
         
     elif hemisphere == 'left':
@@ -258,28 +258,28 @@ def mesh_orientation(mesh, hemisphere):
         transfo_360 = np.eye(4)
         mesh.apply_transform(transfo_360)
         # Example camera positions (you can modify these as needed)
-        # camera_medial = dict(
-        #     eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
-        #     center=dict(x=0, y=0, z=0),  # Looking at center
-        #     up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
-        # )
-
-        # camera_lateral = dict(
-        #     eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
-        #     center=dict(x=0, y=0, z=0),   # Looking at center
-        #     up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
-        # )
         camera_medial = dict(
-            eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
-            up=dict(x=0, y=0, z=-1)
+            eye=dict(x=2, y=0, z=0),    # Camera position from lateral side
+            center=dict(x=0, y=0, z=0),  # Looking at center
+            up=dict(x=0, y=0, z=-1)      # Up vector points in negative z direction
         )
 
         camera_lateral = dict(
-            eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
-            center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
-            up=dict(x=0, y=0, z=-1)
-        )    
+            eye=dict(x=-2, y=0, z=0),    # Camera position from medial side
+            center=dict(x=0, y=0, z=0),   # Looking at center
+            up=dict(x=0, y=0, z=-1)       # Up vector points in negative z direction
+        )
+        # camera_medial = dict(
+        #     eye=dict(x=1.5, y=0, z=1.2),    # More elevated, slightly closer
+        #     center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+        #     up=dict(x=0, y=0, z=-1)
+        # )
+
+        # camera_lateral = dict(
+        #     eye=dict(x=-1.5, y=0, z=1.2),   # More elevated, slightly closer
+        #     center=dict(x=0, y=0, z=0.5),   # Looking more toward the top
+        #     up=dict(x=0, y=0, z=-1)
+        # )    
     else:
         print('Invalid hemisphere parameter')
 
@@ -293,7 +293,7 @@ sulci = [-6, -5, -4]
 
 # Example Usage
 
-directory = "/home/INT/dienye.h/python_files/rough/mesh/dhcp_mesh/"  # Add your directory path here
+directory = "/home/INT/dienye.h/python_files/rough/mesh/inflated_mesh/dhcp"  # Add your directory path here
 tex_dir = '/home/INT/dienye.h/python_files/rough/spangy_dom_band_textures/dhcp_textures'
 
 # Collect vertex counts from all meshes
@@ -302,7 +302,7 @@ for filename in os.listdir(directory):
     for file in os.listdir(tex_dir):
         # Remove the prefix and keep one .gii
         clean_filename = file.replace("spangy_dom_band_", "").replace('.gii', '')
-        filename = filename.replace("smooth_5_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii", "") 
+        filename = filename.replace("inflated_", "").replace("reo-SVR-output-brain-mask-brain_bounti-white.", "").replace(".surf.gii.gii", "") 
         print(clean_filename)
         print(filename)
 
@@ -330,7 +330,7 @@ for filename in os.listdir(directory):
                 camera=camera_lateral,
                 title='Negative Bands Visualization'
             )
-            fig.write_image(f"/home/INT/dienye.h/python_files/rough/spangy_dom_band_textures/dhcp_central_sulcus_snapshots/{participant_session}_{hem_det}.png")
+            fig.write_image(f"/home/INT/dienye.h/python_files/rough/spangy_dom_band_textures/inflated_dhcp_snapshots/{participant_session}_{hem_det}.png")
 
 
 

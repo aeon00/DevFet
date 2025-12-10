@@ -90,111 +90,164 @@
 #     print("\n** Summary Statistics **")
 #     print(df_results[['total_power_above_b6', 'relative_power_above_b6', 'total_afp']].describe())
 
-import numpy as np
-import pandas as pd
+import slam.io as sio
+import slam.texture as stex
+import slam.curvature as scurv
 import os
-from glob import glob
+import pandas as pd
+import time
+import slam.spangy as spgy
+import numpy as np
+import matplotlib.pyplot as plt
+import trimesh
+import sys
 
-# Directory containing frecomposed textures
-frecomposed_dir = '/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/frecomposed/full/'
-output_csv = '/envau/work/meca/users/dienye.h/meso_envau_sync/marsfet_full_info/info/power_above_b6_results.csv'
-
-# Find all .npy files in directory
-texture_files = sorted(glob(os.path.join(frecomposed_dir, '*.npy')))
-
-print(f"Found {len(texture_files)} texture files")
-
-# Store results
-results = []
-
-# Process each texture file
-for texture_path in texture_files:
-    # Extract subject/filename identifier
-    filename = os.path.basename(texture_path)
-    subject_id = os.path.splitext(filename)[0]  # Remove .npy extension
-    
-    print(f"\nProcessing: {subject_id}")
-    
+def process_single_file(filename, surface_path, df):
+    """
+    Process a single surface file and compute various metrics.
+    """
     try:
-        # Load the frecomposed array (allow_pickle=True for object arrays)
-        frecomposed_obj = np.load(texture_path, allow_pickle=True)
+        start_time = time.time()
+        print("Starting processing of {}".format(filename))
         
-        print(f"  Original shape: {frecomposed_obj.shape}")
-        print(f"  Original dtype: {frecomposed_obj.dtype}")
+        hemisphere = 'left' if filename.endswith('left.surf.gii') else 'right'
+        participant_session = filename.split('_')[0] + '_' + filename.split('_')[1] + f'_{hemisphere}'
+        base_participant_session = filename.split('_')[0] + '_' + filename.split('_')[1]
         
-        # Debug: check what's in the first few elements
-        print(f"  First element type: {type(frecomposed_obj[0, 0])}")
-        print(f"  First element: {frecomposed_obj[0, 0]}")
+        # Get corresponding gestational age
+        try:
+            gestational_age = df[df['participant_session'] == base_participant_session]['fetus_gestational_age_at_scan'].values[0]
+        except:
+            print(f"Warning: No matching gestational age found for {base_participant_session}")
+            return None
         
-        # Proper conversion for object arrays where each element is a scalar
-        if frecomposed_obj.dtype == 'object':
-            print(f"  Converting from object array...")
-            
-            # Method 1: Try direct conversion
-            try:
-                frecomposed = frecomposed_obj.astype(float)
-                print(f"  Method 1 (astype) worked!")
-            except:
-                # Method 2: Vectorized approach
-                try:
-                    frecomposed = np.vectorize(float)(frecomposed_obj)
-                    print(f"  Method 2 (vectorize) worked!")
-                except:
-                    # Method 3: Manual reconstruction
-                    print(f"  Using manual reconstruction...")
-                    n_vertices, n_bands = frecomposed_obj.shape
-                    frecomposed = np.zeros((n_vertices, n_bands), dtype=float)
-                    for i in range(n_bands):
-                        frecomposed[:, i] = np.array([float(x) for x in frecomposed_obj[:, i]])
-        else:
-            frecomposed = frecomposed_obj
+        mesh_file = os.path.join(surface_path, filename)
+        if not os.path.exists(mesh_file):
+            print("Error: Mesh file not found: {}".format(mesh_file))
+            return None
         
-        print(f"  Converted shape: {frecomposed.shape}")
-        print(f"  Converted dtype: {frecomposed.dtype}")
-        print(f"  Sample values: min={np.min(frecomposed):.6f}, max={np.max(frecomposed):.6f}, mean={np.mean(frecomposed):.6f}")
+        mesh = sio.load_mesh(mesh_file)
+        mesh.apply_transform(mesh.principal_inertia_transform)
+        N = 5000
         
-        # Get number of bands
-        nlevels = frecomposed.shape[1] + 1
+        # Compute eigenpairs and mass matrix
+        print("compute the eigen vectors and eigen values")
+        eigVal, eigVects, lap_b = spgy.eigenpairs(mesh, N)
         
-        # Compute power for all bands
-        all_band_powers = np.zeros(frecomposed.shape[1])
-        for i in range(frecomposed.shape[1]):
-            all_band_powers[i] = np.sum(frecomposed[:, i]**2)
-            print(f"  B{i} power: {all_band_powers[i]:.6f}")
+        # CURVATURE
+        print("compute the mean curvature")
+        PrincipalCurvatures, PrincipalDir1, PrincipalDir2 = \
+            scurv.curvatures_and_derivatives(mesh)
+        mean_curv = 0.5 * (PrincipalCurvatures[0, :] + PrincipalCurvatures[1, :])
+        tex_mean_curv = stex.TextureND(mean_curv)
+        tex_mean_curv.z_score_filtering(z_thresh=3)
+        filt_mean_curv = tex_mean_curv.darray.squeeze()
         
-        # Compute AFP (excluding B0)
-        afp_all = np.sum(all_band_powers[1:])
+        # WHOLE BRAIN MEAN-CURVATURE SPECTRUM
+        grouped_spectrum, group_indices, coefficients, nlevels \
+            = spgy.spectrum(filt_mean_curv, lap_b, eigVects, eigVal)
         
-        # Sum of power in all bands above B6
-        power_above_b6 = np.sum(all_band_powers[7:])
+        # Compute total AFP (excluding B0)
+        afp_all = np.sum(grouped_spectrum[1:])
+        
+        # Compute power above B6 - SIMPLIFIED
+        power_above_b6 = np.sum(grouped_spectrum[7:])  # B7 onwards
         relative_power_above_b6 = power_above_b6 / afp_all if afp_all > 0 else 0
         
-        # Store results
-        result_dict = {
-            'subject_id': subject_id,
+        # Print for verification
+        print(f"  Total bands: {len(grouped_spectrum)}")
+        print(f"  Power above B6: {power_above_b6:.6f}")
+        print(f"  Relative power above B6: {relative_power_above_b6:.6f}")
+        
+        # Return results as dictionary
+        result = {
+            'subject_id': participant_session,
+            'gestational_age': gestational_age,
+            'hemisphere': hemisphere,
             'total_power_above_b6': power_above_b6,
             'relative_power_above_b6': relative_power_above_b6,
             'total_afp': afp_all,
-            'n_bands': frecomposed.shape[1]
+            'n_bands': len(grouped_spectrum),
+            'processing_time': time.time() - start_time
         }
         
-        # Optionally store individual band powers above B6
-        for i in range(7, len(all_band_powers)):
-            result_dict[f'B{i}_power'] = all_band_powers[i]
-            result_dict[f'B{i}_relative'] = all_band_powers[i] / afp_all if afp_all > 0 else 0
+        # Optionally add individual band powers
+        for i in range(len(grouped_spectrum)):
+            result[f'B{i}_power'] = grouped_spectrum[i]
         
-        results.append(result_dict)
-        
-        print(f"  Total power B7+: {power_above_b6:.6f}")
-        print(f"  Relative power B7+: {relative_power_above_b6:.6f}")
-        
-        # Only process first file for debugging
-        break
+        return result
         
     except Exception as e:
-        print(f"  ERROR processing {subject_id}: {str(e)}")
+        print("Error processing {}: {}".format(filename, str(e)))
         import traceback
         traceback.print_exc()
-        continue
+        return None
+    
+def main():
+    try:
+        # Paths
+        surface_path = "/envau/work/meca/users/dienye.h/rough/spangy/noise_test/mesh"
+        mesh_info_path = "/envau/work/meca/users/dienye.h/meso_envau_sync/participants.tsv"
+        
+        
+        print("Reading data from {}".format(mesh_info_path))
+        # Read dataframe
+        df = pd.read_csv(mesh_info_path, sep='\t')
+        df['participant_session'] = df['subject_id'] + '_' + df['session_id']
+        
+        print("Scanning directory: {}".format(surface_path))
+        # Get list of files
+        all_files = [f for f in os.listdir(surface_path) if f.endswith('left.surf.gii') or f.endswith('right.surf.gii')]
+        print("Found {} files to process".format(len(all_files)))
+        
+        # Process directly if not in SLURM environment
+        if 'SLURM_ARRAY_TASK_ID' not in os.environ:
+            print("Running in local mode - processing all files")
+            results = []
+            for filename in all_files:
+                result = process_single_file(filename, surface_path, df)
+                if result:
+                    results.append(result)
+                    
+            if results:
+                results_df = pd.DataFrame(results)
+                output_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/', 'all_results.csv')
+                results_df.to_csv(output_file, index=False)
+                print(f"All results saved to {output_file}")
+            else:
+                print("Warning: No results generated")
+            return
+                
+        # Calculate chunk for this array task
+        task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
+        n_tasks = int(os.environ['SLURM_ARRAY_TASK_COUNT'])
+        chunk_size = len(all_files) // n_tasks + (1 if len(all_files) % n_tasks > 0 else 0)
+        start_idx = task_id * chunk_size
+        end_idx = min((task_id + 1) * chunk_size, len(all_files))
+        
+        print("Processing chunk {}/{} (files {} to {})".format(task_id + 1, n_tasks, start_idx, end_idx))
+        
+        # Process files in this chunk
+        results = []
+        for filename in all_files[start_idx:end_idx]:
+            result = process_single_file(filename, surface_path, df)
+            if result:
+                results.append(result)
+        
+        # Save results for this chunk
+        if results:
+            results_df = pd.DataFrame(results)
+            chunk_file = os.path.join('/envau/work/meca/users/dienye.h/rough/spangy/noise_test/', 'chunk_{}_results.csv'.format(task_id))
+            results_df.to_csv(chunk_file, index=False)
+            print("Results for chunk {} saved to {}".format(task_id, chunk_file))
+        else:
+            print("Warning: No results generated for chunk {}".format(task_id))
+            
+    except Exception as e:
+        print("Critical error in main: {}".format(str(e)))
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
-print("\nDebugging complete. Check the output above.")
+if __name__ == "__main__":
+    main()
