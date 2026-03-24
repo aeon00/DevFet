@@ -32,9 +32,9 @@ all_fitted_models <- list()
 # ============================================
 
 rename_features <- function(df) {
-  colnames(df)[colnames(df) == "B4_band_relative_power_harm"] <- "B4 Band Relative Power"
-  colnames(df)[colnames(df) == "B5_band_relative_power_harm"] <- "B5 Band Relative Power"
-  colnames(df)[colnames(df) == "B6_band_relative_power_harm"] <- "B6 Band Relative Power"
+  colnames(df)[colnames(df) == "band_power_B4_harm"] <- "B4 Band Power"
+  colnames(df)[colnames(df) == "band_power_B5_harm"] <- "B5 Band Power"
+  colnames(df)[colnames(df) == "band_power_B6_harm"] <- "B6 Band Power"
   return(df)
 }
 
@@ -62,7 +62,7 @@ params_to_scores <- function(y, params){
 # DEFINE Y FEATURES
 # ============================================
 
-y_values <- list("B4 Band Relative Power", "B5 Band Relative Power", "B6 Band Relative Power")
+y_values <- list("B4 Band Power", "B5 Band Power", "B6 Band Power")
 
 # ============================================
 # MAIN CROSS-VALIDATION LOOP
@@ -303,20 +303,20 @@ for (i in 1:nrow(best_models)) {
 }
 
 # Save final results
-# write.csv(final_results,
-#           "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/final_model_performance.csv",
-#           row.names = FALSE)
+write.csv(final_results,
+          "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/final_model_performance.csv",
+          row.names = FALSE)
 
 # Save final models
-# saveRDS(final_models,
-#         "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/final_fitted_models.rds")
+saveRDS(final_models,
+        "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/final_fitted_models.rds")
 
 
 cat("\n================================================\n")
 cat("GENERATING COMBINED NORMATIVE PLOT\n")
 cat("================================================\n")
 
-dir.create("/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/normative_plots/abstract",
+dir.create("/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough",
            showWarnings = FALSE, recursive = TRUE)
 
 # Rename features in the full dataset
@@ -324,9 +324,9 @@ data <- rename_features(data)
 
 # Define colors for each band
 feature_colors <- c(
-  "B4 Band Relative Power" = "blue",
-  "B5 Band Relative Power" = "green",
-  "B6 Band Relative Power" = "red"
+  "B4 Band Power" = "blue",
+  "B5 Band Power" = "green",
+  "B6 Band Power" = "red"
 )
 
 
@@ -402,11 +402,11 @@ p_combined <- ggplot() +
              aes(x = x, y = y, color = feature),
              size = 1.5, alpha = 0.4) +
   scale_color_manual(values = feature_colors,
-                     name = "Band Relative Power") +
+                     name = "Band Power") +
   scale_x_continuous(breaks = seq(20, 40, by = 2)) +  # Add this line for 2-week intervals
-  labs(title = "Combined Normative Models: Band Relative Power",
+  labs(title = "Combined Normative Models: Band Power",
        x = "Gestational Age (weeks)",
-       y = "Relative Power") +
+       y = "Band Power") +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
         legend.position = "right",
@@ -415,7 +415,7 @@ p_combined <- ggplot() +
         axis.text = element_text(size = 10))
 
 # Save combined plot
-filename_combined <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/normative_plots/abstract/combined_band_relative power_normative.png"
+filename_combined <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/combined_band power_normative.png"
 ggsave(filename_combined, p_combined, width = 12, height = 7, dpi = 300)
 
 cat("\nCombined plot saved to:", filename_combined, "\n")
@@ -432,4 +432,4 @@ cat("\nMean performance across features:\n")
 cat("Mean BIC:", round(mean(final_results$BIC), 2), "\n")
 cat("Mean AIC:", round(mean(final_results$AIC), 2), "\n")
 cat("Mean LogScore:", round(mean(final_results$LogScore_test, na.rm = TRUE), 3), "\n")
-cat("\nAll results saved to /home/INT/dienye.h/gamlss_normative_paper-main/harmonization/\n")
+cat("\nAll results saved to /home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/\n")

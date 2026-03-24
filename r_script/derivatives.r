@@ -18,8 +18,8 @@ library(tidyr)
 # ==============================================================================
 
 # Set paths
-models_file <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/final_fitted_models.rds"
-output_dir <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/derivatives_output/"
+models_file <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/final_fitted_models.rds"
+output_dir <- "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/rough/derivatives_output/"
 plot_dir <- file.path(output_dir, "plots")
 
 # Create output directories if they don't exist
