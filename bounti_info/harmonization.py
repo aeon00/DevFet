@@ -30,11 +30,11 @@ import os
 
 
 
-input_file = "/home/INT/dienye.h/python_files/combined_dataset/combined_qc_dataset_with_site.csv"
+input_file = "/home/INT/dienye.h/python_files/combined_dataset/all_sites_double_filt_combined.csv"
 
-output_dir = "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization"
+output_dir = "/home/INT/dienye.h/python_files/final_harmonization"
 
-plot_dir = "//home/INT/dienye.h/gamlss_normative_paper-main/harmonization/plots/by_cohort/"
+plot_dir = "/home/INT/dienye.h/python_files/final_harmonization/plots/by_cohort/"
 
 os.makedirs(output_dir, exist_ok=True)
 
@@ -86,7 +86,7 @@ data = data_df[brain_cols]
 
 scaler = StandardScaler()
 
-data_scaled = scaler.fit_transform(data)
+data_scaled = scaler.fit_transform(data.values)
 
 
 
@@ -107,8 +107,7 @@ data_array = data_scaled
 
 estimates, harmonized_data, s_data = harmonizationLearn(
 
-    data_array, covars=covars_harm, smooth_terms=["age"], return_s_data=True,
-ref_batch="0", eb=True
+    data_array, covars=covars_harm, smooth_terms=["age"], return_s_data=True, ref_batch="2", eb=True
 
 )
 
@@ -136,7 +135,7 @@ rescaled_harmonized_df = pd.DataFrame(harmonized_data_df, columns=brain_cols)
 
 harmonized_df = pd.concat([harmonized_df, rescaled_harmonized_df.add_suffix("_harm")], axis=1)
 
-harmonized_df.to_csv(os.path.join(output_dir, "harmonized_data_dhcp_marsfet.csv"), index=False)
+harmonized_df.to_csv(os.path.join(output_dir, "harmonized_data_all_sites.csv"), index=False)
 
 
 
@@ -144,246 +143,421 @@ harmonized_df.to_csv(os.path.join(output_dir, "harmonized_data_dhcp_marsfet.csv"
 
 
 
-#Plots
+# #Plots
 
-for col in brain_cols:
+# for col in brain_cols:
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6),
-sharey=True)
+#     fig, axes = plt.subplots(1, 2, figsize=(14, 6),
+# sharey=True)
 
-    #Scatter
+#     #Scatter
 
-    sns.scatterplot(ax=axes[0], x=data_df['gestational_age'], y=data_df[col],
-color='blue')
+#     sns.scatterplot(ax=axes[0], x=data_df['gestational_age'], y=data_df[col],
+# color='blue')
 
-    axes[0].set_title(f"Raw: {col} vs Gestational Age")
+#     axes[0].set_title(f"Raw: {col} vs Gestational Age")
 
-    axes[0].set_xlabel("Gestational Age")
+#     axes[0].set_xlabel("Gestational Age")
 
-    axes[0].set_ylabel(col)
-
-
-
-
-    sns.scatterplot(ax=axes[1], x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
-color='orange')
-
-    axes[1].set_title(f"Harmonized: {col} vs Gestational Age")
-
-    axes[1].set_xlabel("Gestational Age")
+#     axes[0].set_ylabel(col)
 
 
 
 
-    plt.tight_layout()
+#     sns.scatterplot(ax=axes[1], x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
+# color='orange')
 
-    plt.savefig(os.path.join(plot_dir, f"{col}_vs_age_side_by_side_by_cohort.png"), dpi=300)
+#     axes[1].set_title(f"Harmonized: {col} vs Gestational Age")
 
-    plt.close()
+#     axes[1].set_xlabel("Gestational Age")
 
-# Scatter plot for raw and harmonized data
 
-    plt.figure(figsize=(10, 6))
 
-    sns.scatterplot(x=data_df['gestational_age'], y=data_df[col], color='blue',
-label='Raw Data')
 
-    sns.scatterplot(x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
-color='orange', label='Harmonized Data')
+#     plt.tight_layout()
 
-    plt.title(f"Raw and Harmonized: {col} vs Gestational Age")
+#     plt.savefig(os.path.join(plot_dir, f"{col}_vs_age_side_by_side_by_cohort.png"), dpi=300)
 
-    plt.xlabel("Age")
+#     plt.close()
 
-    plt.ylabel(col)
+# # Scatter plot for raw and harmonized data
 
-    plt.legend()
+#     plt.figure(figsize=(10, 6))
 
-    plt.tight_layout()
+#     sns.scatterplot(x=data_df['gestational_age'], y=data_df[col], color='blue',
+# label='Raw Data')
 
-    plt.savefig(os.path.join(plot_dir, f"{col}_raw_and_harmonized_scatter_by_cohort.png"), dpi=300)
+#     sns.scatterplot(x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
+# color='orange', label='Harmonized Data')
 
-    plt.close()
+#     plt.title(f"Raw and Harmonized: {col} vs Gestational Age")
+
+#     plt.xlabel("Age")
+
+#     plt.ylabel(col)
+
+#     plt.legend()
+
+#     plt.tight_layout()
+
+#     plt.savefig(os.path.join(plot_dir, f"{col}_raw_and_harmonized_scatter_by_cohort.png"), dpi=300)
+
+#     plt.close()
 
     
 
-    #Boxplot
+#     #Boxplot
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6),
-sharey=True)
-
-
-
-
-    sns.boxplot(ax=axes[0], x=data_df['batch'], y=data_df[col],
-color='blue')
-
-    axes[0].set_title(f"Raw: {col} by cohort")
-
-    axes[0].set_xlabel("cohort")
-
-    axes[0].set_ylabel(col)
-
-    axes[0].tick_params(axis='x', rotation=45)
+#     fig, axes = plt.subplots(1, 2, figsize=(14, 6),
+# sharey=True)
 
 
 
 
-    sns.boxplot(ax=axes[1], x=data_df['batch'], y=harmonized_df[f"{col}_harm"],
-color='orange')
+#     sns.boxplot(ax=axes[0], x=data_df['batch'], y=data_df[col],
+# color='blue')
 
-    axes[1].set_title(f"Harmonized: {col} by cohort")
+#     axes[0].set_title(f"Raw: {col} by cohort")
 
-    axes[1].set_xlabel("cohort")
+#     axes[0].set_xlabel("cohort")
 
-    axes[1].tick_params(axis='x', rotation=45)
+#     axes[0].set_ylabel(col)
+
+#     axes[0].tick_params(axis='x', rotation=45)
 
 
 
 
+#     sns.boxplot(ax=axes[1], x=data_df['batch'], y=harmonized_df[f"{col}_harm"],
+# color='orange')
+
+#     axes[1].set_title(f"Harmonized: {col} by cohort")
+
+#     axes[1].set_xlabel("cohort")
+
+#     axes[1].tick_params(axis='x', rotation=45)
+
+
+
+
+#     plt.tight_layout()
+
+#     plt.savefig(os.path.join(plot_dir, f"{col}_boxplot_by_cohort.png"), dpi=300)
+
+#     plt.close()
+
+
+
+
+# #PCA plots
+
+# pca = PCA(n_components=3)
+
+# original_scaled = scaler.fit_transform(data)
+
+# combat_scaled = scaler.transform(harmonized_data)
+
+
+
+
+# pca_result_before = pca.fit_transform(original_scaled)
+
+# pca_result_after = pca.transform(combat_scaled)
+
+
+
+
+# #DataFrame with PCA results
+
+# df_pca_before = pd.DataFrame(
+
+#     {
+
+#         "PC1": pca_result_before[:, 0],
+
+#         "PC2": pca_result_before[:, 1],
+
+#         "PC3": pca_result_before[:, 2],
+
+#         "batch": data_df["batch"],
+
+#         "gestational_age": data_df["gestational_age"],
+
+#     }
+
+# )
+
+
+
+
+# df_pca_after = pd.DataFrame(
+
+#     {
+
+#         "PC1": pca_result_after[:, 0],
+
+#         "PC2": pca_result_after[:, 1],
+
+#         "PC3": pca_result_after[:, 2],
+
+#         "batch": data_df["batch"],
+
+#         "gestational_age": data_df["gestational_age"],
+
+#     }
+
+# )
+
+
+
+
+# fig, axes = plt.subplots(2, 2, figsize=(15, 15))
+
+
+
+
+# #Plot by batch
+
+# sns.scatterplot(
+
+#     ax=axes[0, 0], x="PC1", y="PC2",
+# hue="batch", data=df_pca_before, palette="viridis"
+
+# )
+
+# axes[0, 0].set_title("Raw Data (cohort)")
+
+
+
+
+# sns.scatterplot(
+
+#     ax=axes[0, 1], x="PC1", y="PC2",
+# hue="batch", data=df_pca_after, palette="viridis",
+# legend=False
+
+# )
+
+# axes[0, 1].set_title("After Harmonization (cohort)")
+
+
+
+
+# #Plot by age
+
+# scatter1 = axes[1, 0].scatter(
+
+#     df_pca_before["PC1"],
+
+#     df_pca_before["PC2"],
+
+#     c=df_pca_before["gestational_age"],
+
+#     cmap="viridis",
+
+# )
+
+# axes[1, 0].set_title("Raw Data (Gestational Age)")
+
+# plt.colorbar(scatter1, ax=axes[1, 0], label="Gestational Age (weeks)")
+
+
+
+
+# scatter2 = axes[1, 1].scatter(
+
+#     df_pca_after["PC1"], df_pca_after["PC2"], c=df_pca_after["gestational_age"], cmap="viridis"
+
+# )
+
+# axes[1, 1].set_title("After Harmonization (Gestational Age)")
+
+# plt.colorbar(scatter2, ax=axes[1, 1], label="Gestational Age (weeks)")
+
+
+
+
+# plt.tight_layout()
+
+# plt.savefig(
+
+#     os.path.join(plot_dir, "harmonization_effect_pca_by_cohort.png"), bbox_inches="tight", dpi=300
+
+# )
+
+# plt.close()
+
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.decomposition import PCA
+
+# ==========================================
+# GLOBAL AESTHETIC SETTINGS
+# ==========================================
+# Set a clean, modern theme for all plots
+sns.set_theme(style="ticks", context="talk", font_scale=0.9)
+
+# Define custom, professional hex colors
+COLOR_RAW = "#3498db"     # Modern soft blue
+COLOR_HARM = "#e67e22"    # Modern warm orange
+PALETTE_BATCH = "Set2"    # Nice qualitative palette for cohorts
+CMAP_AGE = "mako"         # Beautiful sequential colormap for age
+
+# ==========================================
+# BRAIN COLUMNS LOOP
+# ==========================================
+for col in brain_cols:
+    
+    # ------------------------------------------
+    # 1. Side-by-Side Scatter Plot
+    # ------------------------------------------
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
+
+    # Raw Scatter
+    sns.scatterplot(
+        ax=axes[0], x=data_df['gestational_age'], y=data_df[col],
+        color=COLOR_RAW, alpha=0.7, edgecolor='white', linewidth=0.5, s=60
+    )
+    axes[0].set_title(f"Raw: {col}", pad=15, fontweight='bold')
+    axes[0].set_xlabel("Gestational Age (weeks)", labelpad=10)
+    axes[0].set_ylabel(col, labelpad=10)
+
+    # Harmonized Scatter
+    sns.scatterplot(
+        ax=axes[1], x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
+        color=COLOR_HARM, alpha=0.7, edgecolor='white', linewidth=0.5, s=60
+    )
+    axes[1].set_title(f"Harmonized: {col}", pad=15, fontweight='bold')
+    axes[1].set_xlabel("Gestational Age (weeks)", labelpad=10)
+
+    sns.despine() # Removes top and right borders
     plt.tight_layout()
-
-    plt.savefig(os.path.join(plot_dir, f"{col}_boxplot_by_cohort.png"), dpi=300)
-
+    plt.savefig(os.path.join(plot_dir, f"{col}_vs_age_side_by_side_by_cohort.png"), dpi=300, bbox_inches='tight')
     plt.close()
 
+    # ------------------------------------------
+    # 2. Overlay Scatter Plot (Raw vs Harmonized)
+    # ------------------------------------------
+    plt.figure(figsize=(10, 6))
 
+    sns.scatterplot(
+        x=data_df['gestational_age'], y=data_df[col], 
+        color=COLOR_RAW, label='Raw Data', 
+        alpha=0.6, edgecolor='white', linewidth=0.5, s=70
+    )
+    sns.scatterplot(
+        x=data_df['gestational_age'], y=harmonized_df[f"{col}_harm"],
+        color=COLOR_HARM, label='Harmonized Data', 
+        alpha=0.6, edgecolor='white', linewidth=0.5, s=70
+    )
 
+    plt.title(f"Raw vs Harmonized: {col}", pad=15, fontweight='bold')
+    plt.xlabel("Gestational Age (weeks)", labelpad=10)
+    plt.ylabel(col, labelpad=10)
+    
+    # Clean up the legend
+    plt.legend(frameon=False, loc='best')
+    sns.despine()
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, f"{col}_raw_and_harmonized_scatter_by_cohort.png"), dpi=300, bbox_inches='tight')
+    plt.close()
 
-#PCA plots
+    # ------------------------------------------
+    # 3. Boxplots
+    # ------------------------------------------
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
 
+    # Raw Boxplot
+    sns.boxplot(
+        ax=axes[0], x=data_df['batch'], y=data_df[col],
+        color=COLOR_RAW, width=0.5, boxprops=dict(alpha=0.8), fliersize=3
+    )
+    axes[0].set_title(f"Raw by Cohort: {col}", pad=15, fontweight='bold')
+    axes[0].set_xlabel("Cohort", labelpad=10)
+    axes[0].set_ylabel(col, labelpad=10)
+    axes[0].tick_params(axis='x', rotation=45)
+
+    # Harmonized Boxplot
+    sns.boxplot(
+        ax=axes[1], x=data_df['batch'], y=harmonized_df[f"{col}_harm"],
+        color=COLOR_HARM, width=0.5, boxprops=dict(alpha=0.8), fliersize=3
+    )
+    axes[1].set_title(f"Harmonized by Cohort: {col}", pad=15, fontweight='bold')
+    axes[1].set_xlabel("Cohort", labelpad=10)
+    axes[1].tick_params(axis='x', rotation=45)
+
+    sns.despine()
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, f"{col}_boxplot_by_cohort.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+
+# ==========================================
+# PCA PLOTS
+# ==========================================
 pca = PCA(n_components=3)
-
-original_scaled = scaler.fit_transform(data)
-
+original_scaled = scaler.fit_transform(data.values)
 combat_scaled = scaler.transform(harmonized_data)
 
-
-
-
 pca_result_before = pca.fit_transform(original_scaled)
-
 pca_result_after = pca.transform(combat_scaled)
 
+# DataFrames with PCA results
+df_pca_before = pd.DataFrame({
+    "PC1": pca_result_before[:, 0], "PC2": pca_result_before[:, 1], "PC3": pca_result_before[:, 2],
+    "batch": data_df["batch"], "gestational_age": data_df["gestational_age"]
+})
 
+df_pca_after = pd.DataFrame({
+    "PC1": pca_result_after[:, 0], "PC2": pca_result_after[:, 1], "PC3": pca_result_after[:, 2],
+    "batch": data_df["batch"], "gestational_age": data_df["gestational_age"]
+})
 
+fig, axes = plt.subplots(2, 2, figsize=(16, 14))
 
-#DataFrame with PCA results
-
-df_pca_before = pd.DataFrame(
-
-    {
-
-        "PC1": pca_result_before[:, 0],
-
-        "PC2": pca_result_before[:, 1],
-
-        "PC3": pca_result_before[:, 2],
-
-        "batch": data_df["batch"],
-
-        "gestational_age": data_df["gestational_age"],
-
-    }
-
+# ------------------------------------------
+# Plot by Batch (Categorical)
+# ------------------------------------------
+sns.scatterplot(
+    ax=axes[0, 0], x="PC1", y="PC2", hue="batch", data=df_pca_before, 
+    palette=PALETTE_BATCH, alpha=0.8, edgecolor='white', s=60
 )
-
-
-
-
-df_pca_after = pd.DataFrame(
-
-    {
-
-        "PC1": pca_result_after[:, 0],
-
-        "PC2": pca_result_after[:, 1],
-
-        "PC3": pca_result_after[:, 2],
-
-        "batch": data_df["batch"],
-
-        "gestational_age": data_df["gestational_age"],
-
-    }
-
-)
-
-
-
-
-fig, axes = plt.subplots(2, 2, figsize=(15, 15))
-
-
-
-
-#Plot by batch
+axes[0, 0].set_title("Raw Data (By Cohort)", pad=15, fontweight='bold')
+axes[0, 0].legend(frameon=False, title="Cohort")
 
 sns.scatterplot(
-
-    ax=axes[0, 0], x="PC1", y="PC2",
-hue="batch", data=df_pca_before, palette="viridis"
-
+    ax=axes[0, 1], x="PC1", y="PC2", hue="batch", data=df_pca_after, 
+    palette=PALETTE_BATCH, alpha=0.8, edgecolor='white', s=60, legend=False
 )
+axes[0, 1].set_title("Harmonized Data (By Cohort)", pad=15, fontweight='bold')
 
-axes[0, 0].set_title("Raw Data (cohort)")
-
-
-
-
-sns.scatterplot(
-
-    ax=axes[0, 1], x="PC1", y="PC2",
-hue="batch", data=df_pca_after, palette="viridis",
-legend=False
-
-)
-
-axes[0, 1].set_title("After Harmonization (cohort)")
-
-
-
-
-#Plot by age
-
+# ------------------------------------------
+# Plot by Age (Continuous)
+# ------------------------------------------
+# Using ax.scatter for easier colorbar integration, but upgrading the styling
 scatter1 = axes[1, 0].scatter(
-
-    df_pca_before["PC1"],
-
-    df_pca_before["PC2"],
-
-    c=df_pca_before["gestational_age"],
-
-    cmap="viridis",
-
+    df_pca_before["PC1"], df_pca_before["PC2"],
+    c=df_pca_before["gestational_age"], cmap=CMAP_AGE, 
+    alpha=0.8, edgecolors='white', linewidth=0.5, s=60
 )
-
-axes[1, 0].set_title("Raw Data (Gestational Age)")
-
-plt.colorbar(scatter1, ax=axes[1, 0], label="Gestational Age (weeks)")
-
-
-
+axes[1, 0].set_title("Raw Data (By Age)", pad=15, fontweight='bold')
+cbar1 = plt.colorbar(scatter1, ax=axes[1, 0])
+cbar1.set_label("Gestational Age (weeks)", rotation=270, labelpad=15)
+cbar1.outline.set_visible(False) # Clean colorbar border
 
 scatter2 = axes[1, 1].scatter(
-
-    df_pca_after["PC1"], df_pca_after["PC2"], c=df_pca_after["gestational_age"], cmap="viridis"
-
+    df_pca_after["PC1"], df_pca_after["PC2"], 
+    c=df_pca_after["gestational_age"], cmap=CMAP_AGE,
+    alpha=0.8, edgecolors='white', linewidth=0.5, s=60
 )
+axes[1, 1].set_title("Harmonized Data (By Age)", pad=15, fontweight='bold')
+cbar2 = plt.colorbar(scatter2, ax=axes[1, 1])
+cbar2.set_label("Gestational Age (weeks)", rotation=270, labelpad=15)
+cbar2.outline.set_visible(False)
 
-axes[1, 1].set_title("After Harmonization (Gestational Age)")
-
-plt.colorbar(scatter2, ax=axes[1, 1], label="Gestational Age (weeks)")
-
-
-
-
-plt.tight_layout()
-
-plt.savefig(
-
-    os.path.join(plot_dir, "harmonization_effect_pca_by_cohort.png"), bbox_inches="tight", dpi=300
-
-)
-
+sns.despine()
+plt.tight_layout(pad=3.0)
+plt.savefig(os.path.join(plot_dir, "harmonization_effect_pca_by_cohort.png"), bbox_inches="tight", dpi=300)
 plt.close()

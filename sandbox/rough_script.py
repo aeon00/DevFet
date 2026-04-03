@@ -577,13 +577,164 @@
 
 
 
+# import pandas as pd
+
+# df = pd.read_csv('/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/harmonized_data_dhcp_marsfet.csv')
+
+# # Keep columns ending with "_harm" or specific columns
+# keep_columns = ["gestational_age", "participant_session", "batch"]
+# columns_to_keep = [col for col in df.columns if col.endswith('_harm') or col in keep_columns]
+
+# df_filtered = df[columns_to_keep]
+# df_filtered.to_csv('/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/dhcp_marsfet_harmonized_params_only.csv', index=False)
+
+# import pandas as pd
+
+# def analyze_band_powers(input_csv_path, output_csv_path):
+#     # 1. Load the CSV file
+#     df = pd.read_csv(input_csv_path)
+    
+#     # 2. Check if the required columns exist to prevent errors
+#     required_columns = [
+#         'band_power_B4_harm', 
+#         'band_power_B5_harm', 
+#         'band_power_B6_harm', 
+#         'analyze_folding_power_harm'
+#     ]
+#     for col in required_columns:
+#         if col not in df.columns:
+#             raise ValueError(f"Missing required column: {col}")
+
+#     # 3. Calculate what percentage of the analyzed folding power each band power takes
+#     df['pct_B4'] = (df['band_power_B4_harm'] / df['analyze_folding_power_harm']) * 100
+#     df['pct_B5'] = (df['band_power_B5_harm'] / df['analyze_folding_power_harm']) * 100
+#     df['pct_B6'] = (df['band_power_B6_harm'] / df['analyze_folding_power_harm']) * 100
+
+#     # 4. Calculate the percentage that the sum of all 3 band powers takes
+#     df['pct_sum_all_3'] = df['pct_B4'] + df['pct_B5'] + df['pct_B6']
+    
+#     # 5. Calculate the mean of all the values in the summed percentages column
+#     mean_of_summed_percentages = df['pct_sum_all_3'].mean()
+    
+#     # --- Displaying the results ---
+#     print("=== First 5 rows of the calculated percentages ===")
+#     print(df[['pct_B4', 'pct_B5', 'pct_B6', 'pct_sum_all_3']].head())
+    
+#     print("\n=== Final Result ===")
+#     print(f"Mean of the summed percentages (B4 + B5 + B6): {mean_of_summed_percentages:.2f}%")
+    
+#     # 6. Save the new dataframe with the calculated columns to a new CSV
+#     df.to_csv(output_csv_path, index=False)
+#     print(f"\nSuccessfully saved the detailed results to: {output_csv_path}")
+    
+#     return mean_of_summed_percentages
+
+# # ==========================================
+# # RUN THE CODE
+# # Replace these strings with your actual file paths
+# # ==========================================
+# if __name__ == "__main__":
+#     INPUT_CSV = "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/dhcp_marsfet_harmonized_params_only.csv"   # The file you are reading from
+#     OUTPUT_CSV = "/home/INT/dienye.h/python_files/rough/temp/analyzed_results.csv" # The new file that will be created
+    
+#     try:
+#         analyze_band_powers(INPUT_CSV, OUTPUT_CSV)
+#     except FileNotFoundError:
+#         print(f"Error: Could not find the file '{INPUT_CSV}'. Please check the file path.")
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+
+# import pandas as pd
+
+# def filter_qc_scores(input_csv, output_csv):
+#     # 1. Load the CSV file
+#     try:
+#         df = pd.read_csv(input_csv)
+#     except FileNotFoundError:
+#         print(f"Error: The file '{input_csv}' was not found.")
+#         return
+        
+#     # 2. Check if the 'qc_score' column exists to prevent errors
+#     if 'qc_score' not in df.columns:
+#         print("Error: The column 'qc_score' was not found in the CSV file.")
+#         print(f"Available columns are: {', '.join(df.columns)}")
+#         return
+
+#     # Store the original number of rows for the summary
+#     original_row_count = len(df)
+
+#     # 3. Filter the dataframe to keep only rows where qc_score is strictly greater than 2
+#     # If you also want to remove empty/NaN qc_scores, you can chain .dropna(subset=['qc_score'])
+#     filtered_df = df[df['qc_score'] > 2]
+
+#     # Calculate how many rows were removed
+#     filtered_row_count = len(filtered_df)
+#     removed_rows = original_row_count - filtered_row_count
+
+#     # 4. Save the filtered dataframe to a new CSV file
+#     filtered_df.to_csv(output_csv, index=False)
+    
+#     # Print a summary of the operation
+#     print(f"Filtering complete!")
+#     print(f"Original row count: {original_row_count}")
+#     print(f"Rows removed (qc_score <= 2): {removed_rows}")
+#     print(f"Remaining row count: {filtered_row_count}")
+#     print(f"Saved cleaned data to: '{output_csv}'")
+
+# if __name__ == "__main__":
+#     # ==========================================
+#     # SPECIFY YOUR INPUT AND OUTPUT PATHS HERE
+#     # ==========================================
+    
+#     INPUT_FILE = "/home/INT/dienye.h/Téléchargements/BCN_spangy_fet/spangy_fet/qc_bcn_combined.csv"       # Replace with your actual input file name
+#     OUTPUT_FILE = "/home/INT/dienye.h/Téléchargements/BCN_spangy_fet/spangy_fet/qc_filtered_bcn_combined.csv"   # Replace with your desired output file name
+    
+#     # ==========================================
+    
+#     filter_qc_scores(INPUT_FILE, OUTPUT_FILE)
+
 import pandas as pd
 
-df = pd.read_csv('/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/harmonized_data_dhcp_marsfet.csv')
+def combine_and_clean_data(file1_path, file2_path, output_path):
+    try:
+        # 1. Load both CSV files
+        print(f"Loading {file1_path}...")
+        df1 = pd.read_csv(file1_path)
+        
+        print(f"Loading {file2_path}...")
+        df2 = pd.read_csv(file2_path)
+        
+        # 2. Concatenate (stack) the DataFrames vertically
+        # ignore_index=True ensures the row numbers are reset continuously from 0 to the end
+        combined_df = pd.concat([df1, df2], ignore_index=True)
+        print(f"Combined data has {len(combined_df)} rows.")
+        
+        # 3. Drop the 'qc_score' column
+        # errors='ignore' prevents the script from crashing if the column is missing
+        if 'qc_score' in combined_df.columns:
+            combined_df = combined_df.drop(columns=['qc_score'])
+            print("Successfully dropped 'qc_score' column.")
+        else:
+            print("Notice: 'qc_score' column was not found in the combined data.")
+            
+        # 4. Save the combined and cleaned data to a new CSV
+        combined_df.to_csv(output_path, index=False)
+        print(f"Saved the final dataset to: {output_path}")
 
-# Keep columns ending with "_harm" or specific columns
-keep_columns = ["gestational_age", "participant_session", "batch"]
-columns_to_keep = [col for col in df.columns if col.endswith('_harm') or col in keep_columns]
+    except FileNotFoundError as e:
+        print(f"Error: Could not find one of the files. Details: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
-df_filtered = df[columns_to_keep]
-df_filtered.to_csv('/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/dhcp_marsfet_harmonized_params_only.csv', index=False)
+if __name__ == "__main__":
+    # ==========================================
+    # SPECIFY YOUR INPUT AND OUTPUT PATHS HERE
+    # ==========================================
+    
+    FILE_1 = "/home/INT/dienye.h/python_files/combined_dataset/bcn_chuv_filt_combined.csv"      # Replace with your first file's name
+    FILE_2 = "/home/INT/dienye.h/python_files/combined_dataset/combined_qc_dataset_with_site.csv"     # Replace with your second file's name
+    OUTPUT_FILE = "/home/INT/dienye.h/python_files/combined_dataset/all_sites_filt_combined.csv" # The new combined file to be created
+    
+    # ==========================================
+    
+    combine_and_clean_data(FILE_1, FILE_2, OUTPUT_FILE)
