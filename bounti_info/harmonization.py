@@ -37,6 +37,7 @@ output_dir = "/home/INT/dienye.h/python_files/final_harmonization"
 plot_dir = "/home/INT/dienye.h/python_files/final_harmonization/plots/by_cohort/"
 
 os.makedirs(output_dir, exist_ok=True)
+os.makedirs(plot_dir, exist_ok=True)
 
 
 

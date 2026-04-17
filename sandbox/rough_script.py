@@ -693,48 +693,104 @@
     
 #     filter_qc_scores(INPUT_FILE, OUTPUT_FILE)
 
-import pandas as pd
+# import pandas as pd
 
-def combine_and_clean_data(file1_path, file2_path, output_path):
-    try:
-        # 1. Load both CSV files
-        print(f"Loading {file1_path}...")
-        df1 = pd.read_csv(file1_path)
+# def combine_and_clean_data(file1_path, file2_path, output_path):
+#     try:
+#         # 1. Load both CSV files
+#         print(f"Loading {file1_path}...")
+#         df1 = pd.read_csv(file1_path)
         
-        print(f"Loading {file2_path}...")
-        df2 = pd.read_csv(file2_path)
+#         print(f"Loading {file2_path}...")
+#         df2 = pd.read_csv(file2_path)
         
-        # 2. Concatenate (stack) the DataFrames vertically
-        # ignore_index=True ensures the row numbers are reset continuously from 0 to the end
-        combined_df = pd.concat([df1, df2], ignore_index=True)
-        print(f"Combined data has {len(combined_df)} rows.")
+#         # 2. Concatenate (stack) the DataFrames vertically
+#         # ignore_index=True ensures the row numbers are reset continuously from 0 to the end
+#         combined_df = pd.concat([df1, df2], ignore_index=True)
+#         print(f"Combined data has {len(combined_df)} rows.")
         
-        # 3. Drop the 'qc_score' column
-        # errors='ignore' prevents the script from crashing if the column is missing
-        if 'qc_score' in combined_df.columns:
-            combined_df = combined_df.drop(columns=['qc_score'])
-            print("Successfully dropped 'qc_score' column.")
-        else:
-            print("Notice: 'qc_score' column was not found in the combined data.")
+#         # 3. Drop the 'qc_score' column
+#         # errors='ignore' prevents the script from crashing if the column is missing
+#         if 'qc_score' in combined_df.columns:
+#             combined_df = combined_df.drop(columns=['qc_score'])
+#             print("Successfully dropped 'qc_score' column.")
+#         else:
+#             print("Notice: 'qc_score' column was not found in the combined data.")
             
-        # 4. Save the combined and cleaned data to a new CSV
-        combined_df.to_csv(output_path, index=False)
-        print(f"Saved the final dataset to: {output_path}")
+#         # 4. Save the combined and cleaned data to a new CSV
+#         combined_df.to_csv(output_path, index=False)
+#         print(f"Saved the final dataset to: {output_path}")
 
-    except FileNotFoundError as e:
-        print(f"Error: Could not find one of the files. Details: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+#     except FileNotFoundError as e:
+#         print(f"Error: Could not find one of the files. Details: {e}")
+#     except Exception as e:
+#         print(f"An unexpected error occurred: {e}")
+
+# if __name__ == "__main__":
+#     # ==========================================
+#     # SPECIFY YOUR INPUT AND OUTPUT PATHS HERE
+#     # ==========================================
+    
+#     FILE_1 = "/home/INT/dienye.h/python_files/combined_dataset/bcn_chuv_filt_combined.csv"      # Replace with your first file's name
+#     FILE_2 = "/home/INT/dienye.h/python_files/combined_dataset/combined_qc_dataset_with_site.csv"     # Replace with your second file's name
+#     OUTPUT_FILE = "/home/INT/dienye.h/python_files/combined_dataset/all_sites_filt_combined.csv" # The new combined file to be created
+    
+#     # ==========================================
+    
+#     combine_and_clean_data(FILE_1, FILE_2, OUTPUT_FILE)
+
+import pandas as pd
+import os
+
+def clean_harmonized_data(input_csv, output_dir):
+    try:
+        print(f"Loading dataset: {input_csv}")
+        df = pd.read_csv(input_csv)
+        
+        # 1. Find all columns that end with '_harm'
+        harm_cols = [col for col in df.columns if col.endswith('_harm')]
+        
+        if not harm_cols:
+            print("Error: No columns ending in '_harm' were found in this file.")
+            return
+
+        # 2. Define the exact metadata columns you want to keep
+        desired_metadata = ['participant_session', 'gestational_age', 'batch']
+        
+        # Safely check which of those metadata columns actually exist in the CSV
+        actual_metadata = [col for col in desired_metadata if col in df.columns]
+        
+        if len(actual_metadata) < len(desired_metadata):
+            missing = set(desired_metadata) - set(actual_metadata)
+            print(f"Warning: Could not find these metadata columns: {missing}")
+
+        # 3. Create the new dataframe with metadata first, then the harmonized columns
+        df_cleaned = df[actual_metadata + harm_cols].copy()
+        
+        # 4. Rename columns by dropping the '_harm' suffix
+        # This will only affect the brain metrics; metadata columns remain untouched
+        df_cleaned.rename(columns=lambda x: x.replace('_harm', ''), inplace=True)
+        
+        # 5. Define output path and save
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, "harmonized_log_transform_all_sites_harm_parms_only.csv")
+        
+        df_cleaned.to_csv(output_file, index=False)
+        print(f"\nSuccess! Kept {len(actual_metadata)} metadata columns and {len(harm_cols)} brain metric columns.")
+        print(f"Saved cleaned file to: {output_file}")
+        
+        # Print a quick peek at the first few rows to verify
+        print("\nFirst 5 columns of the cleaned data:")
+        print(df_cleaned.head(0)) 
+
+    except FileNotFoundError:
+        print(f"Error: Could not find {input_csv}. Please check the path.")
 
 if __name__ == "__main__":
     # ==========================================
-    # SPECIFY YOUR INPUT AND OUTPUT PATHS HERE
+    # FILE PATHS
     # ==========================================
+    INPUT_FILE = "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/harmonized_log_trans_all_sites.csv"
+    OUTPUT_DIR = "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/"
     
-    FILE_1 = "/home/INT/dienye.h/python_files/combined_dataset/bcn_chuv_filt_combined.csv"      # Replace with your first file's name
-    FILE_2 = "/home/INT/dienye.h/python_files/combined_dataset/combined_qc_dataset_with_site.csv"     # Replace with your second file's name
-    OUTPUT_FILE = "/home/INT/dienye.h/python_files/combined_dataset/all_sites_filt_combined.csv" # The new combined file to be created
-    
-    # ==========================================
-    
-    combine_and_clean_data(FILE_1, FILE_2, OUTPUT_FILE)
+    clean_harmonized_data(INPUT_FILE, OUTPUT_DIR)

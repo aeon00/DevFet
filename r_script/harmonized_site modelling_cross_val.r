@@ -14,7 +14,7 @@ library(dplyr)
 # DATA LOADING AND PREPARATION
 # ============================================
 
-data <- as.data.frame(read.csv('/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/dhcp_marsfet_harmonized_params_only.csv'))
+data <- as.data.frame(read.csv('/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/dhcp_ref_harmonized_log_transform_all_sites_harm_parms_only.csv'))
 
 # ============================================
 # 5-FOLD CROSS-VALIDATION SETUP
@@ -32,29 +32,29 @@ all_fitted_models <- list()
 # ============================================
 
 rename_features <- function(df) {
-  colnames(df)[colnames(df) == "surface_area_cm2_harm"] <- "Surface Area cm2"
-  colnames(df)[colnames(df) == "analyze_folding_power_harm"] <- "Folding Power"
-  colnames(df)[colnames(df) == "B4_vertex_percentage_harm"] <- "B4 Vertex Percentage"
-  colnames(df)[colnames(df) == "B5_vertex_percentage_harm"] <- "B5 Vertex Percentage"
-  colnames(df)[colnames(df) == "B6_vertex_percentage_harm"] <- "B6 Vertex Percentage"
-  colnames(df)[colnames(df) == "band_parcels_B4_harm"] <- "Band_parcels B4"
-  colnames(df)[colnames(df) == "band_parcels_B5_harm"] <- "Band Parcels B5"
-  colnames(df)[colnames(df) == "band_parcels_B6_harm"] <- "Band Parcels B6"
-  colnames(df)[colnames(df) == "volume_ml_harm"] <- "Hemispheric Volume"
-  colnames(df)[colnames(df) == "gyrification_index_harm"] <- "Gyrification Index"
-  colnames(df)[colnames(df) == "hull_area_harm"] <- "Hull Area"
-  colnames(df)[colnames(df) == "B4_surface_area_harm"] <- "B4 Surface Area"
-  colnames(df)[colnames(df) == "B5_surface_area_harm"] <- "B5 Surface Area"
-  colnames(df)[colnames(df) == "B6_surface_area_harm"] <- "B6 Surface Area"
-  colnames(df)[colnames(df) == "B4_surface_area_percentage_harm"] <- "B4 Surface Area Percentage"
-  colnames(df)[colnames(df) == "B5_surface_area_percentage_harm"] <- "B5 Surface Area Percentage"
-  colnames(df)[colnames(df) == "B6_surface_area_percentage_harm"] <- "B6 Surface Area Percentage"
-  colnames(df)[colnames(df) == "band_power_B4_harm"] <- "B4 Band Power"
-  colnames(df)[colnames(df) == "band_power_B5_harm"] <- "B5 Band Power"
-  colnames(df)[colnames(df) == "band_power_B6_harm"] <- "B6 Band Power"
-  colnames(df)[colnames(df) == "B4_band_relative_power_harm"] <- "B4 Band Relative Power"
-  colnames(df)[colnames(df) == "B5_band_relative_power_harm"] <- "B5 Band Relative Power"
-  colnames(df)[colnames(df) == "B6_band_relative_power_harm"] <- "B6 Band Relative Power"
+  colnames(df)[colnames(df) == "surface_area_cm2"] <- "Surface Area cm2"
+  colnames(df)[colnames(df) == "analyze_folding_power"] <- "Folding Power"
+  colnames(df)[colnames(df) == "B4_vertex_percentage"] <- "B4 Vertex Percentage"
+  colnames(df)[colnames(df) == "B5_vertex_percentage"] <- "B5 Vertex Percentage"
+  colnames(df)[colnames(df) == "B6_vertex_percentage"] <- "B6 Vertex Percentage"
+  colnames(df)[colnames(df) == "band_parcels_B4"] <- "Band_parcels B4"
+  colnames(df)[colnames(df) == "band_parcels_B5"] <- "Band Parcels B5"
+  colnames(df)[colnames(df) == "band_parcels_B6"] <- "Band Parcels B6"
+  colnames(df)[colnames(df) == "volume_ml"] <- "Hemispheric Volume"
+  colnames(df)[colnames(df) == "gyrification_index"] <- "Gyrification Index"
+  colnames(df)[colnames(df) == "hull_area"] <- "Hull Area"
+  colnames(df)[colnames(df) == "B4_surface_area"] <- "B4 Surface Area"
+  colnames(df)[colnames(df) == "B5_surface_area"] <- "B5 Surface Area"
+  colnames(df)[colnames(df) == "B6_surface_area"] <- "B6 Surface Area"
+  colnames(df)[colnames(df) == "B4_surface_area_percentage"] <- "B4 Surface Area Percentage"
+  colnames(df)[colnames(df) == "B5_surface_area_percentage"] <- "B5 Surface Area Percentage"
+  colnames(df)[colnames(df) == "B6_surface_area_percentage"] <- "B6 Surface Area Percentage"
+  colnames(df)[colnames(df) == "band_power_B4"] <- "B4 Band Power"
+  colnames(df)[colnames(df) == "band_power_B5"] <- "B5 Band Power"
+  colnames(df)[colnames(df) == "band_power_B6"] <- "B6 Band Power"
+  colnames(df)[colnames(df) == "B4_band_relative_power"] <- "B4 Band Relative Power"
+  colnames(df)[colnames(df) == "B5_band_relative_power"] <- "B5 Band Relative Power"
+  colnames(df)[colnames(df) == "B6_band_relative_power"] <- "B6 Band Relative Power"
   return(df)
 }
 
@@ -90,31 +90,80 @@ y_values <- list("Surface Area cm2", "Folding Power", "B4 Vertex Percentage", "B
                 "B4 Band Power", "B5 Band Power", "B6 Band Power",
                 "B4 Band Relative Power", "B5 Band Relative Power", "B6 Band Relative Power")
 
+# # ============================================
+# # MAIN CROSS-VALIDATION LOOP
+# # ============================================
+
+# cat("Starting 5-fold cross-validation...\n")
+# cat("================================================\n")
+
+# for (feature in y_values) {
+#   cat("\nProcessing feature:", feature, "\n")
+#   cat("--------------------------------\n")
+  
+#   # Store fold-specific results for this feature
+#   fold_results <- data.frame()
+  
+#   for (fold_num in 1:5) {
+#     cat("  Fold", fold_num, "of 5...\n")
+    
+#     # Split data
+#     test_indices <- folds[[fold_num]]
+#     train_indices <- setdiff(1:nrow(data), test_indices)
+    
+#     df_train <- data[train_indices, ]
+#     df_test <- data[test_indices, ]
+    
+#     # Rename features
+#     df_train <- rename_features(df_train)
+#     df_test <- rename_features(df_test)
+    
+#     # Extract x and y
+#     x_train <- df_train$gestational_age
+#     y_train <- df_train[[feature]]
+#     x_test <- df_test$gestational_age
+#     y_test <- df_test[[feature]]
+    
+#     # Skip if insufficient data
+#     if (length(y_train) < 20 || length(y_test) < 5) {
+#       cat("    Skipping - insufficient data\n")
+#       next
+#     }
+
+
 # ============================================
-# MAIN CROSS-VALIDATION LOOP
+# MAIN 20-ROUND STRATIFIED SPLIT LOOP
 # ============================================
 
-cat("Starting 5-fold cross-validation...\n")
+cat("Starting 20 rounds of STRATIFIED 80/20 splits...\n")
 cat("================================================\n")
 
 for (feature in y_values) {
   cat("\nProcessing feature:", feature, "\n")
   cat("--------------------------------\n")
   
-  # Store fold-specific results for this feature
-  fold_results <- data.frame()
+  # Store round-specific results for this feature
+  round_results <- data.frame()
   
-  for (fold_num in 1:5) {
-    cat("  Fold", fold_num, "of 5...\n")
+  for (round_num in 1:20) {
+    cat("  Round", round_num, "of 20...\n")
     
-    # Split data
-    test_indices <- folds[[fold_num]]
-    train_indices <- setdiff(1:nrow(data), test_indices)
+    # 1. Create a Stratified Split based on gestational_age
+    # p = 0.8 tells it to put 80% in the training set
+    # list = FALSE ensures it returns a clean vector of row numbers
+    train_indices <- createDataPartition(data$gestational_age, p = 0.8, groups=15, list = FALSE)
     
+    # Convert it to a standard vector (caret returns a matrix-like object by default)
+    train_indices <- as.vector(train_indices)
+    
+    # 2. Assign the remaining 20% to the test set
+    test_indices <- setdiff(seq_len(nrow(data)), train_indices)
+    
+    # 3. Split the data
     df_train <- data[train_indices, ]
     df_test <- data[test_indices, ]
     
-    # Rename features
+    # Rename features (assuming you have this function defined elsewhere)
     df_train <- rename_features(df_train)
     df_test <- rename_features(df_test)
     
@@ -170,12 +219,13 @@ for (feature in y_values) {
                  family = shash(),
                  optimizer = 'efs',
                  data = df_train)
-      
+
+
       # Evaluate on test set
       test_data <- data.frame(x_train = x_test, y_train = y_test)
       
       models <- list(m1a = m1a, m1b = m1b, m1c = m1c, m1d = m1d, m1e = m1e)
-      model_names <- c("m1a", "m1b", "m1c", "m1d", "m1e")
+      model_names <- c("m1a", "m1b", "m1c", "m1d", "m1e", "m1f")
       
       for (i in 1:length(models)) {
         model <- models[[i]]
@@ -191,10 +241,10 @@ for (feature in y_values) {
         log_score <- mean(test_scores$log_densities, na.rm = TRUE)
         
         # Store results
-        fold_results <- rbind(fold_results, data.frame(
+        round_results <- rbind(round_results, data.frame(
           Feature = feature,
           Model = model_name,
-          Fold = fold_num,
+          Fold = round_num,
           BIC = bic_val,
           AIC = aic_val,
           LogScore = log_score
@@ -202,32 +252,8 @@ for (feature in y_values) {
       }
       
     }, error = function(e) {
-      cat("    Error in fold", fold_num, ":", e$message, "\n")
+      cat("    Error in fold", round_num, ":", e$message, "\n")
     })
-  }
-  
-  # Aggregate results across folds for this feature
-  if (nrow(fold_results) > 0) {
-    feature_summary <- fold_results %>%
-      group_by(Feature, Model) %>%
-      summarise(
-        BIC_mean = mean(BIC, na.rm = TRUE),
-        BIC_sd = sd(BIC, na.rm = TRUE),
-        AIC_mean = mean(AIC, na.rm = TRUE),
-        AIC_sd = sd(AIC, na.rm = TRUE),
-        LogScore_mean = mean(LogScore, na.rm = TRUE),
-        LogScore_sd = sd(LogScore, na.rm = TRUE),
-        n_folds = n(),
-        .groups = 'drop'
-      )
-    
-    cv_results <- rbind(cv_results, feature_summary)
-    
-    # Print summary for this feature
-    cat("\n  Summary for", feature, ":\n")
-    print(feature_summary %>% 
-            arrange(desc(LogScore_mean)) %>%
-            select(Model, BIC_mean, AIC_mean, LogScore_mean))
   }
 }
 
@@ -250,11 +276,11 @@ print(table(best_models$Model))
 
 # Save CV results
 write.csv(cv_results, 
-          "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/cv_results_summary.csv",
+          "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/cv_results_summary.csv",
           row.names = FALSE)
 
 write.csv(best_models,
-          "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/best_models_cv.csv",
+          "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/best_models_cv.csv",
           row.names = FALSE)
 
 # ============================================
@@ -267,7 +293,7 @@ cat("================================================\n")
 
 # Split full dataset for final training (70/30 split)
 set.seed(456)
-train_idx_final <- createDataPartition(data$gestational_age, p = 0.7, list = FALSE)
+train_idx_final <- createDataPartition(data$gestational_age, p = 0.8, groups=15, list = FALSE)
 df_train_final <- rename_features(data[train_idx_final, ])
 df_test_final <- rename_features(data[-train_idx_final, ])
 
@@ -330,12 +356,12 @@ for (i in 1:nrow(best_models)) {
 
 # Save final results
 write.csv(final_results,
-          "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/final_model_performance.csv",
+          "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/final_model_performance.csv",
           row.names = FALSE)
 
 # Save final models
 saveRDS(final_models,
-        "/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/final_fitted_models.rds")
+        "/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/final_fitted_models.rds")
 
 # ============================================
 # GENERATE NORMATIVE PLOTS
@@ -345,7 +371,7 @@ cat("\n================================================\n")
 cat("GENERATING NORMATIVE PLOTS\n")
 cat("================================================\n")
 
-dir.create("/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/normative_plots",
+dir.create("/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/normative_plots",
            showWarnings = FALSE, recursive = TRUE)
 
 for (feature in names(final_models)) {
@@ -416,7 +442,7 @@ for (feature in names(final_models)) {
           legend.position = "right")
   
   # Save plot
-  filename <- paste0("/home/INT/dienye.h/gamlss_normative_paper-main/harmonization/normative_plots/",
+  filename <- paste0("/home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref/normative_plots/",
                     gsub(" ", "_", feature), "_normative.png")
   ggsave(filename, p, width = 10, height = 6, dpi = 300)
 }
@@ -434,4 +460,4 @@ cat("\nMean performance across features:\n")
 cat("Mean BIC:", round(mean(final_results$BIC), 2), "\n")
 cat("Mean AIC:", round(mean(final_results$AIC), 2), "\n")
 cat("Mean LogScore:", round(mean(final_results$LogScore_test, na.rm = TRUE), 3), "\n")
-cat("\nAll results saved to /home/INT/dienye.h/gamlss_normative_paper-main/harmonization/\n")
+cat("\nAll results saved to /home/INT/dienye.h/python_files/final_harmonization/log_transform/dhcp_ref\n")
