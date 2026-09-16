@@ -19,7 +19,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-RESULTS_DIR = "/envau/work/meca/users/dienye.h/B7_analysis/smoothing_effect/"
+RESULTS_DIR = "/home/INT/dienye.h/python_files/noise_test/"
 SMOOTHING_VALUES = [0, 5, 10, 20]
 
 
@@ -82,30 +82,40 @@ def summarise(df):
 # ----------------------- figures -----------------------------------------
 
 def plot_afp(df, agg, out_stem):
-    """AFP vs smoothing: thin per-subject trajectories + mean ± SEM."""
+    """AFP vs smoothing: thin per-subject trajectories + mean ± SEM.
+
+    Uses categorical (evenly spaced) x positions so the smoothing levels
+    are visually equidistant regardless of their numeric spacing.
+    """
     fig, ax = plt.subplots(figsize=(4.2, 3.4))
+
+    # Map each smoothing value to a categorical x position.
+    xpos = {s: i for i, s in enumerate(SMOOTHING_VALUES)}
 
     # Per-subject (per-hemisphere) trajectories in light grey.
     for subj, sub_df in df.groupby("subject"):
         sub_df = sub_df.sort_values("smoothing_iter")
+        x = sub_df["smoothing_iter"].map(xpos)
         ax.plot(
-            sub_df["smoothing_iter"], sub_df["afp"],
+            x, sub_df["afp"],
             color="0.7", linewidth=0.5, alpha=0.5, zorder=1,
         )
 
     # Group mean ± SEM on top.
+    x_agg = agg["smoothing_iter"].map(xpos)
     ax.errorbar(
-        agg["smoothing_iter"], agg["afp_mean"], yerr=agg["afp_sem"],
+        x_agg, agg["afp_mean"], yerr=agg["afp_sem"],
         marker="o", markersize=5.5, linewidth=1.6,
         color="#08519c", ecolor="#08519c",
         capsize=3, capthick=1.0, zorder=3,
-        label=f"Mean ± SEM (n={int(agg['n'].iloc[0])})",
+        label="Total folding power units",
     )
 
     ax.set_xlabel("Laplacian smoothing iterations")
-    ax.set_ylabel("Analyzed folding power (AFP)")
-    ax.set_xticks(SMOOTHING_VALUES)
-    ax.set_xlim(-1.5, max(SMOOTHING_VALUES) + 1.5)
+    ax.set_ylabel("Total folding power")
+    ax.set_xticks(list(xpos.values()))
+    ax.set_xticklabels([str(s) for s in SMOOTHING_VALUES])
+    ax.set_xlim(-0.4, len(SMOOTHING_VALUES) - 0.6)
     ax.margins(y=0.05)
     ax.legend(loc="best")
 
@@ -116,20 +126,23 @@ def plot_afp(df, agg, out_stem):
 
 
 def plot_bands(agg, out_stem):
-    """B4 / B5 / B6 mean ± SEM vs smoothing iterations."""
+    """B4 / B5 / B6 mean ± SEM vs smoothing iterations.
+
+    Uses categorical (evenly spaced) x positions so all three markers
+    sit exactly on the tick at each smoothing level.
+    """
     fig, ax = plt.subplots(figsize=(4.6, 3.4))
 
     # Colorblind-friendly (Okabe–Ito).
-    palette = {"B4": "#0072B2", "B5": "#009E73", "B6": "#D55E00"}
+    palette = {"B4": "#0072B2", "B5": "#009E73", "B6": "#D62728"}
     markers = {"B4": "o", "B5": "s", "B6": "^"}
 
-    # Slight x-jitter so error bars don't overlap exactly.
-    jitter = {"B4": -0.35, "B5": 0.0, "B6": 0.35}
+    xpos = {s: i for i, s in enumerate(SMOOTHING_VALUES)}
+    x_agg = agg["smoothing_iter"].map(xpos).values
 
     for band in ("B4", "B5", "B6"):
-        x = agg["smoothing_iter"].values + jitter[band]
         ax.errorbar(
-            x, agg[f"{band}_mean"], yerr=agg[f"{band}_sem"],
+            x_agg, agg[f"{band}_mean"], yerr=agg[f"{band}_sem"],
             marker=markers[band], markersize=5.5, linewidth=1.6,
             color=palette[band], ecolor=palette[band],
             capsize=3, capthick=1.0, label=band,
@@ -137,8 +150,9 @@ def plot_bands(agg, out_stem):
 
     ax.set_xlabel("Laplacian smoothing iterations")
     ax.set_ylabel("Band power")
-    ax.set_xticks(SMOOTHING_VALUES)
-    ax.set_xlim(-1.5, max(SMOOTHING_VALUES) + 1.5)
+    ax.set_xticks(list(xpos.values()))
+    ax.set_xticklabels([str(s) for s in SMOOTHING_VALUES])
+    ax.set_xlim(-0.4, len(SMOOTHING_VALUES) - 0.6)
     ax.margins(y=0.05)
     ax.legend(title="Frequency band", loc="best")
 
